@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Omnia AI: chat, code, images and videos in one place</title>
+<meta name="description" content="Omnia is one AI for everything. Chat in any language, build working apps, create images and make videos.">
+<meta name="theme-color" content="#100e24">
+<meta property="og:title" content="Omnia AI">
+<meta property="og:description" content="Chat, code, images and videos in one place.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🪐%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f4fb; --panel:#ffffff; --ink:#15132b; --mute:#6a6784; --line:#e2e0f0;
+  --a1:#ff6b4a; --a2:#d946ef; --a3:#4f6bff; --grad:linear-gradient(120deg,var(--a1),var(--a2) 55%,var(--a3));
+  --bot:#ffffff; --code:#13112a; --codeink:#e9e6ff; --soft:#efedfa;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --bg:#100e24; --panel:#1b1838; --ink:#f1efff; --mute:#9d99c4; --line:#2e2a57; --bot:#1b1838; --code:#0a0919; --soft:#221f45; }
+}
+:root[data-theme="dark"]{ --bg:#100e24; --panel:#1b1838; --ink:#f1efff; --mute:#9d99c4; --line:#2e2a57; --bot:#1b1838; --code:#0a0919; --soft:#221f45; }
+*,*::before,*::after{box-sizing:inherit}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:"Figtree",system-ui,sans-serif;font-size:16px}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+button:focus-visible,textarea:focus-visible,iframe:focus-visible,a:focus-visible{outline:3px solid var(--a3);outline-offset:2px}
+.view{display:none;height:100%}.view.on{display:flex}
+.mark{width:38px;height:38px;border-radius:13px;background:var(--grad);display:grid;place-items:center;flex:none}
+.mark svg{width:24px;height:24px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand b{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:21px;letter-spacing:-.3px}
+.brand small{display:block;color:var(--mute);font-size:12px;margin-top:1px}
+.pill{padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--panel);font-size:13px;font-weight:700}
+.btn{padding:12px 20px;border-radius:999px;background:var(--grad);color:#fff;font-weight:700;box-shadow:0 6px 20px #d946ef33}
+.btn:disabled{opacity:.5;box-shadow:none}
+.btn.ghost{background:var(--soft);color:var(--ink);border:1px solid var(--line);box-shadow:none}
+.btn.big{padding:16px 30px;font-size:18px}
+.sp{flex:1}
+
+/* ---------- landing ---------- */
+#landing{flex-direction:column;overflow-y:auto;position:relative}
+.lnav{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;max-width:1100px;width:100%;margin:0 auto}
+.lhero{position:relative;text-align:center;padding:56px 20px 36px;max-width:820px;margin:0 auto}
+.lhero .glow{position:absolute;left:50%;top:-30px;width:520px;max-width:120%;aspect-ratio:1;transform:translateX(-50%);background:radial-gradient(circle,#d946ef55,#4f6bff22 45%,transparent 68%);filter:blur(10px);z-index:0;animation:float 6s ease-in-out infinite}
+@keyframes float{50%{transform:translateX(-50%) translateY(14px) scale(1.05)}}
+.lhero>*:not(.glow){position:relative;z-index:1}
+.lhero h1{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:clamp(40px,9vw,76px);line-height:1.02;margin:0 0 16px;letter-spacing:-1.5px}
+.lhero p{font-size:clamp(17px,3.4vw,21px);line-height:1.5;color:var(--mute);margin:0 auto 26px;max-width:560px}
+.langs{margin-top:18px;color:var(--mute);font-size:14px}
+.lgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;max-width:1100px;width:100%;margin:0 auto;padding:10px 20px 30px}
+.card{display:flex;flex-direction:column;gap:8px;text-align:left;padding:20px;border-radius:24px;background:var(--panel);border:1px solid var(--line);transition:transform .15s,border-color .15s}
+.card:hover{transform:translateY(-3px);border-color:var(--a2)}
+.card .ic{width:46px;height:46px;border-radius:15px;display:grid;place-items:center;font-size:23px;background:var(--soft)}
+.card b{font-family:"Bricolage Grotesque",sans-serif;font-size:20px}
+.card span.d{color:var(--mute);font-size:15px;line-height:1.45}
+.lfoot{margin-top:auto;text-align:center;color:var(--mute);font-size:13px;padding:24px 20px}
+
+/* ---------- app shell ---------- */
+#app{flex-direction:column;max-width:1180px;margin:0 auto;width:100%}
+#side{display:contents}
+.top{display:flex;align-items:center;gap:10px;padding:12px 16px;order:0}
+main{flex:1;min-height:0;position:relative;order:1;display:flex;flex-direction:column}
+nav{order:2;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:8px 12px 10px;border-top:1px solid var(--line);background:var(--bg)}
+nav button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 0;border-radius:14px;font-size:12px;font-weight:700;color:var(--mute)}
+nav button span{font-size:20px}
+nav button.on{background:var(--panel);color:var(--ink);box-shadow:0 0 0 1px var(--line) inset}
+.homebtn{display:none}
+.panel{display:none;flex:1;min-height:0;flex-direction:column}
+.panel.on{display:flex}
+@media (min-width:900px){
+  #app{flex-direction:row}
+  #side{display:flex;flex-direction:column;gap:18px;width:232px;flex:none;padding:18px 14px;border-right:1px solid var(--line)}
+  .top{padding:0 6px}
+  nav{display:flex;flex-direction:column;gap:6px;padding:0;border:0;background:none}
+  nav button{flex-direction:row;gap:12px;padding:12px 14px;font-size:15px}
+  .homebtn{display:block;margin-top:auto}
+  #newchat{display:none}
+}
+
+/* chat */
+#msgs{flex:1;overflow-y:auto;padding:8px 16px 16px;display:flex;flex-direction:column;gap:12px}
+.hero{margin:auto;text-align:center;max-width:460px;padding:10px}
+.orb{width:92px;height:92px;border-radius:50%;margin:0 auto 14px;background:radial-gradient(circle at 32% 28%,#fff8,transparent 40%),var(--grad);box-shadow:0 0 60px #d946ef66;animation:orb 4s ease-in-out infinite}
+@keyframes orb{50%{transform:translateY(-8px) scale(1.04)}}
+.hero h2{font-family:"Bricolage Grotesque",sans-serif;font-size:30px;margin:0 0 6px;letter-spacing:-.5px}
+.hero p{margin:0 0 16px;color:var(--mute);line-height:1.45}
+.starts{display:flex;flex-direction:column;gap:8px}
+.starts button,.chips button{padding:11px 14px;border-radius:14px;border:1px solid var(--line);background:var(--panel);text-align:left;font-weight:500;font-size:15px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{padding:8px 13px;border-radius:999px;font-size:14px}
+.chips button.on{border-color:var(--a2);background:var(--soft)}
+.m{max-width:90%;padding:11px 14px;border-radius:18px;line-height:1.5;overflow-wrap:anywhere}
+.m.u{align-self:flex-end;background:var(--grad);color:#fff;border-bottom-right-radius:6px;white-space:pre-wrap}
+.m.b{align-self:flex-start;background:var(--bot);border:1px solid var(--line);border-bottom-left-radius:6px}
+.m.b p{margin:0 0 8px}.m.b p:last-child{margin:0}
+.m.b pre{margin:8px 0;padding:11px;border-radius:12px;background:var(--code);color:var(--codeink);overflow-x:auto;font-size:13px}
+.m.b code{font-family:ui-monospace,Menlo,monospace;font-size:.9em;background:var(--soft);padding:1px 5px;border-radius:5px}
+.m.b pre code{background:none;padding:0}
+.m.b ul,.m.b ol{margin:4px 0 8px;padding-left:22px}
+.tl{align-self:flex-start;margin-top:-6px}
+.tl button{font-size:12px;color:var(--mute);padding:4px 8px}
+.dots{display:inline-flex;gap:4px}.dots i{width:7px;height:7px;border-radius:50%;background:var(--mute);animation:bn 1s infinite}.dots i:nth-child(2){animation-delay:.15s}.dots i:nth-child(3){animation-delay:.3s}
+@keyframes bn{50%{transform:translateY(-5px);opacity:.4}}
+.composer{display:flex;align-items:flex-end;gap:8px;padding:8px 12px}
+textarea{flex:1;resize:none;max-height:140px;padding:12px 14px;border-radius:18px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:inherit;line-height:1.4}
+.round{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;flex:none;font-size:19px;border:1px solid var(--line);background:var(--panel)}
+.round.go{background:var(--grad);border:0;color:#fff}
+.round.rec{background:var(--a1);color:#fff;animation:bn 1s infinite}
+.note{text-align:center;color:var(--mute);font-size:12px;padding:0 12px 6px}
+
+/* studios */
+.studio{flex:1;overflow-y:auto;padding:4px 16px 18px;display:flex;flex-direction:column;gap:14px}
+.studio h2{font-family:"Bricolage Grotesque",sans-serif;font-size:26px;margin:2px 0 0;letter-spacing:-.4px}
+.studio .sub{margin:4px 0 0;color:var(--mute);font-size:15px}
+.ctrl{display:flex;flex-direction:column;gap:12px}
+.box{display:flex;flex-direction:column;gap:12px;padding:14px;border-radius:22px;background:var(--panel);border:1px solid var(--line)}
+.box textarea{border:0;background:transparent;padding:4px;min-height:84px;max-height:220px}
+.box textarea:focus-visible{outline:none}
+.bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--soft)}
+.seg button{padding:8px 14px;font-size:14px;font-weight:700;color:var(--mute)}
+.seg button.on{background:var(--ink);color:var(--bg)}
+.out{display:flex;flex-direction:column;gap:12px;min-width:0}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;padding:34px 20px;border-radius:22px;border:1.5px dashed var(--line);color:var(--mute)}
+.empty .ic{font-size:34px}
+@media (min-width:900px){
+  .studio{display:grid;grid-template-columns:minmax(0,380px) minmax(0,1fr);gap:20px;align-content:start;padding:18px 22px}
+  .ctrl{position:sticky;top:0;align-self:start}
+}
+.frame{width:100%;border:1px solid var(--line);border-radius:20px;background:#fff;overflow:hidden}
+.frame iframe{display:block;width:100%;height:100%;border:0;background:#fff}
+.frame.code{height:min(66vh,560px)}
+.frame.vid{background:#000;margin:0 auto}
+.imgbox{width:100%;aspect-ratio:1;border-radius:20px;border:1px solid var(--line);background:var(--panel);overflow:hidden}
+.imgbox img{width:100%;height:100%;display:block}
+pre.src{margin:0;padding:14px;border-radius:20px;background:var(--code);color:var(--codeink);overflow:auto;max-height:min(66vh,560px);font-size:12.5px;line-height:1.5}
+.wait{display:flex;flex-direction:column;gap:10px;align-items:center;padding:34px 10px;border-radius:20px;border:1px dashed var(--line);color:var(--mute);text-align:center}
+.shim{width:70%;height:8px;border-radius:4px;background:linear-gradient(90deg,var(--line),var(--a2),var(--line));background-size:200% 100%;animation:sh 1.2s linear infinite}
+@keyframes sh{to{background-position:-200% 0}}
+.err{padding:12px 14px;border-radius:14px;background:#ff6b4a22;border:1px solid var(--a1);font-size:14px}
+.ref{display:flex;flex-direction:column;gap:10px;padding:12px;border-radius:16px;background:var(--soft);border:1px solid var(--line)}
+.ref .hint{color:var(--mute);font-size:13px;line-height:1.4}
+.thumbs{display:flex;gap:6px;overflow-x:auto}
+.thumbs img{height:58px;width:auto;border-radius:9px;border:1px solid var(--line);flex:none}
+.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font-weight:700;font-size:14px;opacity:0;transition:opacity .25s;pointer-events:none;max-width:90%;text-align:center;z-index:9}
+.toast.on{opacity:1}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<!-- ============ Landing ============ -->
+<div class="view on" id="landing">
+  <div style="display:flex;flex-direction:column;width:100%;min-height:100%">
+    <header class="lnav">
+      <div class="brand"><div class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(-25 12 12)"/></svg></div><b>Omnia</b></div>
+      <button class="pill" data-open="chat">Open app</button>
+    </header>
+    <section class="lhero">
+      <div class="glow" aria-hidden="true"></div>
+      <h1>One AI for everything.</h1>
+      <p>Chat in any language, build working apps, draw images and make videos. All in one place.</p>
+      <button class="btn big" data-open="chat">Start creating</button>
+      <div class="langs">English · हिन्दी · Español · العربية · Français · and more</div>
+    </section>
+    <section class="lgrid">
+      <button class="card" data-open="chat"><div class="ic">💬</div><b>Chat</b><span class="d">Ask anything in your own language. Get clear answers, ideas and help.</span></button>
+      <button class="card" data-open="code"><div class="ic">⌨️</div><b>Code</b><span class="d">Describe an app or game. It is built and runs live in front of you.</span></button>
+      <button class="card" data-open="image"><div class="ic">🎨</div><b>Image</b><span class="d">Turn words into sharp vector art in six styles. Save as PNG.</span></button>
+      <button class="card" data-open="video"><div class="ic">🎬</div><b>Video</b><span class="d">Make animated clips, even from a reference video. Save as MP4.</span></button>
+    </section>
+    <footer class="lfoot">AI can make mistakes. Check important facts.</footer>
+  </div>
+</div>
+
+<!-- ============ App ============ -->
+<div class="view" id="app">
+  <aside id="side">
+    <div class="top">
+      <div class="brand"><div class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(-25 12 12)"/></svg></div><div><b>Omnia</b><small>One AI for everything</small></div></div>
+      <div class="sp"></div>
+      <button class="pill" id="newchat">New chat</button>
+      <button class="pill" id="home-m">Home</button>
+    </div>
+    <nav aria-label="Studios" id="nav">
+      <button class="on" data-t="chat"><span>💬</span>Chat</button>
+      <button data-t="code"><span>⌨️</span>Code</button>
+      <button data-t="image"><span>🎨</span>Image</button>
+      <button data-t="video"><span>🎬</span>Video</button>
+    </nav>
+    <button class="pill homebtn" id="home-d">Back to home</button>
+  </aside>
+
+  <main>
+    <section class="panel on" id="p-chat">
+      <div id="msgs" aria-live="polite"></div>
+      <div class="composer">
+        <button class="round" id="mic" aria-label="Speak" hidden>🎤</button>
+        <textarea id="in" rows="1" placeholder="Ask Omnia anything..." aria-label="Message"></textarea>
+        <button class="round go" id="send" aria-label="Send">➤</button>
+      </div>
+      <div class="note">AI can make mistakes. Check important facts.</div>
+    </section>
+
+    <section class="panel" id="p-code">
+      <div class="studio">
+        <div class="ctrl">
+          <div><h2>Code Studio</h2><p class="sub">Describe an app, game or website. Omnia builds it and runs it live.</p></div>
+          <div class="box">
+            <textarea id="code-in" placeholder="Example: a neon snake game with score"></textarea>
+            <div class="chips" id="code-chips"></div>
+            <div class="bar"><button class="btn" id="code-go">Build it</button></div>
+          </div>
+        </div>
+        <div class="out" id="code-out"><div class="empty"><div class="ic">⌨️</div>Your app will appear here and run live.</div></div>
+      </div>
+    </section>
+
+    <section class="panel" id="p-image">
+      <div class="studio">
+        <div class="ctrl">
+          <div><h2>Image Studio</h2><p class="sub">Describe a picture. Omnia plans it, then draws sharp vector art.</p></div>
+          <div class="box">
+            <textarea id="img-in" placeholder="Example: a lion wearing a crown at sunset"></textarea>
+            <div class="chips" id="img-styles"></div>
+            <div class="bar"><button class="btn" id="img-go">Create image</button></div>
+          </div>
+        </div>
+        <div class="out" id="img-out"><div class="empty"><div class="ic">🎨</div>Your image will appear here.</div></div>
+      </div>
+    </section>
+
+    <section class="panel" id="p-video">
+      <div class="studio">
+        <div class="ctrl">
+          <div><h2>Video Studio</h2><p class="sub">Describe a clip. Omnia animates a 10 second video you can save as MP4.</p></div>
+          <div class="box">
+            <textarea id="vid-in" placeholder="Example: an intro for my cooking channel"></textarea>
+            <div class="ref" id="ref">
+              <input type="file" id="ref-file" accept="video/*" hidden>
+              <div class="bar"><button class="btn ghost" id="ref-btn">＋ Add reference video</button></div>
+              <div class="hint" id="ref-hint">Optional. Omnia studies 5 frames of your video (not the sound) and builds a new animation inspired by it.</div>
+              <div class="thumbs" id="ref-thumbs"></div>
+              <div class="bar" id="ref-opts" hidden>
+                <span class="seg" id="ref-mode"></span>
+                <button class="pill" id="ref-clear">Remove</button>
+              </div>
+            </div>
+            <div class="bar"><span class="seg" id="vid-ratio"></span></div>
+            <div class="bar"><button class="btn" id="vid-go">Make video</button></div>
+          </div>
+        </div>
+        <div class="out" id="vid-out"><div class="empty"><div class="ic">🎬</div>Your video will appear here.</div></div>
+      </div>
+    </section>
+  </main>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i)};
+  function toast(m){ var t=$("toast"); t.textContent=m; t.classList.add("on"); setTimeout(function(){t.classList.remove("on")},2600); }
+  function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+
+  // ---------- Where are we running? ----------
+  // Inside Claude: uses Claude's built-in AI and downloads.
+  // On your own website: calls your server at /api/ai (key stays secret on the server).
+  var IN_CLAUDE = typeof claude!=="undefined" && claude && typeof claude.use==="function";
+  var sample=null;
+  function blobToB64(b){ return new Promise(function(ok,no){ var r=new FileReader(); r.onload=function(){ ok(String(r.result).split(",")[1]); }; r.onerror=no; r.readAsDataURL(b); }); }
+  async function webSample(input,opts){
+    opts=opts||{};
+    var turns=typeof input==="string" ? [{role:"user",content:input}] : input;
+    var imgs=[]; if(opts.images&&opts.images.length){ for(var i=0;i<opts.images.length;i++) imgs.push(await blobToB64(opts.images[i])); }
+    async function call(){
+      var h={"Content-Type":"application/json"}; var code=""; try{ code=localStorage.getItem("omnia-code")||""; }catch(e){}
+      if(code) h["x-access-code"]=code;
+      return fetch("/api/ai",{method:"POST",headers:h,signal:opts.signal,body:JSON.stringify({messages:turns,tier:opts.modelTier||"default",images:imgs})});
+    }
+    var res;
+    try{ res=await call(); }catch(e){ if(e&&e.name==="AbortError") throw {code:"cancelled"}; throw {code:"network"}; }
+    if(res.status===401){
+      var c=window.prompt("Enter the access code for this site:");
+      if(!c) throw {code:"not_granted"};
+      try{ localStorage.setItem("omnia-code",c); }catch(e){}
+      try{ res=await call(); }catch(e){ throw {code:"network"}; }
+    }
+    if(!res.ok){ var j={}; try{ j=await res.json(); }catch(e){} throw {code:res.status===429?"rate_limited":res.status===401?"not_granted":"error",message:j.error}; }
+    var d=await res.json(); var text=d.text||"";
+    if(opts.onText) opts.onText({text:text,delta:text});
+    return {text:text,truncated:false};
+  }
+  webSample.limits=async function(){ return {images:true}; };
+  async function getSample(){
+    if(sample) return sample;
+    if(IN_CLAUDE){ try{ sample=await claude.use("sample"); }catch(e){ sample=null; } }
+    else sample=webSample;
+    return sample;
+  }
+  function errText(e){
+    var c=e&&e.code;
+    if(c==="not_granted") return IN_CLAUDE ? "Access was not allowed, so I cannot answer. Reload the page and allow it." : "Wrong or missing access code.";
+    if(c==="rate_limited") return "Too many requests at once. Wait a minute and try again.";
+    if(c==="none") return "AI is not available here.";
+    if(c==="network") return "Cannot reach the server. Check your internet and try again.";
+    return "Something went wrong. Please try again.";
+  }
+  var MIME={mp4:"video/mp4",webm:"video/webm",png:"image/png",svg:"image/svg+xml",html:"text/html"};
+  async function download(name,data){
+    if(IN_CLAUDE){
+      try{
+        var d=await claude.use("downloads");
+        if(!d){ toast("Download not available here"); return; }
+        await d.save({filename:name,data:data}); toast("Saved");
+      }catch(e){ if(!e||e.code!=="declined") toast("Could not save the file"); }
+      return;
+    }
+    try{
+      var ext=name.split(".").pop(), blob=data instanceof Blob ? data : new Blob([data],{type:MIME[ext]||"application/octet-stream"});
+      var a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function(){ URL.revokeObjectURL(a.href); },4000); toast("Saved");
+    }catch(e){ toast("Could not save the file"); }
+  }
+  function copy(t){ try{ navigator.clipboard.writeText(t).then(function(){ toast("Copied"); }); }catch(e){ toast("Copy not available"); } }
+
+  // ---------- Views & tabs ----------
+  var TABS=["chat","code","image","video"];
+  function switchTab(t){
+    [].forEach.call($("nav").children,function(x){ x.classList.toggle("on",x.getAttribute("data-t")===t); });
+    TABS.forEach(function(k){ $("p-"+k).classList.toggle("on",k===t); });
+    $("newchat").style.display = t==="chat" ? "" : "none";
+  }
+  function openApp(t){ $("landing").classList.remove("on"); $("app").classList.add("on"); switchTab(t||"chat"); try{ history.replaceState(null,"","#"+(t||"chat")); }catch(e){} }
+  function goHome(){ $("app").classList.remove("on"); $("landing").classList.add("on"); try{ history.replaceState(null,"",location.pathname); }catch(e){} }
+  document.querySelectorAll("[data-open]").forEach(function(b){ b.onclick=function(){ openApp(b.getAttribute("data-open")); }; });
+  $("nav").onclick=function(e){ var b=e.target.closest("button"); if(b) switchTab(b.getAttribute("data-t")); };
+  $("home-m").onclick=goHome; $("home-d").onclick=goHome;
+  (function(){ var h=(location.hash||"").slice(1); if(TABS.indexOf(h)>-1) openApp(h); })();
+
+  // ---------- Chat ----------
+  var turns=[], busy=false, ctl=null, box=$("msgs");
+  var STARTS=["Explain how black holes work, simply","Write a polite message to cancel a meeting","Help me plan a 3-day trip budget","Samjhao: mutual funds kya hote hain?"];
+  var RULES="You are Omnia, a friendly, smart AI for everyone, from kids to elders, anywhere in the world. Always reply in the same language and script the user writes in (Hindi, Hinglish, English, Spanish, or any other). Be clear and helpful. Use simple words and short answers unless asked for more. For health, law or money, give general help and suggest an expert for serious cases. If someone seems in danger or distress, respond with care and encourage them to contact local emergency services or a trusted person. If asked for an image, video or app, tell them to use the Image, Video or Code tab.";
+  function inline(s){ return esc(s).replace(/`([^`]+)`/g,"<code>$1</code>").replace(/\*\*([^*]+)\*\*/g,"<b>$1</b>"); }
+  function md(t){
+    var out="", parts=t.split(/```/);
+    parts.forEach(function(part,idx){
+      if(idx%2===1){ out+="<pre><code>"+esc(part.replace(/^[^\n]*\n/,""))+"</code></pre>"; return; }
+      var list=null, para=[];
+      function fp(){ if(para.length){ out+="<p>"+para.join("<br>")+"</p>"; para=[]; } }
+      function fl(){ if(list){ out+="</"+list+">"; list=null; } }
+      part.split("\n").forEach(function(l){
+        var u=/^\s*[-*•]\s+(.*)/.exec(l), o=/^\s*\d+[.)]\s+(.*)/.exec(l);
+        if(u||o){ fp(); var tag=u?"ul":"ol"; if(list!==tag){ fl(); out+="<"+tag+">"; list=tag; } out+="<li>"+inline((u||o)[1])+"</li>"; }
+        else if(!l.trim()){ fp(); fl(); }
+        else { fl(); para.push(inline(l.replace(/^#+\s*/,""))); }
+      });
+      fp(); fl();
+    });
+    return out;
+  }
+  function scroll(){ box.scrollTop=box.scrollHeight; }
+  function home(){
+    box.innerHTML="";
+    var h=document.createElement("div"); h.className="hero";
+    h.innerHTML='<div class="orb" aria-hidden="true"></div><h2>Hi, I am Omnia</h2><p>Ask me anything in any language. Need an app, picture or video? Use the other studios.</p>';
+    var s=document.createElement("div"); s.className="starts";
+    STARTS.forEach(function(t){ var b=document.createElement("button"); b.textContent=t; b.onclick=function(){ send(t); }; s.appendChild(b); });
+    h.appendChild(s); box.appendChild(h);
+  }
+  function bubble(c){ var d=document.createElement("div"); d.className="m "+c; box.appendChild(d); return d; }
+  async function send(text){
+    text=(text||"").trim(); if(!text||busy) return;
+    if(!turns.length) box.innerHTML="";
+    $("in").value=""; grow();
+    bubble("u").textContent=text;
+    var b=bubble("b"); b.innerHTML='<span class="dots"><i></i><i></i><i></i></span>'; scroll();
+    var s=await getSample();
+    if(!s){ b.textContent=errText({code:"none"}); return; }
+    turns.push({role:"user",content:text});
+    var hist=turns.slice(-14); if(hist[0].role!=="user") hist.shift();
+    var input=hist.map(function(t,i){ return i===0 ? {role:"user",content:"[Instructions: "+RULES+"]\n\n"+t.content} : t; });
+    busy=true; ctl=new AbortController(); $("send").textContent="■"; $("send").setAttribute("aria-label","Stop");
+    var final="";
+    try{
+      var r=await s(input,{cache:false,signal:ctl.signal,onText:function(o){ final=o.text; b.innerHTML=md(final); scroll(); }});
+      final=r.text||final; b.innerHTML=md(final||"(no answer)");
+      turns.push({role:"assistant",content:final});
+      var tl=document.createElement("div"); tl.className="tl";
+      var cp=document.createElement("button"); cp.textContent="Copy"; cp.onclick=function(){ copy(final); };
+      tl.appendChild(cp); box.appendChild(tl);
+    }catch(e){
+      if(e&&e.code==="cancelled"){ if(final) turns.push({role:"assistant",content:final}); else { turns.pop(); b.textContent="Stopped."; } }
+      else { turns.pop(); b.textContent=errText(e); }
+    }
+    busy=false; ctl=null; $("send").textContent="➤"; $("send").setAttribute("aria-label","Send"); scroll();
+  }
+  function grow(){ var t=$("in"); t.style.height="auto"; t.style.height=Math.min(140,t.scrollHeight)+"px"; }
+  $("in").addEventListener("input",grow);
+  $("in").addEventListener("keydown",function(e){ if(e.key==="Enter"&&!e.shiftKey){ e.preventDefault(); send($("in").value); } });
+  $("send").onclick=function(){ if(busy&&ctl) ctl.abort(); else send($("in").value); };
+  $("newchat").onclick=function(){ if(ctl) ctl.abort(); turns=[]; home(); };
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(SR){
+    var mic=$("mic"); mic.hidden=false; var rec=null;
+    mic.onclick=function(){
+      if(rec){ rec.stop(); return; }
+      try{
+        rec=new SR(); rec.lang=navigator.language||"en-IN"; rec.interimResults=true;
+        rec.onresult=function(e){ var t=""; for(var i=0;i<e.results.length;i++) t+=e.results[i][0].transcript; $("in").value=t; grow(); };
+        rec.onend=rec.onerror=function(){ rec=null; mic.classList.remove("rec"); };
+        rec.start(); mic.classList.add("rec");
+      }catch(e){ rec=null; }
+    };
+  }
+
+  // ---------- Studio helpers ----------
+  function chips(el,list,onpick){ list.forEach(function(t){ var b=document.createElement("button"); b.textContent=t; b.onclick=function(){ onpick(t,b); }; el.appendChild(b); }); }
+  function waiting(out,msg){ out.innerHTML='<div class="wait"><div class="shim"></div><div id="wt">'+msg+'</div></div>'; return function(n){ var w=$("wt"); if(w&&n) w.textContent=msg+" ("+n+" characters)"; }; }
+  async function generate(out,btn,prompt,msg,tier,images){
+    var s=await getSample();
+    if(!s){ out.innerHTML='<div class="err">'+errText({code:"none"})+'</div>'; return null; }
+    btn.disabled=true; var tick=waiting(out,msg), text="";
+    var opts={cache:false,modelTier:tier||"default",onText:function(o){ text=o.text; tick(text.length); }};
+    if(images&&images.length) opts.images=images;
+    try{ var r=await s(prompt,opts); text=r.text||text; btn.disabled=false; return text; }
+    catch(e){ btn.disabled=false; out.innerHTML='<div class="err">'+errText(e)+'</div>'; return null; }
+  }
+  function extractHtml(t){
+    t=t.replace(/```(?:html)?\n?/gi,"").replace(/```/g,"");
+    var i=t.search(/<!doctype html|<html/i); if(i>0) t=t.slice(i);
+    return t.trim();
+  }
+  function frameDoc(html){
+    if(!/<meta[^>]+viewport/i.test(html)) html=html.replace(/<head>/i,'<head><meta name="viewport" content="width=device-width, initial-scale=1">');
+    return html;
+  }
+
+  // ---------- Code Studio ----------
+  var codeHtml="", codeView="preview";
+  chips($("code-chips"),["Snake game","Calculator","Portfolio website","Quiz app","Pomodoro timer"],function(t){ $("code-in").value=t; });
+  var CODE_RULES="You are an expert front-end developer. Output ONLY one complete, self-contained HTML file (inline CSS and JavaScript, no external libraries, fonts or network requests). Make it mobile-friendly with a polished modern design and working logic. Keep it under about 350 lines. No explanations and no markdown fences.";
+  function renderCode(){
+    var out=$("code-out"); out.innerHTML="";
+    var bar=document.createElement("div"); bar.className="bar";
+    var seg=document.createElement("span"); seg.className="seg";
+    ["preview","code"].forEach(function(v){ var b=document.createElement("button"); b.textContent=v==="preview"?"Live preview":"Code"; if(v===codeView) b.className="on"; b.onclick=function(){ codeView=v; renderCode(); }; seg.appendChild(b); });
+    bar.appendChild(seg);
+    var cp=document.createElement("button"); cp.className="btn ghost"; cp.textContent="Copy"; cp.onclick=function(){ copy(codeHtml); };
+    var dl=document.createElement("button"); dl.className="btn ghost"; dl.textContent="Download"; dl.onclick=function(){ download("omnia-app.html",codeHtml); };
+    bar.appendChild(cp); bar.appendChild(dl); out.appendChild(bar);
+    if(codeView==="preview"){
+      var f=document.createElement("div"); f.className="frame code";
+      var ifr=document.createElement("iframe"); ifr.setAttribute("sandbox","allow-scripts"); ifr.title="Live preview"; ifr.srcdoc=frameDoc(codeHtml);
+      f.appendChild(ifr); out.appendChild(f);
+    } else { var pre=document.createElement("pre"); pre.className="src"; pre.textContent=codeHtml; out.appendChild(pre); }
+    var ch=document.createElement("div"); ch.className="box";
+    ch.innerHTML='<textarea id="code-fix" placeholder="Want changes? Example: make the buttons bigger and add a dark theme"></textarea><div class="bar"><button class="btn" id="code-upd">Update</button></div>';
+    out.appendChild(ch);
+    $("code-upd").onclick=function(){ runCode($("code-fix").value,true); };
+  }
+  async function runCode(p,isUpdate){
+    p=(p||"").trim(); if(!p) return toast("Describe what to build first");
+    var btn=isUpdate?$("code-upd"):$("code-go"), out=$("code-out");
+    var prompt = isUpdate ? "["+CODE_RULES+"]\n\nHere is the current file:\n"+codeHtml+"\n\nApply this change and return the full updated file: "+p : "["+CODE_RULES+"]\n\nBuild this: "+p;
+    var t=await generate(out,btn,prompt,"Omnia is writing code...","complex");
+    if(t===null) return;
+    var h=extractHtml(t);
+    if(!/<\/?html|<body|<div|<canvas/i.test(h)){ out.innerHTML='<div class="err">I could not build that. Try describing it a little differently.</div>'; return; }
+    codeHtml=h; codeView="preview"; renderCode();
+  }
+  $("code-go").onclick=function(){ runCode($("code-in").value,false); };
+
+  // ---------- Image Studio ----------
+  var imgStyle="Neon glow", svgText="";
+  var STYLES=["Neon glow","Low-poly","Retro sunset","Paper-cut layers","Flat geometric","Isometric"];
+  var sbox=$("img-styles");
+  STYLES.forEach(function(st){ var b=document.createElement("button"); b.textContent=st; if(st===imgStyle) b.className="on"; b.onclick=function(){ imgStyle=st; [].forEach.call(sbox.children,function(c){c.className=""}); b.className="on"; }; sbox.appendChild(b); });
+  var IMG_RULES="You are an award-winning vector illustrator. Output ONLY one SVG: root <svg> with xmlns, viewBox=\"0 0 1024 1024\", width=\"1024\" height=\"1024\". No scripts, no external images or fonts, no text unless the user asked for words. Quality rules: (1) a limited palette of 5 to 6 harmonious colors; (2) a deep background built from 3 to 5 layers (gradient sky or wall, distant shapes, mid shapes, foreground) for depth; (3) ONE clear focal subject, large, centered or on a third, built from many overlapping shapes with gradient fills, a rim light on one edge, and soft shadows; (4) use <defs> with linearGradient and radialGradient everywhere instead of flat fills; (5) add glow with a filter (feGaussianBlur merged with SourceGraphic), a light source or sun, soft light rays or bokeh circles with low opacity; (6) finish with a subtle grain (feTurbulence + feColorMatrix at low opacity) and a dark radial vignette; (7) keep the subject recognisable and well proportioned, stylised and geometric is better than a clumsy realistic attempt. Use between 80 and 250 elements. No explanations and no markdown fences.";
+  function extractSvg(t){
+    var a=t.indexOf("<svg"), b=t.lastIndexOf("</svg>"); if(a<0||b<0) return "";
+    var s=t.slice(a,b+6);
+    s=s.replace(/<script[\s\S]*?<\/script>/gi,"").replace(/\son\w+\s*=\s*("[^"]*"|'[^']*')/gi,"");
+    if(!/xmlns=/.test(s)) s=s.replace("<svg",'<svg xmlns="http://www.w3.org/2000/svg"');
+    if(!/<svg[^>]*\swidth=/.test(s)) s=s.replace("<svg",'<svg width="1024" height="1024"');
+    return s;
+  }
+  function svgOk(s){ try{ var d=new DOMParser().parseFromString(s,"image/svg+xml"); return !d.getElementsByTagName("parsererror").length; }catch(e){ return true; } }
+  function svgUrl(s){ return "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(s); }
+  function renderImg(){
+    var out=$("img-out"); out.innerHTML="";
+    var bx=document.createElement("div"); bx.className="imgbox"; var im=document.createElement("img"); im.alt="Generated image"; im.src=svgUrl(svgText); bx.appendChild(im); out.appendChild(bx);
+    var bar=document.createElement("div"); bar.className="bar";
+    var d1=document.createElement("button"); d1.className="btn"; d1.textContent="Save PNG";
+    d1.onclick=function(){
+      var i2=new Image(); i2.onload=function(){ var c=document.createElement("canvas"); c.width=2048; c.height=2048; c.getContext("2d").drawImage(i2,0,0,2048,2048); c.toBlob(function(bl){ if(bl) download("omnia-image.png",bl); else toast("Could not make PNG"); },"image/png"); };
+      i2.onerror=function(){ toast("Could not make PNG"); }; i2.src=svgUrl(svgText);
+    };
+    var d2=document.createElement("button"); d2.className="btn ghost"; d2.textContent="Save SVG"; d2.onclick=function(){ download("omnia-image.svg",svgText); };
+    var rg=document.createElement("button"); rg.className="btn ghost"; rg.textContent="New version"; rg.onclick=function(){ runImg(); };
+    bar.appendChild(d1); bar.appendChild(d2); bar.appendChild(rg); out.appendChild(bar);
+    var ch=document.createElement("div"); ch.className="box";
+    ch.innerHTML='<textarea id="img-fix" placeholder="Want changes? Example: make the sky purple and add stars"></textarea><div class="bar"><button class="btn" id="img-upd">Update image</button></div>';
+    out.appendChild(ch);
+    $("img-upd").onclick=function(){ runImg($("img-fix").value); };
+  }
+  async function runImg(change){
+    var p=$("img-in").value.trim(); if(!p) return toast("Describe the image first");
+    var out=$("img-out"), btn=(change&&change.trim())?$("img-upd"):$("img-go"), t, s;
+    if(change&&change.trim()){
+      t=await generate(out,btn,"["+IMG_RULES+"]\n\nHere is the current SVG:\n"+svgText+"\n\nApply this change and return the full updated SVG: "+change,"Omnia is updating the picture...","complex");
+    } else {
+      var plan=await generate(out,btn,"You are an art director. In under 110 words, plan a striking "+imgStyle+" illustration of: "+p+". Give: the 5 or 6 hex colors, the exact composition (what is in the background, middle and foreground, where the main subject sits and what it looks like in simple shapes), the light source, and 2 small details that add charm. Plain text only.","Omnia is planning the composition...","quick");
+      if(plan===null) return;
+      t=await generate(out,btn,"["+IMG_RULES+"]\n\nStyle: "+imgStyle+"\nSubject: "+p+"\nArt direction to follow closely:\n"+plan,"Omnia is drawing...","complex");
+    }
+    if(t===null) return;
+    s=extractSvg(t);
+    if(s&&!svgOk(s)){
+      var fix=await generate(out,btn,"This SVG has an XML error. Return the corrected full SVG only, no explanations:\n"+s,"Fixing a small error...","default");
+      if(fix===null) return; s=extractSvg(fix);
+    }
+    if(!s||!svgOk(s)){ out.innerHTML='<div class="err">The drawing did not finish. Please try again.</div>'; return; }
+    svgText=s; renderImg();
+  }
+  $("img-go").onclick=function(){ runImg(); };
+
+  // ---------- Video Studio: reference upload + real MP4/WebM recording ----------
+  var ratio="16:9", sceneCode="", vframe=null, recTimer=null;
+  var refFrames=[], refMode="style";
+  var RATIOS={"16:9":[16,9,1280,720],"9:16":[9,16,720,1280],"1:1":[1,1,1000,1000]};
+  var rs=$("vid-ratio");
+  Object.keys(RATIOS).forEach(function(r){ var b=document.createElement("button"); b.textContent=r; if(r===ratio) b.className="on"; b.onclick=function(){ ratio=r; [].forEach.call(rs.children,function(c){c.className=""}); b.className="on"; }; rs.appendChild(b); });
+  var rm=$("ref-mode");
+  [["style","Match its style"],["remake","Recreate its scene"]].forEach(function(m){ var b=document.createElement("button"); b.textContent=m[1]; if(m[0]===refMode) b.className="on"; b.onclick=function(){ refMode=m[0]; [].forEach.call(rm.children,function(c){c.className=""}); b.className="on"; }; rm.appendChild(b); });
+
+  $("ref-btn").onclick=function(){ $("ref-file").click(); };
+  $("ref-clear").onclick=function(){ clearRef(); };
+  function clearRef(){ refFrames.forEach(function(f){ URL.revokeObjectURL(f.url); }); refFrames=[]; $("ref-thumbs").innerHTML=""; $("ref-opts").hidden=true; $("ref-file").value=""; $("ref-btn").textContent="＋ Add reference video"; $("ref-hint").textContent="Optional. Omnia studies 5 frames of your video (not the sound) and builds a new animation inspired by it."; }
+  function seekTo(v,t){ return new Promise(function(ok){ var done=false; function fin(){ if(done) return; done=true; v.removeEventListener("seeked",fin); ok(); } v.addEventListener("seeked",fin); v.currentTime=t; setTimeout(fin,3500); }); }
+  async function extractFrames(file,n){
+    var url=URL.createObjectURL(file), v=document.createElement("video");
+    v.muted=true; v.playsInline=true; v.preload="auto"; v.src=url;
+    try{
+      await new Promise(function(ok,no){ v.onloadeddata=ok; v.onerror=function(){ no(new Error("bad")); }; setTimeout(function(){ no(new Error("timeout")); },12000); });
+      var dur=isFinite(v.duration)?v.duration:0; if(!dur||!v.videoWidth) throw new Error("bad");
+      var sc=Math.min(1,512/Math.max(v.videoWidth,v.videoHeight)), c=document.createElement("canvas");
+      c.width=Math.round(v.videoWidth*sc); c.height=Math.round(v.videoHeight*sc);
+      var x=c.getContext("2d"), out=[];
+      for(var i=0;i<n;i++){
+        await seekTo(v,dur*(i+.5)/n); x.drawImage(v,0,0,c.width,c.height);
+        var bl=await new Promise(function(r){ c.toBlob(r,"image/jpeg",.72); });
+        if(bl) out.push({blob:bl,url:URL.createObjectURL(bl)});
+      }
+      return out;
+    } finally { URL.revokeObjectURL(url); }
+  }
+  $("ref-file").onchange=async function(){
+    var f=this.files&&this.files[0]; if(!f) return;
+    $("ref-hint").textContent="Reading your video...";
+    try{
+      var fr=await extractFrames(f,5);
+      if(!fr.length) throw new Error("none");
+      clearRef(); refFrames=fr;
+      var th=$("ref-thumbs"); th.innerHTML=""; fr.forEach(function(x){ var im=document.createElement("img"); im.src=x.url; im.alt="Reference frame"; th.appendChild(im); });
+      $("ref-opts").hidden=false; $("ref-btn").textContent="Change reference video";
+      $("ref-hint").textContent="Got it. Omnia will study these "+fr.length+" frames.";
+    }catch(e){ clearRef(); toast("Could not read that video. Try an MP4."); }
+  };
+
+  function SCENE_RULES(r,w,h){ return "You are a motion designer writing canvas code. Output ONLY JavaScript (no HTML, no markdown fences) that defines exactly one function: function scene(ctx,t,W,H,U). It is called every frame. The canvas is "+w+"x"+h+" ("+r+"), already cleared. t is the time in seconds from 0 to 10 and the video loops. Use W and H for ALL positions and sizes (let s=Math.min(W,H) for scale). Helpers in U: U.seg(t,a,b) returns 0..1 progress between times a and b (clamped); U.ease(x), U.easeOut(x), U.back(x) are easing functions on 0..1; U.lerp(a,b,x); U.clamp(x,a,b); U.rnd(seed) returns a stable random 0..1 (NEVER use Math.random). You may define extra helper functions and constants before scene. Rules: 3 or 4 scenes of 2.5 to 3 seconds with smooth transitions (fade, slide, zoom) driven by t; rich gradient backgrounds that slowly move; 40 to 120 deterministic particles, shapes or lines in motion; big bold text animated in (slide, scale or typewriter) using ctx.font like '800 '+(s*0.09)+'px system-ui, sans-serif', textAlign center and textBaseline middle; glow with ctx.shadowBlur and shadowColor; a vignette; the first and last frame should match so the loop is seamless. Wrap long text lines yourself. No DOM, no images, no network, no audio. Under 170 lines."; }
+  function cleanJs(t){ t=t.replace(/```(?:javascript|js)?\n?/gi,"").replace(/```/g,"").trim(); return /function\s+scene/.test(t)?t:""; }
+  function syntaxBad(code){ try{ new Function(code); return ""; }catch(e){ return (e instanceof SyntaxError)? e.message : ""; } }
+  var TPL=[
+    '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;height:100%;background:#000;overflow:hidden}canvas{width:100%;height:100%;object-fit:contain;display:block}</style></head><body><canvas id="c" width="__W__" height="__H__"></canvas><script>',
+    'var D=10,cv=document.getElementById("c"),ctx=cv.getContext("2d"),W=cv.width,H=cv.height,failed=false,rec=false,t0=performance.now();',
+    'var U={clamp:function(x,a,b){return Math.max(a,Math.min(b,x))},lerp:function(a,b,x){return a+(b-a)*x},seg:function(t,a,b){return Math.max(0,Math.min(1,(t-a)/(b-a)))},ease:function(x){return x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2},easeOut:function(x){return 1-Math.pow(1-x,3)},back:function(x){var c=1.70158;return 1+(c+1)*Math.pow(x-1,3)+c*Math.pow(x-1,2)},rnd:function(s){var v=Math.sin(s*127.1+311.7)*43758.5453;return v-Math.floor(v)}};',
+    '__CODE__',
+    'function frame(){var t=((performance.now()-t0)/1000)%D;if(!failed){try{ctx.save();ctx.clearRect(0,0,W,H);scene(ctx,t,W,H,U);ctx.restore()}catch(e){failed=true;parent.postMessage({type:"scene-error",msg:String(e&&e.message||e)},"*")}}requestAnimationFrame(frame)}frame();',
+    'function record(){if(rec||failed)return;var types=["video/mp4;codecs=avc1","video/mp4","video/webm;codecs=vp9","video/webm;codecs=vp8","video/webm"],mt="";if(window.MediaRecorder){for(var i=0;i<types.length;i++){if(MediaRecorder.isTypeSupported(types[i])){mt=types[i];break}}}if(!mt||!cv.captureStream){parent.postMessage({type:"rec-fail"},"*");return}rec=true;var mr=new MediaRecorder(cv.captureStream(30),{mimeType:mt,videoBitsPerSecond:6000000}),ch=[];mr.ondataavailable=function(e){if(e.data&&e.data.size)ch.push(e.data)};mr.onstop=function(){var b=new Blob(ch,{type:mt.split(";")[0]});b.arrayBuffer().then(function(buf){rec=false;parent.postMessage({type:"rec-done",mime:b.type,buf:buf},"*")})};t0=performance.now();mr.start();parent.postMessage({type:"rec-start",dur:D},"*");setTimeout(function(){mr.stop()},D*1000+200)}',
+    'window.addEventListener("message",function(e){if(e.data&&e.data.cmd==="record")record()});',
+    '<\/script></body></html>'].join("");
+  function buildDoc(code,w,h){
+    code=code.replace(/<\/script/gi,"<\\/script");
+    return TPL.replace("__W__",w).replace("__H__",h).replace("__CODE__",function(){return code});
+  }
+  function setStatus(m){ var el=$("vid-status"); if(el) el.textContent=m||""; }
+  function renderVid(){
+    var out=$("vid-out"); out.innerHTML="";
+    var rr=RATIOS[ratio]; var f=document.createElement("div"); f.className="frame vid";
+    f.style.aspectRatio=rr[0]+" / "+rr[1]; f.style.maxHeight="68vh"; if(rr[0]<rr[1]) f.style.maxWidth="min(100%,"+(68*rr[0]/rr[1])+"vh)";
+    var ifr=document.createElement("iframe"); ifr.setAttribute("sandbox","allow-scripts"); ifr.title="Video preview"; ifr.srcdoc=buildDoc(sceneCode,rr[2],rr[3]); f.appendChild(ifr); out.appendChild(f); vframe=ifr;
+    var st=document.createElement("div"); st.id="vid-status"; st.className="note"; out.appendChild(st);
+    var bar=document.createElement("div"); bar.className="bar";
+    var sv=document.createElement("button"); sv.className="btn"; sv.id="vid-save"; sv.textContent="Save as video";
+    sv.onclick=function(){ if(vframe&&vframe.contentWindow){ sv.disabled=true; setStatus("Starting..."); vframe.contentWindow.postMessage({cmd:"record"},"*"); } };
+    var rp=document.createElement("button"); rp.className="btn ghost"; rp.textContent="Replay"; rp.onclick=function(){ ifr.srcdoc=buildDoc(sceneCode,rr[2],rr[3]); };
+    var rg=document.createElement("button"); rg.className="btn ghost"; rg.textContent="New version"; rg.onclick=function(){ runVid(); };
+    bar.appendChild(sv); bar.appendChild(rp); bar.appendChild(rg); out.appendChild(bar);
+  }
+  window.addEventListener("message",function(e){
+    if(!vframe||e.source!==vframe.contentWindow) return;
+    var d=e.data||{}, sv=$("vid-save");
+    if(d.type==="rec-start"){
+      var left=Math.round(d.dur||10); setStatus("Recording... "+left+"s. Keep this screen open.");
+      clearInterval(recTimer); recTimer=setInterval(function(){ left--; if(left>0) setStatus("Recording... "+left+"s. Keep this screen open."); else { clearInterval(recTimer); setStatus("Finishing the file..."); } },1000);
+    } else if(d.type==="rec-done"){
+      clearInterval(recTimer); if(sv) sv.disabled=false; setStatus("");
+      download("omnia-video."+(/mp4/.test(d.mime||"")?"mp4":"webm"),d.buf);
+    } else if(d.type==="rec-fail"){
+      if(sv) sv.disabled=false; setStatus(""); toast("This browser cannot record video. Try Chrome or Safari.");
+    } else if(d.type==="scene-error"){
+      if(sv) sv.disabled=false; setStatus("This animation had a bug. Tap New version.");
+    }
+  });
+  async function runVid(){
+    var p=$("vid-in").value.trim(); if(!p&&!refFrames.length) return toast("Describe the video or add a reference");
+    if(!p) p="A video inspired by the reference";
+    var out=$("vid-out"), rr=RATIOS[ratio], btn=$("vid-go"), images=null, refText="";
+    if(refFrames.length){
+      var s0=await getSample(), lim={}; try{ lim=(s0&&s0.limits)?await s0.limits():{}; }catch(e){}
+      if(lim&&lim.images){
+        images=refFrames.map(function(f){return f.blob});
+        refText="\n\nI attached "+images.length+" frames taken evenly in time from a REFERENCE VIDEO. Study its colors, mood, lighting, composition, camera movement, pacing and any typography. "+(refMode==="remake" ? "Recreate its main scene and action as faithfully as you can with canvas shapes, gradients and motion, then adapt the text to my topic." : "Make a NEW animation about my topic that clearly matches its visual style, color palette, rhythm and energy.");
+      } else toast("Reference frames are not supported here. Using your text only.");
+    }
+    var t=await generate(out,btn,"["+SCENE_RULES(ratio,rr[2],rr[3])+"]\n\nMake this video: "+p+refText,"Omnia is animating...","complex",images);
+    if(t===null) return;
+    var code=cleanJs(t), bad=code?syntaxBad(code):"missing";
+    if(bad){
+      var fix=await generate(out,btn,"This canvas animation code has a problem ("+bad+"). Return the corrected full JavaScript only, defining function scene(ctx,t,W,H,U), no fences:\n"+(code||t),"Fixing a small bug...","default");
+      if(fix===null) return; code=cleanJs(fix); bad=code?syntaxBad(code):"missing";
+    }
+    if(bad){ out.innerHTML='<div class="err">The video did not finish. Please try again.</div>'; return; }
+    sceneCode=code; renderVid();
+  }
+  $("vid-go").onclick=runVid;
+
+  switchTab("chat");
+  home();
+})();
+</script>
+</body>
+</html>
