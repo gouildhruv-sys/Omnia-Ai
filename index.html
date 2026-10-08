@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Omnia AI: chat, code, images and videos in one place</title>
+<meta name="description" content="Omnia is one AI for everything. Chat in any language, build working apps, create images and make videos.">
+<meta name="theme-color" content="#100e24">
+<meta property="og:title" content="Omnia AI">
+<meta property="og:description" content="Chat, code, images and videos in one place.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🪐%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f4fb; --panel:#ffffff; --ink:#15132b; --mute:#6a6784; --line:#e2e0f0;
+  --a1:#ff6b4a; --a2:#d946ef; --a3:#4f6bff; --grad:linear-gradient(120deg,var(--a1),var(--a2) 55%,var(--a3));
+  --bot:#ffffff; --code:#13112a; --codeink:#e9e6ff; --soft:#efedfa;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --bg:#100e24; --panel:#1b1838; --ink:#f1efff; --mute:#9d99c4; --line:#2e2a57; --bot:#1b1838; --code:#0a0919; --soft:#221f45; }
+}
+:root[data-theme="dark"]{ --bg:#100e24; --panel:#1b1838; --ink:#f1efff; --mute:#9d99c4; --line:#2e2a57; --bot:#1b1838; --code:#0a0919; --soft:#221f45; }
+*,*::before,*::after{box-sizing:inherit}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:"Figtree",system-ui,sans-serif;font-size:16px}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+button:focus-visible,textarea:focus-visible,iframe:focus-visible,a:focus-visible{outline:3px solid var(--a3);outline-offset:2px}
+.view{display:none;height:100%}.view.on{display:flex}
+.mark{width:38px;height:38px;border-radius:13px;background:var(--grad);display:grid;place-items:center;flex:none}
+.mark svg{width:24px;height:24px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand b{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:21px;letter-spacing:-.3px}
+.brand small{display:block;color:var(--mute);font-size:12px;margin-top:1px}
+.pill{padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--panel);font-size:13px;font-weight:700}
+.btn{padding:12px 20px;border-radius:999px;background:var(--grad);color:#fff;font-weight:700;box-shadow:0 6px 20px #d946ef33}
+.btn:disabled{opacity:.5;box-shadow:none}
+.btn.ghost{background:var(--soft);color:var(--ink);border:1px solid var(--line);box-shadow:none}
+.btn.big{padding:16px 30px;font-size:18px}
+.sp{flex:1}
+
+/* ---------- landing ---------- */
+#landing{flex-direction:column;overflow-y:auto;position:relative}
+.lnav{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;max-width:1100px;width:100%;margin:0 auto}
+.lhero{position:relative;text-align:center;padding:56px 20px 36px;max-width:820px;margin:0 auto}
+.lhero .glow{position:absolute;left:50%;top:-30px;width:520px;max-width:120%;aspect-ratio:1;transform:translateX(-50%);background:radial-gradient(circle,#d946ef55,#4f6bff22 45%,transparent 68%);filter:blur(10px);z-index:0;animation:float 6s ease-in-out infinite}
+@keyframes float{50%{transform:translateX(-50%) translateY(14px) scale(1.05)}}
+.lhero>*:not(.glow){position:relative;z-index:1}
+.lhero h1{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:clamp(40px,9vw,76px);line-height:1.02;margin:0 0 16px;letter-spacing:-1.5px}
+.lhero p{font-size:clamp(17px,3.4vw,21px);line-height:1.5;color:var(--mute);margin:0 auto 26px;max-width:560px}
+.langs{margin-top:18px;color:var(--mute);font-size:14px}
+.lgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;max-width:1100px;width:100%;margin:0 auto;padding:10px 20px 30px}
+.card{display:flex;flex-direction:column;gap:8px;text-align:left;padding:20px;border-radius:24px;background:var(--panel);border:1px solid var(--line);transition:transform .15s,border-color .15s}
+.card:hover{transform:translateY(-3px);border-color:var(--a2)}
+.card .ic{width:46px;height:46px;border-radius:15px;display:grid;place-items:center;font-size:23px;background:var(--soft)}
+.card b{font-family:"Bricolage Grotesque",sans-serif;font-size:20px}
+.card span.d{color:var(--mute);font-size:15px;line-height:1.45}
+.lfoot{margin-top:auto;text-align:center;color:var(--mute);font-size:13px;padding:24px 20px}
+
+/* ---------- app shell ---------- */
+#app{flex-direction:column;max-width:1180px;margin:0 auto;width:100%}
+#side{display:contents}
+.top{display:flex;align-items:center;gap:10px;padding:12px 16px;order:0}
+main{flex:1;min-height:0;position:relative;order:1;display:flex;flex-direction:column}
+nav{order:2;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:8px 12px 10px;border-top:1px solid var(--line);background:var(--bg)}
+nav button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 0;border-radius:14px;font-size:12px;font-weight:700;color:var(--mute)}
+nav button span{font-size:20px}
+nav button.on{background:var(--panel);color:var(--ink);box-shadow:0 0 0 1px var(--line) inset}
+.homebtn{display:none}
+.panel{display:none;flex:1;min-height:0;flex-direction:column}
+.panel.on{display:flex}
+@media (min-width:900px){
+  #app{flex-direction:row}
+  #side{display:flex;flex-direction:column;gap:18px;width:232px;flex:none;padding:18px 14px;border-right:1px solid var(--line)}
+  .top{padding:0 6px}
+  nav{display:flex;flex-direction:column;gap:6px;padding:0;border:0;background:none}
+  nav button{flex-direction:row;gap:12px;padding:12px 14px;font-size:15px}
+  .homebtn{display:block;margin-top:auto}
+  #newchat{display:none}
+}
+
+/* chat */
+#msgs{flex:1;overflow-y:auto;padding:8px 16px 16px;display:flex;flex-direction:column;gap:12px}
+.hero{margin:auto;text-align:center;max-width:460px;padding:10px}
+.orb{width:92px;height:92px;border-radius:50%;margin:0 auto 14px;background:radial-gradient(circle at 32% 28%,#fff8,transparent 40%),var(--grad);box-shadow:0 0 60px #d946ef66;animation:orb 4s ease-in-out infinite}
+@keyframes orb{50%{transform:translateY(-8px) scale(1.04)}}
+.hero h2{font-family:"Bricolage Grotesque",sans-serif;font-size:30px;margin:0 0 6px;letter-spacing:-.5px}
+.hero p{margin:0 0 16px;color:var(--mute);line-height:1.45}
+.starts{display:flex;flex-direction:column;gap:8px}
+.starts button,.chips button{padding:11px 14px;border-radius:14px;border:1px solid var(--line);background:var(--panel);text-align:left;font-weight:500;font-size:15px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{padding:8px 13px;border-radius:999px;font-size:14px}
+.chips button.on{border-color:var(--a2);background:var(--soft)}
+.m{max-width:90%;padding:11px 14px;border-radius:18px;line-height:1.5;overflow-wrap:anywhere}
+.m.u{align-self:flex-end;background:var(--grad);color:#fff;border-bottom-right-radius:6px;white-space:pre-wrap}
+.m.b{align-self:flex-start;background:var(--bot);border:1px solid var(--line);border-bottom-left-radius:6px}
+.m.b p{margin:0 0 8px}.m.b p:last-child{margin:0}
+.m.b pre{margin:8px 0;padding:11px;border-radius:12px;background:var(--code);color:var(--codeink);overflow-x:auto;font-size:13px}
+.m.b code{font-family:ui-monospace,Menlo,monospace;font-size:.9em;background:var(--soft);padding:1px 5px;border-radius:5px}
+.m.b pre code{background:none;padding:0}
+.m.b ul,.m.b ol{margin:4px 0 8px;padding-left:22px}
+.tl{align-self:flex-start;margin-top:-6px}
+.tl button{font-size:12px;color:var(--mute);padding:4px 8px}
+.dots{display:inline-flex;gap:4px}.dots i{width:7px;height:7px;border-radius:50%;background:var(--mute);animation:bn 1s infinite}.dots i:nth-child(2){animation-delay:.15s}.dots i:nth-child(3){animation-delay:.3s}
+@keyframes bn{50%{transform:translateY(-5px);opacity:.4}}
+.composer{display:flex;align-items:flex-end;gap:8px;padding:8px 12px}
+textarea{flex:1;resize:none;max-height:140px;padding:12px 14px;border-radius:18px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:inherit;line-height:1.4}
+.round{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;flex:none;font-size:19px;border:1px solid var(--line);background:var(--panel)}
+.round.go{background:var(--grad);border:0;color:#fff}
+.round.rec{background:var(--a1);color:#fff;animation:bn 1s infinite}
+.note{text-align:center;color:var(--mute);font-size:12px;padding:0 12px 6px}
+
+/* studios */
+.studio{flex:1;overflow-y:auto;padding:4px 16px 18px;display:flex;flex-direction:column;gap:14px}
+.studio h2{font-family:"Bricolage Grotesque",sans-serif;font-size:26px;margin:2px 0 0;letter-spacing:-.4px}
+.studio .sub{margin:4px 0 0;color:var(--mute);font-size:15px}
+.ctrl{display:flex;flex-direction:column;gap:12px}
+.box{display:flex;flex-direction:column;gap:12px;padding:14px;border-radius:22px;background:var(--panel);border:1px solid var(--line)}
+.box textarea{border:0;background:transparent;padding:4px;min-height:84px;max-height:220px}
+.box textarea:focus-visible{outline:none}
+.bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--soft)}
+.seg button{padding:8px 14px;font-size:14px;font-weight:700;color:var(--mute)}
+.seg button.on{background:var(--ink);color:var(--bg)}
+.out{display:flex;flex-direction:column;gap:12px;min-width:0}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;padding:34px 20px;border-radius:22px;border:1.5px dashed var(--line);color:var(--mute)}
+.empty .ic{font-size:34px}
+@media (min-width:900px){
+  .studio{display:grid;grid-template-columns:minmax(0,380px) minmax(0,1fr);gap:20px;align-content:start;padding:18px 22px}
+  .ctrl{position:sticky;top:0;align-self:start}
+}
+.frame{width:100%;border:1px solid var(--line);border-radius:20px;background:#fff;overflow:hidden}
+.frame iframe{display:block;width:100%;height:100%;border:0;background:#fff}
+.frame.code{height:min(66vh,560px)}
+.frame.vid{background:#000;margin:0 auto}
+.imgbox{width:100%;aspect-ratio:1;border-radius:20px;border:1px solid var(--line);background:var(--panel);overflow:hidden}
+.imgbox img{width:100%;height:100%;display:block}
+pre.src{margin:0;padding:14px;border-radius:20px;background:var(--code);color:var(--codeink);overflow:auto;max-height:min(66vh,560px);font-size:12.5px;line-height:1.5}
+.wait{display:flex;flex-direction:column;gap:10px;align-items:center;padding:34px 10px;border-radius:20px;border:1px dashed var(--line);color:var(--mute);text-align:center}
+.shim{width:70%;height:8px;border-radius:4px;background:linear-gradient(90deg,var(--line),var(--a2),var(--line));background-size:200% 100%;animation:sh 1.2s linear infinite}
+@keyframes sh{to{background-position:-200% 0}}
+.err{padding:12px 14px;border-radius:14px;background:#ff6b4a22;border:1px solid var(--a1);font-size:14px}
+.ref{display:flex;flex-direction:column;gap:10px;padding:12px;border-radius:16px;background:var(--soft);border:1px solid var(--line)}
+.ref .hint{color:var(--mute);font-size:13px;line-height:1.4}
+.thumbs{display:flex;gap:6px;overflow-x:auto}
+.thumbs img{height:58px;width:auto;border-radius:9px;border:1px solid var(--line);flex:none}
+.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font-weight:700;font-size:14px;opacity:0;transition:opacity .25s;pointer-events:none;max-width:90%;text-align:center;z-index:9}
+.toast.on{opacity:1}
+/* ---------- v3: icons, motion, auth ---------- */
+.ico{width:1.2em;height:1.2em;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none;vertical-align:-.2em}
+.ico.big{width:38px;height:38px;color:var(--a2)}
+.btn,.pill{display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
+.btn{position:relative;overflow:hidden}
+.btn::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,#ffffff55 50%,transparent 70%);transform:translateX(-130%);pointer-events:none}
+.btn:hover::after,.btn:focus-visible::after{animation:shine 1s}
+.btn.shine.big::after{animation:shine 3.4s 1.4s infinite}
+@keyframes shine{to{transform:translateX(130%)}}
+.btn:active,.pill:active,.card:active{transform:scale(.96)}
+.mark .ico{width:24px;height:24px}
+.reveal{opacity:0;transform:translateY(20px);animation:rv .75s cubic-bezier(.2,.8,.2,1) forwards}
+.d1{animation-delay:.12s}.d2{animation-delay:.24s}.d3{animation-delay:.36s}.d4{animation-delay:.48s}.d5{animation-delay:.6s}
+@keyframes rv{to{opacity:1;transform:none}}
+.lwrap{position:relative;display:flex;flex-direction:column;width:100%;min-height:100%;overflow:hidden}
+.lwrap>*:not(.blob){position:relative;z-index:1}
+.blob{position:absolute;border-radius:50%;filter:blur(60px);opacity:.5;z-index:0;animation:drift 12s ease-in-out infinite}
+.blob.b1{width:340px;height:340px;left:-90px;top:120px;background:#ff6b4a66}
+.blob.b2{width:380px;height:380px;right:-110px;top:380px;background:#4f6bff55;animation-delay:-5s}
+@keyframes drift{50%{transform:translate(40px,-30px) scale(1.1)}}
+.nr{display:flex;align-items:center;gap:8px}
+.cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn.big.ghost{box-shadow:none}
+.orbit{position:relative;width:min(250px,62vw);aspect-ratio:1;margin:0 auto 20px}
+.orbit::before{content:"";position:absolute;inset:8%;border:1.5px dashed var(--line);border-radius:50%}
+.planet{position:absolute;inset:30%;border-radius:50%;background:radial-gradient(circle at 32% 28%,#fff8,transparent 42%),var(--grad);box-shadow:0 0 60px #d946ef66;display:grid;place-items:center;animation:orb 4s ease-in-out infinite}
+.ring{position:absolute;inset:0;animation:spin 18s linear infinite}
+.sat{position:absolute;width:46px;height:46px;margin:-23px;border-radius:15px;background:var(--panel);border:1px solid var(--line);display:grid;place-items:center;color:var(--a2);box-shadow:0 8px 24px #0002;animation:spin 18s linear infinite reverse}
+.sat .ico{width:22px;height:22px}
+.s1{left:50%;top:8%}.s2{left:92%;top:50%}.s3{left:50%;top:92%}.s4{left:8%;top:50%}
+@keyframes spin{to{transform:rotate(360deg)}}
+.card .ic{background:linear-gradient(135deg,#ff6b4a22,#4f6bff22)}
+.card .ic .ico{width:26px;height:26px;color:var(--a2)}
+.card:hover .ic .ico{animation:wob .6s}
+@keyframes wob{25%{transform:rotate(-14deg) scale(1.15)}60%{transform:rotate(10deg) scale(1.15)}}
+.lfoot a{color:var(--a2);font-weight:700}
+nav button em{font-style:normal}
+nav button .ico{width:24px;height:24px;transition:transform .25s}
+nav button:hover .ico{transform:translateY(-2px) rotate(-6deg)}
+nav button.on .ico{color:var(--a2);animation:navpop .55s cubic-bezier(.2,1.6,.4,1)}
+@keyframes navpop{0%{transform:scale(.55) rotate(-14deg)}100%{transform:none}}
+.tb{display:flex;align-items:center;gap:6px}
+.sidefoot{display:none}
+.pill.dsc{color:#5865f2}
+.pill .ico{width:18px;height:18px}
+.userchip{display:inline-flex;align-items:center;gap:8px;padding:3px 12px 3px 3px;border-radius:999px;border:1px solid var(--line);background:var(--panel);font-weight:700;font-size:13px}
+.userchip[hidden]{display:none}
+.userchip img{width:28px;height:28px;border-radius:50%;background:var(--soft)}
+.userchip.wide{width:100%;justify-content:flex-start;padding:6px 12px 6px 6px;font-size:14px}
+.userchip.wide span::after{content:"  · tap to sign out";color:var(--mute);font-weight:500;font-size:12px}
+.js-signin[hidden]{display:none}
+@media (max-width:640px){ .hs{display:none} .brand small{display:none} .tb .userchip span{display:none} .tb .userchip{padding:3px} .nr .userchip span{display:none} .nr .userchip{padding:3px} }
+@media (min-width:900px){
+  .tb{display:none}
+  .sidefoot{display:flex;flex-direction:column;gap:10px;margin-top:auto}
+  .homebtn{display:none}
+}
+.empty .ico.big{animation:orb 3.6s ease-in-out infinite}
+.loader{width:52px;height:52px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--a2);border-right-color:var(--a1);animation:spin .9s linear infinite}
+.modal{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;z-index:30;padding:20px}
+.modal.on{display:flex}
+.sheet{background:var(--panel);border:1px solid var(--line);border-radius:28px;padding:28px 24px;max-width:360px;width:100%;text-align:center;display:flex;flex-direction:column;gap:14px;align-items:center;animation:sheetin .4s cubic-bezier(.2,1.4,.4,1)}
+.sheet h2{font-family:"Bricolage Grotesque",sans-serif;margin:0;font-size:24px}
+.sheet p{margin:0;color:var(--mute);line-height:1.45}
+@keyframes sheetin{from{transform:scale(.85) translateY(20px);opacity:0}to{transform:none;opacity:1}}
+.round .ico{width:22px;height:22px}
+.round.go .ico{stroke:#fff}
+.vwarn{font-size:13px;color:var(--mute);text-align:center}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<!-- icon sprite -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H10l-5 4v-4H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/><path d="M8 10h8M8 13h5"/></symbol>
+<symbol id="i-code" viewBox="0 0 24 24"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></symbol>
+<symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="M3 17l5-5 4 4 3-3 6 6"/></symbol>
+<symbol id="i-video" viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="12" rx="3"/><path d="M16 10l5-3v10l-5-3z"/></symbol>
+<symbol id="i-send" viewBox="0 0 24 24"><path d="M21 3L10 14M21 3l-7 18-4-8-8-4 19-6z"/></symbol>
+<symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2.5"/></symbol>
+<symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="i-discord" viewBox="0 0 24 24"><path stroke="none" fill="currentColor" d="M20.3 4.4A19.8 19.8 0 0 0 15.4 3l-.6 1.3a18.3 18.3 0 0 0-5.6 0L8.6 3a19.7 19.7 0 0 0-4.9 1.4C.6 9 -.2 13.5.2 18a19.9 19.9 0 0 0 6 3l1.3-2.1c-.7-.3-1.4-.6-2-1l.5-.4a14.2 14.2 0 0 0 12 0l.5.4c-.6.4-1.3.7-2 1l1.3 2.1a19.8 19.8 0 0 0 6-3c.5-5.2-.8-9.7-3.5-13.6ZM8 15.3c-1.2 0-2.1-1.1-2.1-2.4s.9-2.4 2.1-2.4 2.2 1.1 2.1 2.4c0 1.3-.9 2.4-2.1 2.4Zm8 0c-1.2 0-2.1-1.1-2.1-2.4s.9-2.4 2.1-2.4 2.2 1.1 2.1 2.4c0 1.3-.9 2.4-2.1 2.4Z"/></symbol>
+<symbol id="i-google" viewBox="0 0 24 24"><path stroke="none" fill="#4285F4" d="M23.5 12.27c0-.85-.08-1.67-.22-2.45H12v4.64h6.46a5.52 5.52 0 0 1-2.4 3.62v3h3.88c2.27-2.09 3.56-5.17 3.56-8.81z"/><path stroke="none" fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.94-2.91l-3.88-3a7.2 7.2 0 0 1-10.7-3.78H1.35v3.1A12 12 0 0 0 12 24z"/><path stroke="none" fill="#FBBC05" d="M5.36 14.31a7.2 7.2 0 0 1 0-4.62v-3.1H1.35a12 12 0 0 0 0 10.82l4.01-3.1z"/><path stroke="none" fill="#EA4335" d="M12 4.77c1.76 0 3.34.6 4.58 1.8l3.43-3.43A11.5 11.5 0 0 0 12 0 12 12 0 0 0 1.35 6.59l4.01 3.1A7.2 7.2 0 0 1 12 4.77z"/></symbol>
+<symbol id="i-logo" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(-25 12 12)"/></symbol>
+</defs></svg>
+
+<!-- ============ Landing ============ -->
+<div class="view on" id="landing">
+  <div class="lwrap">
+    <span class="blob b1" aria-hidden="true"></span><span class="blob b2" aria-hidden="true"></span>
+    <header class="lnav">
+      <div class="brand"><div class="mark" aria-hidden="true"><svg class="ico" style="stroke:#fff"><use href="#i-logo"/></svg></div><b>Omnia</b></div>
+      <div class="nr">
+        <a class="pill dsc" data-discord href="#" target="_blank" rel="noopener" aria-label="Contact us on Discord"><svg class="ico"><use href="#i-discord"/></svg><span class="hs">Discord</span></a>
+        <button class="pill js-signin" hidden><svg class="ico"><use href="#i-google"/></svg>Sign in</button>
+        <button class="userchip" hidden aria-label="Account"><img alt=""><span></span></button>
+        <button class="pill" data-open="chat">Open app</button>
+      </div>
+    </header>
+    <section class="lhero">
+      <div class="glow" aria-hidden="true"></div>
+      <div class="orbit reveal" aria-hidden="true">
+        <div class="planet"><svg class="ico" style="stroke:#fff;width:46%;height:46%"><use href="#i-logo"/></svg></div>
+        <div class="ring">
+          <span class="sat s1"><svg class="ico"><use href="#i-chat"/></svg></span>
+          <span class="sat s2"><svg class="ico"><use href="#i-code"/></svg></span>
+          <span class="sat s3"><svg class="ico"><use href="#i-image"/></svg></span>
+          <span class="sat s4"><svg class="ico"><use href="#i-video"/></svg></span>
+        </div>
+      </div>
+      <h1 class="reveal d1">One AI for everything.</h1>
+      <p class="reveal d2">Chat in any language, build working apps, draw images and make videos. All in one place.</p>
+      <div class="cta reveal d3">
+        <button class="btn big shine" data-open="chat">Start creating</button>
+        <a class="btn big ghost" data-discord href="#" target="_blank" rel="noopener"><svg class="ico"><use href="#i-discord"/></svg>Contact us on Discord</a>
+      </div>
+      <div class="langs reveal d4">English · हिन्दी · Español · العربية · Français · and more</div>
+    </section>
+    <section class="lgrid">
+      <button class="card reveal d2" data-open="chat"><div class="ic"><svg class="ico"><use href="#i-chat"/></svg></div><b>Chat</b><span class="d">Ask anything in your own language. Get clear answers, ideas and help.</span></button>
+      <button class="card reveal d3" data-open="code"><div class="ic"><svg class="ico"><use href="#i-code"/></svg></div><b>Code</b><span class="d">Describe an app or game. It is built and runs live in front of you.</span></button>
+      <button class="card reveal d4" data-open="image"><div class="ic"><svg class="ico"><use href="#i-image"/></svg></div><b>Image</b><span class="d">Turn words into sharp vector art in six styles. Save as PNG.</span></button>
+      <button class="card reveal d5" data-open="video"><div class="ic"><svg class="ico"><use href="#i-video"/></svg></div><b>Video</b><span class="d">Animated 10 or 20 second videos, even from your reference video. Save as MP4.</span></button>
+    </section>
+    <footer class="lfoot">Questions or ideas? <a data-discord href="#" target="_blank" rel="noopener">Contact us on Discord</a><br>AI can make mistakes. Check important facts.</footer>
+  </div>
+</div>
+
+<!-- ============ App ============ -->
+<div class="view" id="app">
+  <aside id="side">
+    <div class="top">
+      <div class="brand"><div class="mark" aria-hidden="true"><svg class="ico" style="stroke:#fff"><use href="#i-logo"/></svg></div><div><b>Omnia</b><small>One AI for everything</small></div></div>
+      <div class="sp"></div>
+      <div class="tb">
+        <button class="pill" id="newchat">New chat</button>
+        <a class="pill dsc" data-discord href="#" target="_blank" rel="noopener" aria-label="Contact us on Discord"><svg class="ico"><use href="#i-discord"/></svg></a>
+        <button class="pill js-signin" hidden><svg class="ico"><use href="#i-google"/></svg></button>
+        <button class="userchip" hidden aria-label="Account"><img alt=""><span></span></button>
+        <button class="pill" id="home-m">Home</button>
+      </div>
+    </div>
+    <nav aria-label="Studios" id="nav">
+      <button class="on" data-t="chat"><svg class="ico"><use href="#i-chat"/></svg><em>Chat</em></button>
+      <button data-t="code"><svg class="ico"><use href="#i-code"/></svg><em>Code</em></button>
+      <button data-t="image"><svg class="ico"><use href="#i-image"/></svg><em>Image</em></button>
+      <button data-t="video"><svg class="ico"><use href="#i-video"/></svg><em>Video</em></button>
+    </nav>
+    <div class="sidefoot">
+      <a class="btn ghost" data-discord href="#" target="_blank" rel="noopener"><svg class="ico"><use href="#i-discord"/></svg>Contact us on Discord</a>
+      <button class="btn ghost js-signin" hidden><svg class="ico"><use href="#i-google"/></svg>Sign in with Google</button>
+      <button class="userchip wide" hidden aria-label="Account"><img alt=""><span></span></button>
+      <button class="pill" id="home-d">Back to home</button>
+    </div>
+  </aside>
+
+  <main>
+    <section class="panel on" id="p-chat">
+      <div id="msgs" aria-live="polite"></div>
+      <div class="composer">
+        <button class="round" id="mic" aria-label="Speak" hidden><svg class="ico"><use href="#i-mic"/></svg></button>
+        <textarea id="in" rows="1" placeholder="Ask Omnia anything..." aria-label="Message"></textarea>
+        <button class="round go" id="send" aria-label="Send"><svg class="ico"><use href="#i-send"/></svg></button>
+      </div>
+      <div class="note">AI can make mistakes. Check important facts.</div>
+    </section>
+
+    <section class="panel" id="p-code">
+      <div class="studio">
+        <div class="ctrl">
+          <div><h2>Code Studio</h2><p class="sub">Describe an app, game or website. Omnia builds it and runs it live.</p></div>
+          <div class="box">
+            <textarea id="code-in" placeholder="Example: a neon snake game with score"></textarea>
+            <div class="chips" id="code-chips"></div>
+            <div class="bar"><button class="btn shine" id="code-go">Build it</button></div>
+          </div>
+        </div>
+        <div class="out" id="code-out"><div class="empty"><svg class="ico big"><use href="#i-code"/></svg>Your app will appear here and run live.</div></div>
+      </div>
+    </section>
+
+    <section class="panel" id="p-image">
+      <div class="studio">
+        <div class="ctrl">
+          <div><h2>Image Studio</h2><p class="sub">Describe a picture. Omnia draws sharp vector art you can save.</p></div>
+          <div class="box">
+            <textarea id="img-in" placeholder="Example: a lion wearing a crown at sunset"></textarea>
+            <div class="chips" id="img-styles"></div>
+            <div class="bar"><button class="btn shine" id="img-go">Create image</button></div>
+          </div>
+        </div>
+        <div class="out" id="img-out"><div class="empty"><svg class="ico big"><use href="#i-image"/></svg>Your image will appear here.</div></div>
+      </div>
+    </section>
+
+    <section class="panel" id="p-video">
+      <div class="studio">
+        <div class="ctrl">
+          <div><h2>Video Studio</h2><p class="sub">Describe a video. Omnia designs animated scenes you can save as MP4.</p></div>
+          <div class="box">
+            <textarea id="vid-in" placeholder="Example: an intro for my cooking channel"></textarea>
+            <div class="ref" id="ref">
+              <input type="file" id="ref-file" accept="video/*" hidden>
+              <div class="bar"><button class="btn ghost" id="ref-btn"><svg class="ico"><use href="#i-plus"/></svg>Add reference video</button></div>
+              <div class="hint" id="ref-hint">Optional. Omnia reads 5 frames of your video (not the sound) for its colors and mood.</div>
+              <div class="thumbs" id="ref-thumbs"></div>
+              <div class="bar" id="ref-opts" hidden>
+                <span class="seg" id="ref-mode"></span>
+                <button class="pill" id="ref-clear">Remove</button>
+              </div>
+            </div>
+            <div class="bar"><span class="seg" id="vid-ratio"></span><span class="seg" id="vid-len"></span></div>
+            <div class="bar"><button class="btn shine" id="vid-go">Make video</button></div>
+          </div>
+        </div>
+        <div class="out" id="vid-out"><div class="empty"><svg class="ico big"><use href="#i-video"/></svg>Your video will appear here.</div></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="modal" id="login" role="dialog" aria-modal="true" aria-label="Sign in">
+  <div class="sheet">
+    <div class="mark" aria-hidden="true"><svg class="ico" style="stroke:#fff"><use href="#i-logo"/></svg></div>
+    <h2>Sign in to continue</h2>
+    <p>Sign in with Google to use Omnia. It keeps the service free and fair for everyone.</p>
+    <div id="gbtn"></div>
+    <button class="pill" id="login-cancel">Not now</button>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i)};
+  function toast(m){ var t=$("toast"); t.textContent=m; t.classList.add("on"); setTimeout(function(){t.classList.remove("on")},2600); }
+  function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+
+  // ---------- Config, Discord, Google sign in ----------
+  var CFG={googleClientId:"",discordUrl:"",requireLogin:false}, user=null, idToken="", gsiReady=false, loginWait=null;
+  function ico(n){ return '<svg class="ico" aria-hidden="true"><use href="#i-'+n+'"/></svg>'; }
+  function b64json(s){ s=s.replace(/-/g,"+").replace(/_/g,"/"); while(s.length%4) s+="="; return JSON.parse(decodeURIComponent(escape(atob(s)))); }
+  function validToken(){ return !!idToken && !!user && user.exp*1000>Date.now()+60000; }
+  function renderUser(){
+    document.querySelectorAll(".userchip").forEach(function(c){ c.hidden=!user; if(user){ c.querySelector("img").src=user.picture||""; c.querySelector("span").textContent=(user.name||user.email||"").split(" ")[0]; } });
+    document.querySelectorAll(".js-signin").forEach(function(b){ b.hidden=!CFG.googleClientId||!!user; });
+  }
+  function hideLogin(){ $("login").classList.remove("on"); }
+  function onCred(r){
+    try{
+      var p=b64json(r.credential.split(".")[1]);
+      idToken=r.credential; user={name:p.name,email:p.email,picture:p.picture,exp:p.exp};
+      try{ sessionStorage.setItem("omnia-id",idToken); }catch(e){}
+      renderUser(); hideLogin(); toast("Signed in as "+(p.name||p.email));
+      if(loginWait){ loginWait.ok(); loginWait=null; }
+    }catch(e){ toast("Sign in failed. Try again."); }
+  }
+  function signOut(){ idToken=""; user=null; try{ sessionStorage.removeItem("omnia-id"); }catch(e){} try{ google.accounts.id.disableAutoSelect(); }catch(e){} renderUser(); toast("Signed out"); }
+  function initGsi(){ if(gsiReady) return; google.accounts.id.initialize({client_id:CFG.googleClientId,callback:onCred}); gsiReady=true; }
+  function loadGsi(cb){
+    if(window.google&&google.accounts&&google.accounts.id){ initGsi(); return cb(); }
+    var s=document.createElement("script"); s.src="https://accounts.google.com/gsi/client"; s.async=true;
+    s.onload=function(){ initGsi(); cb(); }; s.onerror=function(){ toast("Could not load Google sign in"); };
+    document.head.appendChild(s);
+  }
+  function showLogin(){
+    if(!CFG.googleClientId) return toast("Google sign in is not set up yet");
+    $("login").classList.add("on");
+    loadGsi(function(){ var el=$("gbtn"); el.innerHTML=""; google.accounts.id.renderButton(el,{theme:"filled_blue",size:"large",shape:"pill",text:"continue_with",width:260}); });
+  }
+  function askLogin(){ return new Promise(function(ok,no){ loginWait={ok:ok,no:no}; showLogin(); }); }
+  $("login-cancel").onclick=function(){ hideLogin(); if(loginWait){ loginWait.no(); loginWait=null; } };
+  document.querySelectorAll(".js-signin").forEach(function(b){ b.onclick=function(){ showLogin(); }; });
+  document.querySelectorAll(".userchip").forEach(function(c){ c.onclick=function(){ if(window.confirm("Sign out of "+(user&&user.email||"your account")+"?")) signOut(); }; });
+  document.querySelectorAll("[data-discord]").forEach(function(a){ a.addEventListener("click",function(e){ if(!CFG.discordUrl){ e.preventDefault(); toast("Discord link coming soon"); } }); });
+  async function loadConfig(){
+    if(!(typeof claude!=="undefined" && claude && typeof claude.use==="function")){
+      try{ var r=await fetch("/api/config",{cache:"no-store"}); if(r.ok){ var c=await r.json(); CFG.googleClientId=c.googleClientId||""; CFG.discordUrl=c.discordUrl||""; CFG.requireLogin=!!c.requireLogin; } }catch(e){}
+    }
+    document.querySelectorAll("[data-discord]").forEach(function(a){ if(CFG.discordUrl) a.href=CFG.discordUrl; });
+    try{ var tk=sessionStorage.getItem("omnia-id"); if(tk){ var p=b64json(tk.split(".")[1]); if(p.exp*1000>Date.now()+60000){ idToken=tk; user={name:p.name,email:p.email,picture:p.picture,exp:p.exp}; } } }catch(e){}
+    renderUser();
+  }
+
+  // ---------- Where are we running? ----------
+  // Inside Claude: uses Claude's built-in AI and downloads.
+  // On your own website: calls your server at /api/ai (the key stays secret on the server).
+  var IN_CLAUDE = typeof claude!=="undefined" && claude && typeof claude.use==="function";
+  var sample=null;
+  function blobToB64(b){ return new Promise(function(ok,no){ var r=new FileReader(); r.onload=function(){ ok(String(r.result).split(",")[1]); }; r.onerror=no; r.readAsDataURL(b); }); }
+  async function webSample(input,opts){
+    opts=opts||{};
+    var turns=typeof input==="string" ? [{role:"user",content:input}] : input;
+    var imgs=[]; if(opts.images&&opts.images.length){ for(var i=0;i<opts.images.length;i++) imgs.push(await blobToB64(opts.images[i])); }
+    if(CFG.requireLogin && !validToken()){ try{ await askLogin(); }catch(e){ throw {code:"login"}; } }
+    async function call(){
+      var h={"Content-Type":"application/json"}, code=""; try{ code=localStorage.getItem("omnia-code")||""; }catch(e){}
+      if(code) h["x-access-code"]=code;
+      if(validToken()) h["Authorization"]="Bearer "+idToken;
+      return fetch("/api/ai",{method:"POST",headers:h,signal:opts.signal,body:JSON.stringify({messages:turns,tier:opts.modelTier||"default",images:imgs})});
+    }
+    var res;
+    try{ res=await call(); }catch(e){ if(e&&e.name==="AbortError") throw {code:"cancelled"}; throw {code:"network"}; }
+    if(res.status===401){
+      if(CFG.googleClientId){
+        idToken=""; user=null; renderUser();
+        try{ await askLogin(); }catch(e){ throw {code:"login"}; }
+        try{ res=await call(); }catch(e){ throw {code:"network"}; }
+      } else {
+        var c=window.prompt("Enter the access code for this site:");
+        if(!c) throw {code:"not_granted"};
+        try{ localStorage.setItem("omnia-code",c); }catch(e){}
+        try{ res=await call(); }catch(e){ throw {code:"network"}; }
+      }
+    }
+    if(!res.ok){
+      var j={}; try{ j=await res.json(); }catch(e){}
+      throw {code:res.status===429?"rate_limited":res.status===401?"not_granted":"error",message:j.error||("Server error "+res.status+(res.status===504?" (timeout)":""))};
+    }
+    var d=await res.json(); var text=d.text||"";
+    if(opts.onText) opts.onText({text:text,delta:text});
+    return {text:text,truncated:false};
+  }
+  webSample.limits=async function(){ return {images:true}; };
+  async function getSample(){
+    if(sample) return sample;
+    if(IN_CLAUDE){ try{ sample=await claude.use("sample"); }catch(e){ sample=null; } }
+    else sample=webSample;
+    return sample;
+  }
+  function errText(e){
+    var c=e&&e.code;
+    if(c==="login") return "Please sign in with Google to continue.";
+    if(c==="not_granted") return IN_CLAUDE ? "Access was not allowed, so I cannot answer. Reload the page and allow it." : "Sign in or access code was not accepted.";
+    if(c==="rate_limited") return "Free limit reached for now. Wait a minute and try again.";
+    if(c==="none") return "AI is not available here.";
+    if(c==="network") return "Cannot reach the server. Check your internet and try again.";
+    return "Something went wrong."+(e&&e.message?" ("+String(e.message).slice(0,160)+")":" Please try again.");
+  }
+  var MIME={mp4:"video/mp4",webm:"video/webm",png:"image/png",svg:"image/svg+xml",html:"text/html"};
+  async function download(name,data){
+    if(IN_CLAUDE){
+      try{
+        var d=await claude.use("downloads");
+        if(!d){ toast("Download not available here"); return; }
+        await d.save({filename:name,data:data}); toast("Saved");
+      }catch(e){ if(!e||e.code!=="declined") toast("Could not save the file"); }
+      return;
+    }
+    try{
+      var ext=name.split(".").pop(), blob=data instanceof Blob ? data : new Blob([data],{type:MIME[ext]||"application/octet-stream"});
+      var a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function(){ URL.revokeObjectURL(a.href); },4000); toast("Saved");
+    }catch(e){ toast("Could not save the file"); }
+  }
+  function copy(t){ try{ navigator.clipboard.writeText(t).then(function(){ toast("Copied"); }); }catch(e){ toast("Copy not available"); } }
+
+  // ---------- Views & tabs ----------
+  var TABS=["chat","code","image","video"];
+  function switchTab(t){
+    [].forEach.call($("nav").children,function(x){ x.classList.toggle("on",x.getAttribute("data-t")===t); });
+    TABS.forEach(function(k){ $("p-"+k).classList.toggle("on",k===t); });
+    $("newchat").style.display = t==="chat" ? "" : "none";
+  }
+  function openApp(t){ $("landing").classList.remove("on"); $("app").classList.add("on"); switchTab(t||"chat"); try{ history.replaceState(null,"","#"+(t||"chat")); }catch(e){} }
+  function goHome(){ $("app").classList.remove("on"); $("landing").classList.add("on"); try{ history.replaceState(null,"",location.pathname); }catch(e){} }
+  document.querySelectorAll("[data-open]").forEach(function(b){ b.onclick=function(){ openApp(b.getAttribute("data-open")); }; });
+  $("nav").onclick=function(e){ var b=e.target.closest("button"); if(b) switchTab(b.getAttribute("data-t")); };
+  $("home-m").onclick=goHome; $("home-d").onclick=goHome;
+  (function(){ var h=(location.hash||"").slice(1); if(TABS.indexOf(h)>-1) openApp(h); })();
+
+  // ---------- Chat ----------
+  var turns=[], busy=false, ctl=null, box=$("msgs");
+  var STARTS=["Explain how black holes work, simply","Write a polite message to cancel a meeting","Help me plan a 3-day trip budget","Samjhao: mutual funds kya hote hain?"];
+  var RULES="You are Omnia, a friendly, smart AI for everyone, from kids to elders, anywhere in the world. Always reply in the same language and script the user writes in (Hindi, Hinglish, English, Spanish, or any other). Be clear and helpful. Use simple words and short answers unless asked for more. For health, law or money, give general help and suggest an expert for serious cases. If someone seems in danger or distress, respond with care and encourage them to contact local emergency services or a trusted person. If asked for an image, video or app, tell them to use the Image, Video or Code tab.";
+  function inline(s){ return esc(s).replace(/`([^`]+)`/g,"<code>$1</code>").replace(/\*\*([^*]+)\*\*/g,"<b>$1</b>"); }
+  function md(t){
+    var out="", parts=t.split(/```/);
+    parts.forEach(function(part,idx){
+      if(idx%2===1){ out+="<pre><code>"+esc(part.replace(/^[^\n]*\n/,""))+"</code></pre>"; return; }
+      var list=null, para=[];
+      function fp(){ if(para.length){ out+="<p>"+para.join("<br>")+"</p>"; para=[]; } }
+      function fl(){ if(list){ out+="</"+list+">"; list=null; } }
+      part.split("\n").forEach(function(l){
+        var u=/^\s*[-*•]\s+(.*)/.exec(l), o=/^\s*\d+[.)]\s+(.*)/.exec(l);
+        if(u||o){ fp(); var tag=u?"ul":"ol"; if(list!==tag){ fl(); out+="<"+tag+">"; list=tag; } out+="<li>"+inline((u||o)[1])+"</li>"; }
+        else if(!l.trim()){ fp(); fl(); }
+        else { fl(); para.push(inline(l.replace(/^#+\s*/,""))); }
+      });
+      fp(); fl();
+    });
+    return out;
+  }
+  function scroll(){ box.scrollTop=box.scrollHeight; }
+  function home(){
+    box.innerHTML="";
+    var h=document.createElement("div"); h.className="hero";
+    h.innerHTML='<div class="orb" aria-hidden="true"></div><h2>Hi, I am Omnia</h2><p>Ask me anything in any language. Need an app, picture or video? Use the other studios.</p>';
+    var s=document.createElement("div"); s.className="starts";
+    STARTS.forEach(function(t){ var b=document.createElement("button"); b.textContent=t; b.onclick=function(){ send(t); }; s.appendChild(b); });
+    h.appendChild(s); box.appendChild(h);
+  }
+  function bubble(c){ var d=document.createElement("div"); d.className="m "+c; box.appendChild(d); return d; }
+  async function send(text){
+    text=(text||"").trim(); if(!text||busy) return;
+    if(!turns.length) box.innerHTML="";
+    $("in").value=""; grow();
+    bubble("u").textContent=text;
+    var b=bubble("b"); b.innerHTML='<span class="dots"><i></i><i></i><i></i></span>'; scroll();
+    var s=await getSample();
+    if(!s){ b.textContent=errText({code:"none"}); return; }
+    turns.push({role:"user",content:text});
+    var hist=turns.slice(-14); if(hist[0].role!=="user") hist.shift();
+    var input=hist.map(function(t,i){ return i===0 ? {role:"user",content:"[Instructions: "+RULES+"]\n\n"+t.content} : t; });
+    busy=true; ctl=new AbortController(); $("send").innerHTML=ico("stop"); $("send").setAttribute("aria-label","Stop");
+    var final="";
+    try{
+      var r=await s(input,{cache:false,signal:ctl.signal,onText:function(o){ final=o.text; b.innerHTML=md(final); scroll(); }});
+      final=r.text||final; b.innerHTML=md(final||"(no answer)");
+      turns.push({role:"assistant",content:final});
+      var tl=document.createElement("div"); tl.className="tl";
+      var cp=document.createElement("button"); cp.textContent="Copy"; cp.onclick=function(){ copy(final); };
+      tl.appendChild(cp); box.appendChild(tl);
+    }catch(e){
+      if(e&&e.code==="cancelled"){ if(final) turns.push({role:"assistant",content:final}); else { turns.pop(); b.textContent="Stopped."; } }
+      else { turns.pop(); b.textContent=errText(e); }
+    }
+    busy=false; ctl=null; $("send").innerHTML=ico("send"); $("send").setAttribute("aria-label","Send"); scroll();
+  }
+  function grow(){ var t=$("in"); t.style.height="auto"; t.style.height=Math.min(140,t.scrollHeight)+"px"; }
+  $("in").addEventListener("input",grow);
+  $("in").addEventListener("keydown",function(e){ if(e.key==="Enter"&&!e.shiftKey){ e.preventDefault(); send($("in").value); } });
+  $("send").onclick=function(){ if(busy&&ctl) ctl.abort(); else send($("in").value); };
+  $("newchat").onclick=function(){ if(ctl) ctl.abort(); turns=[]; home(); };
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(SR){
+    var mic=$("mic"); mic.hidden=false; var rec=null;
+    mic.onclick=function(){
+      if(rec){ rec.stop(); return; }
+      try{
+        rec=new SR(); rec.lang=navigator.language||"en-IN"; rec.interimResults=true;
+        rec.onresult=function(e){ var t=""; for(var i=0;i<e.results.length;i++) t+=e.results[i][0].transcript; $("in").value=t; grow(); };
+        rec.onend=rec.onerror=function(){ rec=null; mic.classList.remove("rec"); };
+        rec.start(); mic.classList.add("rec");
+      }catch(e){ rec=null; }
+    };
+  }
+
+  // ---------- Studio helpers ----------
+  function chips(el,list,onpick){ list.forEach(function(t){ var b=document.createElement("button"); b.textContent=t; b.onclick=function(){ onpick(t,b); }; el.appendChild(b); }); }
+  function waiting(out,msg){ out.innerHTML='<div class="wait"><div class="loader"></div><div id="wt">'+msg+'</div></div>'; return function(n){ var w=$("wt"); if(w&&n) w.textContent=msg+" ("+n+" characters)"; }; }
+  async function generate(out,btn,prompt,msg,tier,images){
+    var s=await getSample();
+    if(!s){ out.innerHTML='<div class="err">'+errText({code:"none"})+'</div>'; return null; }
+    btn.disabled=true; var tick=waiting(out,msg), text="";
+    var opts={cache:false,modelTier:tier||"default",onText:function(o){ text=o.text; tick(text.length); }};
+    if(images&&images.length) opts.images=images;
+    try{ var r=await s(prompt,opts); text=r.text||text; btn.disabled=false; return text; }
+    catch(e){ btn.disabled=false; out.innerHTML='<div class="err">'+errText(e)+'</div>'; return null; }
+  }
+  function extractHtml(t){
+    t=t.replace(/```(?:html)?\n?/gi,"").replace(/```/g,"");
+    var i=t.search(/<!doctype html|<html/i); if(i>0) t=t.slice(i);
+    return t.trim();
+  }
+  function frameDoc(html){
+    if(!/<meta[^>]+viewport/i.test(html)) html=html.replace(/<head>/i,'<head><meta name="viewport" content="width=device-width, initial-scale=1">');
+    return html;
+  }
+
+  // ---------- Code Studio ----------
+  var codeHtml="", codeView="preview";
+  chips($("code-chips"),["Snake game","Calculator","Portfolio website","Quiz app","Pomodoro timer"],function(t){ $("code-in").value=t; });
+  var CODE_RULES="You are an expert front-end developer. Output ONLY one complete, self-contained HTML file (inline CSS and JavaScript, no external libraries, fonts or network requests). Make it mobile-friendly with a polished modern design and working logic. Keep it under about 350 lines. No explanations and no markdown fences.";
+  function renderCode(){
+    var out=$("code-out"); out.innerHTML="";
+    var bar=document.createElement("div"); bar.className="bar";
+    var seg=document.createElement("span"); seg.className="seg";
+    ["preview","code"].forEach(function(v){ var b=document.createElement("button"); b.textContent=v==="preview"?"Live preview":"Code"; if(v===codeView) b.className="on"; b.onclick=function(){ codeView=v; renderCode(); }; seg.appendChild(b); });
+    bar.appendChild(seg);
+    var cp=document.createElement("button"); cp.className="btn ghost"; cp.textContent="Copy"; cp.onclick=function(){ copy(codeHtml); };
+    var dl=document.createElement("button"); dl.className="btn ghost"; dl.textContent="Download"; dl.onclick=function(){ download("omnia-app.html",codeHtml); };
+    bar.appendChild(cp); bar.appendChild(dl); out.appendChild(bar);
+    if(codeView==="preview"){
+      var f=document.createElement("div"); f.className="frame code";
+      var ifr=document.createElement("iframe"); ifr.setAttribute("sandbox","allow-scripts"); ifr.title="Live preview"; ifr.srcdoc=frameDoc(codeHtml);
+      f.appendChild(ifr); out.appendChild(f);
+    } else { var pre=document.createElement("pre"); pre.className="src"; pre.textContent=codeHtml; out.appendChild(pre); }
+    var ch=document.createElement("div"); ch.className="box";
+    ch.innerHTML='<textarea id="code-fix" placeholder="Want changes? Example: make the buttons bigger and add a dark theme"></textarea><div class="bar"><button class="btn" id="code-upd">Update</button></div>';
+    out.appendChild(ch);
+    $("code-upd").onclick=function(){ runCode($("code-fix").value,true); };
+  }
+  async function runCode(p,isUpdate){
+    p=(p||"").trim(); if(!p) return toast("Describe what to build first");
+    var btn=isUpdate?$("code-upd"):$("code-go"), out=$("code-out");
+    var prompt = isUpdate ? "["+CODE_RULES+"]\n\nHere is the current file:\n"+codeHtml+"\n\nApply this change and return the full updated file: "+p : "["+CODE_RULES+"]\n\nBuild this: "+p;
+    var t=await generate(out,btn,prompt,"Omnia is writing code...","complex");
+    if(t===null) return;
+    var h=extractHtml(t);
+    if(!/<\/?html|<body|<div|<canvas/i.test(h)){ out.innerHTML='<div class="err">I could not build that. Try describing it a little differently.</div>'; return; }
+    codeHtml=h; codeView="preview"; renderCode();
+  }
+  $("code-go").onclick=function(){ runCode($("code-in").value,false); };
+
+  // ---------- Image Studio ----------
+  var imgStyle="Neon glow", svgText="";
+  var STYLES=["Neon glow","Low-poly","Retro sunset","Paper-cut layers","Flat geometric","Isometric"];
+  var sbox=$("img-styles");
+  STYLES.forEach(function(st){ var b=document.createElement("button"); b.textContent=st; if(st===imgStyle) b.className="on"; b.onclick=function(){ imgStyle=st; [].forEach.call(sbox.children,function(c){c.className=""}); b.className="on"; }; sbox.appendChild(b); });
+  var IMG_RULES="You are a vector illustrator. Output ONLY one SVG, nothing else: root <svg> with xmlns, viewBox=\"0 0 1024 1024\", width=\"1024\" height=\"1024\". No scripts, no external images or fonts, no text. Keep it SIMPLE and COMPLETE: 40 to 120 elements total, and always finish the file with </svg>. Design: a limited palette of 5 colors; a gradient background; 2 or 3 layers of distant shapes for depth; ONE clear, large, recognisable subject built from a few overlapping shapes with gradient fills; a glow or light source; a soft dark vignette. Stylised and geometric is better than complicated. No explanations and no markdown fences.";
+  function repairSvg(t){
+    var a=t.indexOf("<svg"); if(a<0) return "";
+    var s=t.slice(a), b=s.lastIndexOf("</svg>");
+    if(b>-1) s=s.slice(0,b+6);
+    else {
+      var k=s.lastIndexOf(">"); if(k<0) return "";
+      s=s.slice(0,k+1);
+      var stack=[], re=/<(\/?)([a-zA-Z][\w:-]*)[^>]*?(\/?)>/g, m;
+      while((m=re.exec(s))){ if(m[3]==="/") continue; if(m[1]==="/"){ var i=stack.lastIndexOf(m[2]); if(i>-1) stack.length=i; } else stack.push(m[2]); }
+      while(stack.length) s+="</"+stack.pop()+">";
+    }
+    s=s.replace(/<script[\s\S]*?<\/script>/gi,"").replace(/\son\w+\s*=\s*("[^"]*"|'[^']*')/gi,"");
+    if(!/xmlns=/.test(s)) s=s.replace("<svg",'<svg xmlns="http://www.w3.org/2000/svg"');
+    if(!/<svg[^>]*\swidth=/.test(s)) s=s.replace("<svg",'<svg width="1024" height="1024"');
+    return s;
+  }
+  function svgOk(s){ try{ var d=new DOMParser().parseFromString(s,"image/svg+xml"); return !d.getElementsByTagName("parsererror").length; }catch(e){ return true; } }
+  function svgUrl(s){ return "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(s); }
+  function hashStr(s){ var h=2166136261; for(var i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); } return h>>>0; }
+  function posterSvg(p){
+    var h=hashStr(p), r=function(k){ var v=Math.sin((h%9973)+k*91.7)*43758.5453; return v-Math.floor(v); };
+    var hue=Math.floor(r(1)*360), c=function(hh,sa,l){ return "hsl("+((hh+360)%360)+","+sa+"%,"+l+"%)"; };
+    var o='<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+c(hue,70,16)+'"/><stop offset=".6" stop-color="'+c(hue+40,75,42)+'"/><stop offset="1" stop-color="'+c(hue+80,80,60)+'"/></linearGradient><radialGradient id="s"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="'+c(hue+150,90,60)+'" stop-opacity="0"/></radialGradient></defs><rect width="1024" height="1024" fill="url(#g)"/>';
+    for(var i=0;i<60;i++) o+='<circle cx="'+Math.round(r(i+2)*1024)+'" cy="'+Math.round(r(i+90)*560)+'" r="'+(1+r(i+7)*2.4).toFixed(1)+'" fill="#fff" opacity="'+(.3+.6*r(i+3)).toFixed(2)+'"/>';
+    var sx=300+r(5)*400, sy=280+r(6)*120;
+    o+='<circle cx="'+Math.round(sx)+'" cy="'+Math.round(sy)+'" r="190" fill="url(#s)"/><circle cx="'+Math.round(sx)+'" cy="'+Math.round(sy)+'" r="72" fill="'+c(hue+150,95,82)+'"/>';
+    for(var L=0;L<4;L++){ var base=540+L*95, pts="0,1024 "; for(var k=0;k<=8;k++) pts+=(k*128)+","+Math.round(base-r(L*10+k+11)*170)+" "; pts+="1024,1024"; o+='<polygon points="'+pts+'" fill="'+c(hue+25*L,55,Math.max(8,34-L*7))+'"/>'; }
+    var title=p.slice(0,34).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    o+='<text x="512" y="965" text-anchor="middle" font-family="sans-serif" font-size="42" fill="#fff" opacity=".9">'+title+'</text></svg>';
+    return o;
+  }
+  function renderImg(note){
+    var out=$("img-out"); out.innerHTML="";
+    var bx=document.createElement("div"); bx.className="imgbox reveal"; var im=document.createElement("img"); im.alt="Generated image"; im.src=svgUrl(svgText); bx.appendChild(im); out.appendChild(bx);
+    if(note){ var nt=document.createElement("div"); nt.className="vwarn"; nt.textContent=note; out.appendChild(nt); }
+    var bar=document.createElement("div"); bar.className="bar";
+    var d1=document.createElement("button"); d1.className="btn"; d1.textContent="Save PNG";
+    d1.onclick=function(){
+      var i2=new Image(); i2.onload=function(){ var c=document.createElement("canvas"); c.width=2048; c.height=2048; c.getContext("2d").drawImage(i2,0,0,2048,2048); c.toBlob(function(bl){ if(bl) download("omnia-image.png",bl); else toast("Could not make PNG"); },"image/png"); };
+      i2.onerror=function(){ toast("Could not make PNG"); }; i2.src=svgUrl(svgText);
+    };
+    var d2=document.createElement("button"); d2.className="btn ghost"; d2.textContent="Save SVG"; d2.onclick=function(){ download("omnia-image.svg",svgText); };
+    var rg=document.createElement("button"); rg.className="btn ghost"; rg.textContent="New version"; rg.onclick=function(){ runImg(); };
+    bar.appendChild(d1); bar.appendChild(d2); bar.appendChild(rg); out.appendChild(bar);
+    var ch=document.createElement("div"); ch.className="box";
+    ch.innerHTML='<textarea id="img-fix" placeholder="Want changes? Example: make the sky purple and add stars"></textarea><div class="bar"><button class="btn" id="img-upd">Update image</button></div>';
+    out.appendChild(ch);
+    $("img-upd").onclick=function(){ runImg($("img-fix").value); };
+  }
+  async function runImg(change){
+    var p=$("img-in").value.trim(); if(!p) return toast("Describe the image first");
+    var out=$("img-out"), upd=!!(change&&change.trim()), btn=upd?$("img-upd"):$("img-go"), t, s="";
+    if(upd) t=await generate(out,btn,"["+IMG_RULES+"]\n\nHere is the current SVG:\n"+svgText+"\n\nApply this change and return the full updated SVG: "+change,"Omnia is updating the picture...","complex");
+    else t=await generate(out,btn,"["+IMG_RULES+"]\n\nStyle: "+imgStyle+"\nDraw this: "+p,"Omnia is drawing...","complex");
+    if(t===null) return;
+    s=repairSvg(t);
+    if(!s||!svgOk(s)){
+      var t2=await generate(out,btn,"["+IMG_RULES+"]\n\nIMPORTANT: keep it very simple, under 60 elements, valid XML, and end with </svg>.\nStyle: "+imgStyle+"\nDraw this: "+p,"Trying a simpler drawing...","default");
+      if(t2===null) return;
+      s=repairSvg(t2);
+    }
+    if(!s||!svgOk(s)){
+      svgText=posterSvg(p); renderImg("The AI drawing did not finish, so this is a basic art card. Tap New version to try again."); return;
+    }
+    svgText=s; renderImg();
+  }
+  $("img-go").onclick=function(){ runImg(); };
+
+  // ---------- Video Studio ----------
+  // The AI writes the PLAN (text, colors, style). Omnia's own animation engine draws it, so videos always look polished.
+  var ratio="16:9", vidDur=10, vspec=null, vrefs=[], vframe=null, recTimer=null;
+  var refFrames=[], refMode="colors", refPalette=null;
+  var RATIOS={"16:9":[16,9,1280,720],"9:16":[9,16,720,1280],"1:1":[1,1,1000,1000]};
+  var STYLES_V=["particles","waves","grid","bubbles","stars","rays"];
+  var PALS={energetic:["#1b0b3a","#7a1fa2","#ff6b4a","#ffd166","#ffffff"],calm:["#071a2f","#0f4c75","#3fc1c9","#a8e6cf","#f4fbff"],dramatic:["#0b0b14","#3a0ca3","#f72585","#ffd60a","#ffffff"],fresh:["#062925","#0b6e4f","#2ee59d","#c7f464","#ffffff"]};
+  function seg(el,items,get,set){
+    items.forEach(function(it){ var b=document.createElement("button"); b.textContent=it[1]; if(it[0]===get()) b.className="on"; b.onclick=function(){ set(it[0]); [].forEach.call(el.children,function(c){c.className=""}); b.className="on"; }; el.appendChild(b); });
+  }
+  seg($("vid-ratio"),[["16:9","16:9"],["9:16","9:16"],["1:1","1:1"]],function(){return ratio},function(v){ratio=v});
+  seg($("vid-len"),[[10,"10 sec"],[20,"20 sec"]],function(){return vidDur},function(v){vidDur=v});
+  seg($("ref-mode"),[["colors","Match its colors"],["frames","Use its frames"]],function(){return refMode},function(v){refMode=v});
+
+  $("ref-btn").onclick=function(){ $("ref-file").click(); };
+  $("ref-clear").onclick=function(){ clearRef(); };
+  function clearRef(){ refFrames.forEach(function(f){ URL.revokeObjectURL(f.url); }); refFrames=[]; refPalette=null; $("ref-thumbs").innerHTML=""; $("ref-opts").hidden=true; $("ref-file").value=""; $("ref-btn").innerHTML=ico("plus")+"Add reference video"; $("ref-hint").textContent="Optional. Omnia reads 5 frames of your video (not the sound) for its colors and mood."; }
+  function seekTo(v,t){ return new Promise(function(ok){ var done=false; function fin(){ if(done) return; done=true; v.removeEventListener("seeked",fin); ok(); } v.addEventListener("seeked",fin); v.currentTime=t; setTimeout(fin,3500); }); }
+  function hex2(n){ n=Math.max(0,Math.min(255,Math.round(n))); return (n<16?"0":"")+n.toString(16); }
+  function toHex(c){ return "#"+hex2(c.r)+hex2(c.g)+hex2(c.b); }
+  function scaleC(c,k){ return {r:c.r*k,g:c.g*k,b:c.b*k}; }
+  function lumC(c){ return .299*c.r+.587*c.g+.114*c.b; }
+  function satC(c){ return Math.max(c.r,c.g,c.b)-Math.min(c.r,c.g,c.b); }
+  function brighten(c){ var l=lumC(c); return l<120 ? scaleC(c,Math.min(3,130/Math.max(l,20))) : c; }
+  function pickPalette(smalls){
+    var buckets={};
+    smalls.forEach(function(sc){ var d=sc.getContext("2d").getImageData(0,0,24,24).data; for(var i=0;i<d.length;i+=4){ var k=(d[i]>>5)*64+(d[i+1]>>5)*8+(d[i+2]>>5); var o=buckets[k]||(buckets[k]={n:0,r:0,g:0,b:0}); o.n++; o.r+=d[i]; o.g+=d[i+1]; o.b+=d[i+2]; } });
+    var list=Object.keys(buckets).map(function(k){ var o=buckets[k]; return {n:o.n,r:o.r/o.n,g:o.g/o.n,b:o.b/o.n}; }).sort(function(a,b){ return b.n-a.n; });
+    var chosen=[]; list.forEach(function(c1){ if(chosen.length>=6) return; if(chosen.every(function(c2){ return Math.abs(c1.r-c2.r)+Math.abs(c1.g-c2.g)+Math.abs(c1.b-c2.b)>110; })) chosen.push(c1); });
+    if(chosen.length<3) return null;
+    var byL=chosen.slice().sort(function(a,b){ return lumC(a)-lumC(b); });
+    var rest=chosen.filter(function(c){ return c!==byL[0]&&c!==byL[1]; }).sort(function(a,b){ return satC(b)-satC(a); });
+    var a1=rest[0]||byL[byL.length-1], a2=rest[1]||a1;
+    return [toHex(scaleC(byL[0],.55)),toHex(scaleC(byL[1],.8)),toHex(brighten(a1)),toHex(brighten(a2)),"#ffffff"];
+  }
+  async function extractFrames(file,n){
+    var url=URL.createObjectURL(file), v=document.createElement("video");
+    v.muted=true; v.playsInline=true; v.preload="auto"; v.src=url;
+    try{
+      await new Promise(function(ok,no){ v.onloadeddata=ok; v.onerror=function(){ no(new Error("bad")); }; setTimeout(function(){ no(new Error("timeout")); },12000); });
+      var dur=isFinite(v.duration)?v.duration:0; if(!dur||!v.videoWidth) throw new Error("bad");
+      var sc=Math.min(1,512/Math.max(v.videoWidth,v.videoHeight)), c=document.createElement("canvas");
+      c.width=Math.round(v.videoWidth*sc); c.height=Math.round(v.videoHeight*sc);
+      var x=c.getContext("2d"), out=[], smalls=[];
+      for(var i=0;i<n;i++){
+        await seekTo(v,dur*(i+.5)/n); x.drawImage(v,0,0,c.width,c.height);
+        var bl=await new Promise(function(r){ c.toBlob(r,"image/jpeg",.72); });
+        if(bl){ out.push({blob:bl,url:URL.createObjectURL(bl),data:c.toDataURL("image/jpeg",.7)}); var sm=document.createElement("canvas"); sm.width=24; sm.height=24; sm.getContext("2d").drawImage(c,0,0,24,24); smalls.push(sm); }
+      }
+      return {frames:out,palette:smalls.length?pickPalette(smalls):null};
+    } finally { URL.revokeObjectURL(url); }
+  }
+  $("ref-file").onchange=async function(){
+    var f=this.files&&this.files[0]; if(!f) return;
+    $("ref-hint").textContent="Reading your video...";
+    try{
+      var r=await extractFrames(f,5);
+      if(!r.frames.length) throw new Error("none");
+      clearRef(); refFrames=r.frames; refPalette=r.palette;
+      var th=$("ref-thumbs"); th.innerHTML=""; r.frames.forEach(function(x){ var im=document.createElement("img"); im.src=x.url; im.alt="Reference frame"; th.appendChild(im); });
+      if(r.palette){ var sw=document.createElement("span"); sw.style.cssText="display:flex;gap:4px;align-items:center;margin-left:4px"; r.palette.slice(0,4).forEach(function(c){ var d=document.createElement("i"); d.style.cssText="width:22px;height:22px;border-radius:50%;border:1px solid var(--line);background:"+c; sw.appendChild(d); }); th.appendChild(sw); }
+      $("ref-opts").hidden=false; $("ref-btn").innerHTML=ico("plus")+"Change reference video";
+      $("ref-hint").textContent="Got it. Omnia read "+r.frames.length+" frames and the main colors.";
+    }catch(e){ clearRef(); toast("Could not read that video. Try an MP4."); }
+  };
+
+  // ---- Omnia animation engine (runs inside the sandboxed preview, and is what gets recorded) ----
+  function omniaEngine(){
+    var cv=document.getElementById("c"), ctx=cv.getContext("2d"), W=cv.width, H=cv.height, s=Math.min(W,H);
+    var S=SPEC, P=S.palette, D=S.dur, N=S.scenes.length, per=D/N, failed=false, rec=false, t0=performance.now();
+    var imgs=REFS.map(function(u){ var im=new Image(); im.src=u; return im; });
+    function clamp(x,a,b){ return Math.max(a,Math.min(b,x)); }
+    function ease(x){ return x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2; }
+    function back(x){ var c=1.70158; return 1+(c+1)*Math.pow(x-1,3)+c*Math.pow(x-1,2); }
+    function rnd(k){ var v=Math.sin(k*127.1+311.7)*43758.5453; return v-Math.floor(v); }
+    function rgba(h,a){ var n=parseInt(h.slice(1),16); return "rgba("+(n>>16&255)+","+(n>>8&255)+","+(n&255)+","+a+")"; }
+    var FONT='system-ui,-apple-system,"Segoe UI",Roboto,sans-serif', EMOJI='"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+    function layers(t){
+      var st=S.style, k, i;
+      if(st==="waves"){
+        for(k=0;k<4;k++){ ctx.beginPath(); ctx.moveTo(0,H); for(i=0;i<=24;i++){ var x=i/24*W; ctx.lineTo(x,H*(.55+k*.1)+Math.sin(i*.5+t*(.8+k*.3)+k)*s*(.04+k*.012)); } ctx.lineTo(W,H); ctx.closePath(); ctx.fillStyle=rgba(P[2+(k%2)],.14+k*.05); ctx.fill(); }
+      } else if(st==="grid"){
+        var hy=H*.58; ctx.strokeStyle=rgba(P[3],.4); ctx.lineWidth=Math.max(1,s*.002);
+        for(k=-12;k<=12;k++){ ctx.beginPath(); ctx.moveTo(W/2+k*W*.02,hy); ctx.lineTo(W/2+k*W*.2,H); ctx.stroke(); }
+        for(k=0;k<10;k++){ var f=((k+t*.6)%10)/10, y=hy+(H-hy)*f*f; ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.globalAlpha=.25+f*.6; ctx.stroke(); ctx.globalAlpha=1; }
+        var g=ctx.createRadialGradient(W/2,hy,0,W/2,hy,s*.5); g.addColorStop(0,rgba(P[2],.8)); g.addColorStop(1,rgba(P[2],0)); ctx.fillStyle=g; ctx.fillRect(0,hy-s*.5,W,s*.5);
+      } else if(st==="bubbles"){
+        for(k=0;k<7;k++){ var bx=W*(.15+rnd(k)*.7)+Math.sin(t*.4+k)*s*.06, by=H*(.2+rnd(k+8)*.6)+Math.cos(t*.35+k*2)*s*.06, br=s*(.18+rnd(k+3)*.22); var gg=ctx.createRadialGradient(bx,by,0,bx,by,br); gg.addColorStop(0,rgba(P[2+(k%2)],.5)); gg.addColorStop(1,rgba(P[2+(k%2)],0)); ctx.fillStyle=gg; ctx.beginPath(); ctx.arc(bx,by,br,0,7); ctx.fill(); }
+      } else if(st==="stars"){
+        for(k=0;k<130;k++){ var ang=rnd(k)*6.283, r=(rnd(k+1)+t*.22*(.4+rnd(k+2)))%1, dist=r*r*s*.95, cx=W/2+Math.cos(ang)*dist, cy=H/2+Math.sin(ang)*dist, len=r*s*.05; ctx.strokeStyle=rgba(P[k%2?2:3],clamp(r*1.2,0,1)); ctx.lineWidth=Math.max(1,r*s*.004); ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx-Math.cos(ang)*len,cy-Math.sin(ang)*len); ctx.stroke(); }
+      } else if(st==="rays"){
+        ctx.save(); ctx.translate(W/2,H/2); ctx.rotate(t*.12);
+        for(k=0;k<14;k++){ ctx.rotate(6.283/14); ctx.fillStyle=rgba(P[2+(k%2)],.09); ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(s*1.2,-s*.06); ctx.lineTo(s*1.2,s*.06); ctx.closePath(); ctx.fill(); }
+        ctx.restore();
+      } else {
+        for(k=0;k<90;k++){ var px=(rnd(k)*W+t*s*.02*(.3+rnd(k+9)))%W, py=H-((rnd(k+3)*H+t*s*(.05+rnd(k+5)*.1))%H), pr=s*(.004+rnd(k+7)*.012); ctx.fillStyle=rgba(P[2+(k%2)],.2+.5*Math.abs(Math.sin(t*1.5+k))); ctx.beginPath(); ctx.arc(px,py,pr,0,7); ctx.fill(); }
+      }
+    }
+    function bg(t,i,lt){
+      var a=t*.18, x1=W/2+Math.cos(a)*W*.6, y1=H/2+Math.sin(a)*H*.6, g=ctx.createLinearGradient(x1,y1,W-x1,H-y1);
+      g.addColorStop(0,P[0]); g.addColorStop(1,P[1]); ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+      if(S.useRef&&imgs.length){
+        var im=imgs[i%imgs.length];
+        if(im.complete&&im.naturalWidth){ var z=Math.max(W/im.naturalWidth,H/im.naturalHeight)*(1.02+.1*lt/per), dw=im.naturalWidth*z, dh=im.naturalHeight*z; ctx.drawImage(im,(W-dw)/2,(H-dh)/2,dw,dh); var o=ctx.createLinearGradient(0,0,0,H); o.addColorStop(0,rgba(P[0],.62)); o.addColorStop(1,rgba(P[1],.45)); ctx.fillStyle=o; ctx.fillRect(0,0,W,H); }
+      }
+      layers(t);
+    }
+    function wrapLines(txt,fs,maxW){ ctx.font="800 "+fs+"px "+FONT; var words=txt.split(" "), lines=[], cur=""; words.forEach(function(w){ var tt=cur?cur+" "+w:w; if(ctx.measureText(tt).width>maxW&&cur){ lines.push(cur); cur=w; } else cur=tt; }); if(cur) lines.push(cur); return lines; }
+    function scene(i,t){
+      var sc=S.scenes[i], lt=t-i*per, inP=clamp(lt/.7,0,1), outP=clamp((lt-(per-.45))/.45,0,1);
+      if(i>0&&lt<.55){ var p=ease(lt/.55); for(var b=0;b<2;b++){ ctx.fillStyle=P[3-b]; ctx.fillRect(-W+p*2*W-b*W*.1,0,W,H); } }
+      ctx.save(); ctx.globalAlpha=1-outP;
+      var fs=s*(sc.text.length<=14?.12:sc.text.length<=28?.09:.07), lines=wrapLines(sc.text,fs,W*.84), g=0;
+      while(lines.length*fs*1.18>H*.46&&g<4){ fs*=.82; lines=wrapLines(sc.text,fs,W*.84); g++; }
+      var lh=fs*1.18, blockH=lines.length*lh, hasIcon=!!sc.icon, cy=H*(sc.sub?.47:.5)+(hasIcon?s*.07:0), top=cy-blockH/2;
+      if(hasIcon){
+        var isz=s*.17, iy=top-isz*.85; ctx.save(); ctx.translate(W/2,iy); var sz=Math.max(.01,back(inP)); ctx.scale(sz,sz); ctx.rotate(Math.sin(lt*2)*.08);
+        ctx.font=isz+"px "+EMOJI; ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.fillText(sc.icon,0,0);
+        ctx.strokeStyle=rgba(P[3],.75); ctx.lineWidth=Math.max(2,s*.006); ctx.beginPath(); ctx.arc(0,0,isz*.85,0,6.283*inP); ctx.stroke(); ctx.restore();
+      }
+      ctx.font="800 "+fs+"px "+FONT; ctx.textBaseline="middle"; ctx.textAlign="left"; ctx.shadowColor=rgba(P[2],.85); ctx.shadowBlur=s*.035;
+      var wi=0;
+      lines.forEach(function(line,li){
+        var lw=ctx.measureText(line).width, x=W/2-lw/2, y=top+li*lh+lh/2;
+        line.split(" ").forEach(function(w){ var pr=clamp((lt-.15-wi*.1)/.5,0,1), e=back(pr); ctx.globalAlpha=(1-outP)*clamp(pr*1.6,0,1); ctx.fillStyle=P[4]; ctx.fillText(w,x,y+(1-e)*s*.07); x+=ctx.measureText(w+" ").width; wi++; });
+      });
+      ctx.shadowBlur=0; ctx.globalAlpha=1-outP;
+      var bw=ease(inP)*s*.28, by2=top+blockH+s*.02; var bg2=ctx.createLinearGradient(W/2-bw/2,0,W/2+bw/2,0); bg2.addColorStop(0,P[2]); bg2.addColorStop(1,P[3]); ctx.fillStyle=bg2; ctx.fillRect(W/2-bw/2,by2,bw,Math.max(3,s*.008));
+      if(sc.sub){ var sp=clamp((lt-.7)/.5,0,1), sfs=s*.042, sl=wrapLines(sc.sub,sfs,W*.8); ctx.font="500 "+sfs+"px "+FONT; ctx.textAlign="center"; ctx.fillStyle=rgba(P[4],.88*sp); sl.forEach(function(l2,k2){ ctx.fillText(l2,W/2,by2+s*.06+k2*sfs*1.3+(1-sp)*s*.02); }); }
+      ctx.restore();
+    }
+    function draw(t){
+      var i=Math.min(N-1,Math.floor(t/per)), lt=t-i*per;
+      ctx.clearRect(0,0,W,H); bg(t,i,lt); scene(i,t);
+      var v=ctx.createRadialGradient(W/2,H/2,s*.35,W/2,H/2,Math.max(W,H)*.75); v.addColorStop(0,"rgba(0,0,0,0)"); v.addColorStop(1,"rgba(0,0,0,.55)"); ctx.fillStyle=v; ctx.fillRect(0,0,W,H);
+      ctx.fillStyle=rgba(P[3],.9); ctx.fillRect(W*.1,H-s*.04,(W*.8)*(t/D),Math.max(3,s*.006));
+      ctx.font="700 "+(s*.025)+"px "+FONT; ctx.textAlign="right"; ctx.textBaseline="alphabetic"; ctx.fillStyle="rgba(255,255,255,.4)"; ctx.fillText("Made with Omnia",W*.93,H-s*.06);
+    }
+    function frame(){ var t=((performance.now()-t0)/1000)%D; if(!failed){ try{ draw(t); }catch(e){ failed=true; parent.postMessage({type:"scene-error",msg:String(e&&e.message||e)},"*"); } } requestAnimationFrame(frame); }
+    function record(){
+      if(rec||failed) return;
+      var types=["video/mp4;codecs=avc1","video/mp4","video/webm;codecs=vp9","video/webm;codecs=vp8","video/webm"], mt="";
+      if(window.MediaRecorder){ for(var i=0;i<types.length;i++){ if(MediaRecorder.isTypeSupported(types[i])){ mt=types[i]; break; } } }
+      if(!mt||!cv.captureStream){ parent.postMessage({type:"rec-fail"},"*"); return; }
+      rec=true; var mr=new MediaRecorder(cv.captureStream(30),{mimeType:mt,videoBitsPerSecond:6000000}), ch=[];
+      mr.ondataavailable=function(e){ if(e.data&&e.data.size) ch.push(e.data); };
+      mr.onstop=function(){ var b=new Blob(ch,{type:mt.split(";")[0]}); b.arrayBuffer().then(function(buf){ rec=false; parent.postMessage({type:"rec-done",mime:b.type,buf:buf},"*"); }); };
+      t0=performance.now(); mr.start(); parent.postMessage({type:"rec-start",dur:D},"*");
+      setTimeout(function(){ mr.stop(); },D*1000+200);
+    }
+    window.addEventListener("message",function(e){ if(e.data&&e.data.cmd==="record") record(); });
+    frame();
+  }
+  function buildDoc(spec,refs,w,h){
+    var j=JSON.stringify(spec).replace(/</g,"\\u003c"), r=JSON.stringify(refs).replace(/</g,"\\u003c");
+    return '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;height:100%;background:#000;overflow:hidden}canvas{width:100%;height:100%;object-fit:contain;display:block}</style></head><body><canvas id="c" width="'+w+'" height="'+h+'"></canvas><script>var SPEC='+j+';var REFS='+r+';('+omniaEngine.toString()+')();<\/script></body></html>';
+  }
+  function validHex(c){ return typeof c==="string"&&/^#[0-9a-f]{6}$/i.test(c); }
+  function normSpec(o,p,n){
+    var sc=((o&&Array.isArray(o.scenes))?o.scenes:[]).slice(0,6).map(function(x){ return {text:String((x&&x.text)||"").trim().slice(0,70),sub:String((x&&x.sub)||"").trim().slice(0,100),icon:String((x&&x.icon)||"").trim().slice(0,4)}; }).filter(function(x){ return x.text; });
+    if(sc.length<2){ sc=[{text:p.slice(0,40),sub:"Made with Omnia",icon:"✨"},{text:"Watch till the end",sub:"",icon:"🎬"},{text:"Thank you",sub:"Follow for more",icon:"💜"}]; }
+    var mood=(o&&PALS[o.mood])?o.mood:"energetic";
+    var pal=PALS[mood]; if(o&&Array.isArray(o.palette)&&o.palette.length>=5&&o.palette.slice(0,5).every(validHex)) pal=o.palette.slice(0,5);
+    if(refPalette) pal=refPalette;
+    var style=(o&&STYLES_V.indexOf(o.style)>-1)?o.style:STYLES_V[hashStr(p)%STYLES_V.length];
+    return {title:String((o&&o.title)||p).slice(0,60),style:style,palette:pal,dur:vidDur,useRef:refMode==="frames"&&refFrames.length>0,scenes:sc};
+  }
+  function setStatus(m){ var el=$("vid-status"); if(el) el.textContent=m||""; }
+  function renderVid(){
+    var out=$("vid-out"); out.innerHTML="";
+    var rr=RATIOS[ratio], f=document.createElement("div"); f.className="frame vid reveal";
+    f.style.aspectRatio=rr[0]+" / "+rr[1]; f.style.maxHeight="68vh"; if(rr[0]<rr[1]) f.style.maxWidth="min(100%,"+(68*rr[0]/rr[1])+"vh)";
+    var ifr=document.createElement("iframe"); ifr.setAttribute("sandbox","allow-scripts"); ifr.title="Video preview"; ifr.srcdoc=buildDoc(vspec,vrefs,rr[2],rr[3]); f.appendChild(ifr); out.appendChild(f); vframe=ifr;
+    var st=document.createElement("div"); st.id="vid-status"; st.className="note"; out.appendChild(st);
+    var bar=document.createElement("div"); bar.className="bar";
+    var sv=document.createElement("button"); sv.className="btn shine"; sv.id="vid-save"; sv.textContent="Save as video";
+    sv.onclick=function(){ if(vframe&&vframe.contentWindow){ sv.disabled=true; setStatus("Starting..."); vframe.contentWindow.postMessage({cmd:"record"},"*"); } };
+    var rp=document.createElement("button"); rp.className="btn ghost"; rp.textContent="Replay"; rp.onclick=function(){ ifr.srcdoc=buildDoc(vspec,vrefs,rr[2],rr[3]); };
+    var rg=document.createElement("button"); rg.className="btn ghost"; rg.textContent="New version"; rg.onclick=function(){ runVid(); };
+    bar.appendChild(sv); bar.appendChild(rp); bar.appendChild(rg); out.appendChild(bar);
+  }
+  window.addEventListener("message",function(e){
+    if(!vframe||e.source!==vframe.contentWindow) return;
+    var d=e.data||{}, sv=$("vid-save");
+    if(d.type==="rec-start"){
+      var left=Math.round(d.dur||10); setStatus("Recording... "+left+"s. Keep this screen open.");
+      clearInterval(recTimer); recTimer=setInterval(function(){ left--; if(left>0) setStatus("Recording... "+left+"s. Keep this screen open."); else { clearInterval(recTimer); setStatus("Finishing the file..."); } },1000);
+    } else if(d.type==="rec-done"){
+      clearInterval(recTimer); if(sv) sv.disabled=false; setStatus("");
+      download("omnia-video."+(/mp4/.test(d.mime||"")?"mp4":"webm"),d.buf);
+    } else if(d.type==="rec-fail"){
+      if(sv) sv.disabled=false; setStatus(""); toast("This browser cannot record video. Try Chrome or Safari.");
+    } else if(d.type==="scene-error"){
+      if(sv) sv.disabled=false; setStatus("This animation had a bug. Tap New version.");
+    }
+  });
+  async function runVid(){
+    var p=$("vid-in").value.trim(); if(!p&&!refFrames.length) return toast("Describe the video or add a reference");
+    if(!p) p="A video inspired by the reference";
+    var out=$("vid-out"), btn=$("vid-go"), images=null, refText="";
+    if(refFrames.length){
+      var s0=await getSample(), lim={}; try{ lim=(s0&&s0.limits)?await s0.limits():{}; }catch(e){}
+      if(lim&&lim.images){ images=refFrames.map(function(f){return f.blob}); refText="\n\nI attached "+images.length+" frames from a reference video. Match its mood, energy and subject in the scene text and pick a style that fits it."; }
+      else toast("Reference frames are not supported here. Using your text only.");
+    }
+    var n=vidDur===10?4:6;
+    var prompt="You are a creative director for short social videos. Reply with ONLY a JSON object (no markdown, no explanation) in exactly this shape: {\"title\":\"...\",\"mood\":\"energetic or calm or dramatic or fresh\",\"style\":\"particles or waves or grid or bubbles or stars or rays\",\"palette\":[\"#darkbg\",\"#darkbg2\",\"#brightaccent1\",\"#brightaccent2\",\"#lighttext\"],\"scenes\":[{\"text\":\"max 7 punchy words\",\"sub\":\"max 12 words, optional\",\"icon\":\"one emoji\"}]}. Use exactly "+n+" scenes: a hook first, the key points in the middle, and a closing call to action last. Write in the same language as the topic. Topic: "+p+refText;
+    var t=await generate(out,btn,prompt,"Omnia is planning your video...","default",images);
+    if(t===null) return;
+    var o=null; try{ var a=t.indexOf("{"), b=t.lastIndexOf("}"); o=JSON.parse(t.slice(a,b+1)); }catch(e){ o=null; }
+    vspec=normSpec(o,p,n);
+    vrefs=(vspec.useRef?refFrames.map(function(f){return f.data}):[]);
+    renderVid();
+  }
+  $("vid-go").onclick=runVid;
+
+  loadConfig();
+  switchTab("chat");
+  home();
+
+})();
+</script>
+</body>
+</html>
