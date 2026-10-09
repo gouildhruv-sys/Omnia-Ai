@@ -1,7 +1,7 @@
 const MODELS = {
-  quick: process.env.GEMINI_MODEL_QUICK || "gemini-2.5-flash-lite",
-  default: process.env.GEMINI_MODEL || "gemini-2.5-flash",
-  complex: process.env.GEMINI_MODEL || "gemini-2.5-flash",
+  quick: process.env.GEMINI_MODEL_QUICK || "gemini-3.5-flash-lite",
+  default: process.env.GEMINI_MODEL || "gemini-3.5-flash",
+  complex: process.env.GEMINI_MODEL || "gemini-3.5-flash",
 };
 
 const CLIENT_ID = process.env.GOOGLE_CLIENT_ID || "";
