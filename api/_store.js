@@ -115,7 +115,7 @@ async function track(req, o) {
     const c = [
       ["LPUSH", "omnia:act", row], ["LTRIM", "omnia:act", 0, 1499],
       ["HINCRBY", "omnia:s:" + day, feature, 1], ["HINCRBY", "omnia:s:" + day, "total", 1],
-      ["SADD", "omnia:a:" + day, id],
+      ["SADD", "omnia:a:" + day, id], ["HINCRBY", "omnia:uf:" + id, feature, 1],
     ];
     if (o.who) { c.push(["HINCRBY", "omnia:cnt", id, 1], ["HSET", "omnia:last", id, Date.now()]); }
     else { c.push(["HINCRBY", "omnia:gcnt", id, 1], ["HSET", "omnia:glast", id, JSON.stringify({ t: Date.now(), country: pl.country, city: pl.city })]); }
@@ -133,9 +133,12 @@ async function activeAds() {
   if (!dbOn()) return [];
   if (Date.now() - adCache.t < 30000) return adCache.v;
   try {
-    const r = await withTimeout(cmd("HGETALL", "omnia:ads"), 1500);
-    const list = [];
-    if (Array.isArray(r)) for (let i = 1; i < r.length; i += 2) { try { const a = JSON.parse(r[i]); if (a.on) list.push({ id: a.id, title: a.title, text: a.text, img: a.img, url: a.url, cta: a.cta, who: a.who || "all" }); } catch (e) {} }
+    const rr = await withTimeout(pipe([["HGETALL", "omnia:ads"], ["HGETALL", "omnia:adst"]], 1500), 1600);
+    const r = rr && rr[0], st = {}; if (rr && Array.isArray(rr[1])) for (let i = 0; i < rr[1].length; i += 2) st[rr[1][i]] = Number(rr[1][i + 1]) || 0;
+    const list = [], now = Date.now();
+    if (Array.isArray(r)) for (let i = 1; i < r.length; i += 2) { try { const a = JSON.parse(r[i]);
+      if (!a.on) continue; if (a.start && now < a.start) continue; if (a.end && now > a.end) continue; if (a.maxViews && (st[a.id + ":v"] || 0) >= a.maxViews) continue;
+      list.push({ id: a.id, title: a.title, text: a.text, img: a.img, url: a.url, cta: a.cta, who: a.who || "all" }); } catch (e) {} }
     adCache = { v: list.slice(0, 8), t: Date.now() };
   } catch (e) {}
   return adCache.v;
@@ -163,4 +166,4 @@ function limited(key, max, ms) {
   return arr.length > max;
 }
 
-module.exports = { activeAds, resetAdCache, trackAd, raw, dbOn, accountsOn, pipe, cmd, signSession, verifySession, verifyGoogle, whoFromHeader, hashPw, checkPw, today, clip, ipOf, guestId, place, isBlocked, track, announcement, setAnnCache, limited, GOOGLE_ID };
+module.exports = { withTimeout, activeAds, resetAdCache, trackAd, raw, dbOn, accountsOn, pipe, cmd, signSession, verifySession, verifyGoogle, whoFromHeader, hashPw, checkPw, today, clip, ipOf, guestId, place, isBlocked, track, announcement, setAnnCache, limited, GOOGLE_ID };

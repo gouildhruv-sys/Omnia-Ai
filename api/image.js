@@ -9,6 +9,7 @@
 // Login settings are shared with api/ai.js: GOOGLE_CLIENT_ID, REQUIRE_LOGIN, ALLOW_GUEST, ACCESS_CODE.
 
 const store = require("./_store.js");
+const P = require("./_plan.js");
 const CLIENT_ID = process.env.GOOGLE_CLIENT_ID || "";
 const REQUIRE_LOGIN = (!!CLIENT_ID || store.accountsOn()) && process.env.REQUIRE_LOGIN !== "0";
 const ALLOW_GUEST = process.env.ALLOW_GUEST !== "0";
@@ -42,13 +43,13 @@ async function verifyGoogle(token) {
 }
 function err(status, msg) { const e = new Error(msg); e.status = status; return e; }
 
-async function cloudflare(prompt, signal) {
+async function cloudflare(prompt, signal, steps) {
   const id = process.env.CF_ACCOUNT_ID, tok = process.env.CF_API_TOKEN;
   const model = process.env.CF_IMAGE_MODEL || "@cf/black-forest-labs/flux-1-schnell";
   const r = await fetch("https://api.cloudflare.com/client/v4/accounts/" + id + "/ai/run/" + model, {
     method: "POST", signal,
     headers: { Authorization: "Bearer " + tok, "content-type": "application/json" },
-    body: JSON.stringify({ prompt: prompt.slice(0, 1800), steps: 4 }),
+    body: JSON.stringify({ prompt: prompt.slice(0, 1800), steps: steps || 4 }),
   });
   const ct = r.headers.get("content-type") || "";
   if (/^image\//.test(ct)) {
@@ -66,7 +67,7 @@ async function cloudflare(prompt, signal) {
   return "data:image/jpeg;base64," + b64;
 }
 
-async function pollinations(prompt, signal) {
+async function pollinations(prompt, signal, steps) {
   const key = process.env.POLLINATIONS_KEY;
   const seed = Math.floor(Math.random() * 1e6);
   const url = "https://gen.pollinations.ai/image/" + encodeURIComponent(prompt.slice(0, 1500)) + "?width=1024&height=1024&model=flux&nologo=true&seed=" + seed + (key ? "&key=" + encodeURIComponent(key) : "");
@@ -103,13 +104,15 @@ module.exports = async (req, res) => {
   const ip = String(req.headers["x-forwarded-for"] || "").split(",")[0].trim() || "unknown";
   if (limitedIp(ip)) return res.status(429).json({ error: "Too many requests" });
   if (await store.isBlocked(who ? who.email : store.guestId(req))) return res.status(403).json({ error: "Your access has been blocked. Contact support." });
-  if (guest && bump(daily, "g:" + ip, Number(process.env.GUEST_IMAGE_LIMIT || 3))) return res.status(429).json({ error: "Guest image limit reached for today. Sign in for more." });
-  if (who && bump(daily, "u:" + who.email, Number(process.env.IMAGE_DAILY_LIMIT || 20))) return res.status(429).json({ error: "Daily image limit reached. Come back tomorrow." });
 
   const body = req.body || {};
   const prompt = typeof body.prompt === "string" ? body.prompt.trim() : "";
   if (!prompt || prompt.length > 1800) return res.status(400).json({ error: "Bad prompt" });
 
+  const feat = P.featureOf(body, "image");
+  const lim = await P.checkLimit(req, who, feat);
+  if (!lim.ok) return res.status(lim.status).json({ error: lim.error, code: lim.code, retry: lim.retry, feature: lim.feature, plan: lim.plan });
+  const steps = lim.plan === 2 ? Number(process.env.CF_STEPS_PREMIUM || 8) : Number(process.env.CF_STEPS || 6);
   const order = String(process.env.IMAGE_ROUTE || "cloudflare, pollinations").split(",").map((s) => s.trim()).filter((n) => PROVIDERS[n]);
   const errors = [], statuses = [];
   const deadline = Date.now() + 54000;
@@ -123,7 +126,7 @@ module.exports = async (req, res) => {
       if (left < 6000) return null;
       tried++;
       try {
-        const image = await p.run(prompt, AbortSignal.timeout(Math.min(left - 1000, 40000)));
+        const image = await p.run(prompt, AbortSignal.timeout(Math.min(left - 1000, 40000)), steps);
         return { image, via: name };
       } catch (e) {
         const st = e.status || 0; statuses.push(st);
@@ -136,8 +139,9 @@ module.exports = async (req, res) => {
   }
   let out = await run(false);
   if (!out && tried === 0) out = await run(true);
-  const feature = typeof body.feature === "string" ? body.feature.slice(0, 16) : "image";
+  const feature = feat;
   if (out) { await store.track(req, { who, feature, prompt, q: prompt, a: "[picture created]", ok: true, via: out.via }); return res.status(200).json(out); }
+  await P.refund(lim.id, feat);
   await store.track(req, { who, feature, prompt, ok: false });
   if (statuses.length && statuses.every((s) => s === 429)) return res.status(429).json({ error: "Free image limit reached, try again later" });
   return res.status(502).json({ error: "Image AI is busy or not set up. " + errors.slice(0, 3).join("; ") });

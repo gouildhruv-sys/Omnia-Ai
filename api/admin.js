@@ -1,6 +1,7 @@
 // Admin API. Protected by ADMIN_PASSWORD (set it in Vercel). Never exposes keys.
 const crypto = require("crypto");
 const S = require("./_store.js");
+const P = require("./_plan.js");
 
 function same(a, b) {
   const x = crypto.createHash("sha256").update(String(a)).digest(), y = crypto.createHash("sha256").update(String(b)).digest();
@@ -19,12 +20,12 @@ module.exports = async (req, res) => {
   const b = req.body || {}, a = b.action;
   if (a === "ping") return res.status(200).json({ ok: true, db: S.dbOn(), accounts: S.accountsOn() });
   if (a === "system") {
-    const e = process.env;
+    const e = process.env, cfg = await P.getCfg();
     return res.status(200).json({
       database: S.dbOn(), accounts: S.accountsOn(), sessionSecret: !!e.SESSION_SECRET,
       gemini: !!e.GEMINI_API_KEY, groq: !!e.GROQ_API_KEY, mistral: !!e.MISTRAL_API_KEY, openrouter: !!e.OPENROUTER_API_KEY, cerebras: !!e.CEREBRAS_API_KEY,
-      cloudflareImages: !!(e.CF_ACCOUNT_ID && e.CF_API_TOKEN), chatLog: e.CHAT_LOG !== "0", retentionDays: Number(e.CHAT_RETENTION_DAYS || 30), videoFast: e.FAL_VIDEO_MODEL || "lightricks/ltx-2.5/text-to-video/fast", videoBest: e.FAL_MODEL_BEST || "", pollinations: !!e.POLLINATIONS_KEY, falVideo: !!e.FAL_KEY, google: !!e.GOOGLE_CLIENT_ID,
-      limits: { guestDaily: Number(e.GUEST_DAILY_LIMIT || 8), userDaily: Number(e.DAILY_LIMIT || 60), imageDaily: Number(e.IMAGE_DAILY_LIMIT || 20), guestImage: Number(e.GUEST_IMAGE_LIMIT || 3) },
+      cloudflareImages: !!(e.CF_ACCOUNT_ID && e.CF_API_TOKEN), pollinations: !!e.POLLINATIONS_KEY, google: !!e.GOOGLE_CLIENT_ID,
+      chatLog: e.CHAT_LOG !== "0", retentionDays: Number(e.CHAT_RETENTION_DAYS || 30), cooldownSec: cfg.cooldownSec, payUrl: !!cfg.premium.payUrl,
     });
   }
   if (!S.dbOn()) return res.status(503).json({ error: "Database is not connected. Add the Upstash keys in Vercel." });
@@ -77,7 +78,8 @@ module.exports = async (req, res) => {
       if (!title) return res.status(400).json({ error: "Add a title" });
       const id2 = /^[a-z0-9]{4,20}$/.test(String(ad.id || "")) ? ad.id : crypto.randomBytes(5).toString("hex");
       let old = {}; try { old = JSON.parse((await S.cmd("HGET", "omnia:ads", id2)) || "{}"); } catch (e) {}
-      const rec = { id: id2, title, text: S.clip(ad.text, 140), cta: S.clip(ad.cta, 20) || "Learn more", url, img, who: ad.who === "guests" ? "guests" : "all", on: ad.on !== false, created: old.created || Date.now() };
+      const dayMs = (v, endOfDay) => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(v || "")); if (!m) return 0; const t = Date.UTC(+m[1], +m[2] - 1, +m[3]) + (endOfDay ? 86399999 : 0); return Number.isFinite(t) ? t : 0; };
+      const rec = { id: id2, title, text: S.clip(ad.text, 140), cta: S.clip(ad.cta, 20) || "Learn more", url, img, who: ad.who === "guests" ? "guests" : "all", on: ad.on !== false, created: old.created || Date.now(), start: dayMs(ad.startDay, false), end: dayMs(ad.endDay, true), maxViews: Math.min(10000000, Math.max(0, Math.round(Number(ad.maxViews) || 0))) };
       await S.cmd("HSET", "omnia:ads", id2, JSON.stringify(rec));
       S.resetAdCache();
       return res.status(200).json({ ok: true, id: id2 });
@@ -91,9 +93,9 @@ module.exports = async (req, res) => {
       return res.status(200).json({ ok: true });
     }
     if (a === "users") {
-      const r = await S.pipe([["HGETALL", "omnia:users"], ["HGETALL", "omnia:cnt"], ["HGETALL", "omnia:last"], ["SMEMBERS", "omnia:blocked"]], 8000);
-      const users = hmap(r[0]), cnt = hmap(r[1]), last = hmap(r[2]), blocked = new Set(r[3] || []);
-      const list = Object.keys(users).map((k) => { let u = {}; try { u = JSON.parse(users[k]); } catch (e) {} return Object.assign(u, { email: k, count: Number(cnt[k] || 0), last: Number(last[k] || 0), blocked: blocked.has(k) }); });
+      const r = await S.pipe([["HGETALL", "omnia:users"], ["HGETALL", "omnia:cnt"], ["HGETALL", "omnia:last"], ["SMEMBERS", "omnia:blocked"], ["HGETALL", "omnia:prem"], ["HGETALL", "omnia:notes"]], 8000);
+      const users = hmap(r[0]), cnt = hmap(r[1]), last = hmap(r[2]), blocked = new Set(r[3] || []), prem = hmap(r[4]), notes = hmap(r[5]);
+      const list = Object.keys(users).map((k) => { let u = {}; try { u = JSON.parse(users[k]); } catch (e) {} return Object.assign(u, { email: k, count: Number(cnt[k] || 0), last: Number(last[k] || 0), blocked: blocked.has(k), premium: Number(prem[k] || 0), note: notes[k] || "" }); });
       list.sort((x, y) => (y.joined || 0) - (x.joined || 0));
       return res.status(200).json({ users: list.slice(0, 1000) });
     }
@@ -136,6 +138,90 @@ module.exports = async (req, res) => {
       return res.status(200).json({ ok: true });
     }
     if (a === "getannounce") return res.status(200).json({ text: (await S.cmd("GET", "omnia:ann")) || "" });
+    if (a === "getcfg") return res.status(200).json({ cfg: await P.getCfg(), features: P.FEATURES });
+    if (a === "setcfg") { const c = await P.saveCfg(b.cfg || {}); return res.status(200).json({ ok: true, cfg: c }); }
+    if (a === "chatsearch") {
+      const q = S.clip(b.q, 60).toLowerCase();
+      if (q.length < 2) return res.status(400).json({ error: "Type at least 2 letters" });
+      const idx = hmap((await S.pipe([["HGETALL", "omnia:cvl"]], 8000))[0]);
+      const ids = Object.keys(idx).map((k) => { let l = {}; try { l = JSON.parse(idx[k]); } catch (e) {} return { id: k, name: l.name || k, t: l.t || 0 }; }).sort((x, y) => y.t - x.t).slice(0, 80);
+      const lists = ids.length ? await S.pipe(ids.map((u) => ["LRANGE", "omnia:cv:" + u.id, 0, 59]), 9000) : [];
+      const hits = [];
+      ids.forEach((u, i) => { (lists[i] || []).forEach((x) => { let m = null; try { m = JSON.parse(x); } catch (e) {} if (m && ((m.q || "").toLowerCase().includes(q) || (m.a || "").toLowerCase().includes(q))) hits.push({ id: u.id, name: u.name, t: m.t, f: m.f, q: S.clip(m.q, 140), a: S.clip(m.a, 140) }); }); });
+      hits.sort((x, y) => y.t - x.t);
+      return res.status(200).json({ hits: hits.slice(0, 60), scanned: ids.length });
+    }
+    if (a === "blocked") {
+      const ids = (await S.cmd("SMEMBERS", "omnia:blocked")) || [];
+      return res.status(200).json({ blocked: ids.slice(0, 500) });
+    }
+    if (a === "premlist") {
+      const r = await S.pipe([["HGETALL", "omnia:prem"], ["HGETALL", "omnia:users"]], 8000);
+      const prem = hmap(r[0]), users = hmap(r[1]), now = Date.now();
+      const list = Object.keys(prem).map((k) => { let u = {}; try { u = JSON.parse(users[k] || "{}"); } catch (e) {} return { email: k, name: u.name || k, until: Number(prem[k]), active: Number(prem[k]) > now }; });
+      list.sort((x, y) => y.until - x.until);
+      return res.status(200).json({ premium: list });
+    }
+    if (a === "premgrant") {
+      const id = S.clip(b.id, 254).toLowerCase(), days = Math.min(365, Math.max(1, Math.round(Number(b.days) || 0)));
+      if (!id || !days) return res.status(400).json({ error: "Enter an email and number of days" });
+      const exists = await S.cmd("HEXISTS", "omnia:users", id);
+      if (exists !== 1) return res.status(404).json({ error: "No account with this email" });
+      return res.status(200).json({ ok: true, until: await P.addPremium(id, days) });
+    }
+    if (a === "premrevoke") { await P.revokePremium(S.clip(b.id, 254).toLowerCase()); return res.status(200).json({ ok: true }); }
+    if (a === "refs") {
+      const r = await S.pipe([["HGETALL", "omnia:refn"], ["HGETALL", "omnia:refd"], ["HGETALL", "omnia:users"]], 8000);
+      const n = hmap(r[0]), d = hmap(r[1]), users = hmap(r[2]);
+      const list = Object.keys(n).map((k) => { let u = {}; try { u = JSON.parse(users[k] || "{}"); } catch (e) {} return { email: k, name: u.name || k, invites: Number(n[k]), days: Number(d[k] || 0) }; });
+      list.sort((x, y) => y.invites - x.invites);
+      return res.status(200).json({ refs: list.slice(0, 50) });
+    }
+    if (a === "insights") {
+      const rows = ((await S.cmd("LRANGE", "omnia:act", 0, 1499)) || []).map((x) => { try { return JSON.parse(x); } catch (e) { return null; } }).filter(Boolean);
+      const freq = {}, byFeat = {}, fails = [];
+      rows.forEach((x) => {
+        byFeat[x.feature] = (byFeat[x.feature] || 0) + 1;
+        const k = String(x.prompt || "").toLowerCase().replace(/[^\p{L}\p{N} ]/gu, "").trim().slice(0, 50);
+        if (k.length > 3) freq[k] = (freq[k] || 0) + 1;
+        if (x.ok === false && fails.length < 40) fails.push({ t: x.t, name: x.name, feature: x.feature, prompt: x.prompt });
+      });
+      const top = Object.keys(freq).map((k) => ({ text: k, n: freq[k] })).sort((x, y) => y.n - x.n).slice(0, 15);
+      const cnt = hmap(await S.cmd("HGETALL", "omnia:cnt")), users = hmap(await S.cmd("HGETALL", "omnia:users"));
+      const topUsers = Object.keys(cnt).map((k) => { let u = {}; try { u = JSON.parse(users[k] || "{}"); } catch (e) {} return { email: k, name: u.name || k, n: Number(cnt[k]) }; }).sort((x, y) => y.n - x.n).slice(0, 10);
+      return res.status(200).json({ top, topUsers, fails, byFeat, sample: rows.length });
+    }
+    if (a === "userdetail") {
+      const id = S.clip(b.id, 254);
+      if (!id) return res.status(400).json({ error: "Missing id" });
+      const r = await S.pipe([["HGETALL", "omnia:uf:" + id], ["HGET", "omnia:notes", id], ["HGET", "omnia:refn", id], ["HGET", "omnia:refof", id]], 6000);
+      return res.status(200).json({ usage: hmap(r[0]), note: r[1] || "", invites: Number(r[2]) || 0, invitedBy: r[3] || "", premiumUntil: await P.premiumUntil(id), cooldowns: await P.cooldowns(id) });
+    }
+    if (a === "usernote") {
+      const id = S.clip(b.id, 254), note = S.clip(b.note, 300);
+      if (!id) return res.status(400).json({ error: "Missing id" });
+      if (note) await S.cmd("HSET", "omnia:notes", id, note); else await S.cmd("HDEL", "omnia:notes", id);
+      return res.status(200).json({ ok: true });
+    }
+    if (a === "resetlimits") {
+      const id = S.clip(b.id, 254);
+      if (!id) return res.status(400).json({ error: "Missing id" });
+      const c = []; P.FEATURES.forEach((f) => { c.push(["DEL", "omnia:cd:" + id + ":" + f], ["DEL", "omnia:q:" + id + ":" + f]); });
+      await S.pipe(c, 6000);
+      return res.status(200).json({ ok: true });
+    }
+    if (a === "testproviders") {
+      const e = process.env, out = {};
+      async function probe(name, url, headers) { try { const r = await fetch(url, { headers, signal: AbortSignal.timeout(8000) }); out[name] = r.ok ? "ok" : "error " + r.status; } catch (x) { out[name] = "no answer"; } }
+      const jobs = [];
+      if (e.GEMINI_API_KEY) jobs.push(probe("Gemini", "https://generativelanguage.googleapis.com/v1beta/models?pageSize=1&key=" + encodeURIComponent(e.GEMINI_API_KEY), {}));
+      if (e.GROQ_API_KEY) jobs.push(probe("Groq", "https://api.groq.com/openai/v1/models", { Authorization: "Bearer " + e.GROQ_API_KEY }));
+      if (e.MISTRAL_API_KEY) jobs.push(probe("Mistral", "https://api.mistral.ai/v1/models", { Authorization: "Bearer " + e.MISTRAL_API_KEY }));
+      if (e.CF_ACCOUNT_ID && e.CF_API_TOKEN) jobs.push(probe("Cloudflare", "https://api.cloudflare.com/client/v4/accounts/" + e.CF_ACCOUNT_ID + "/tokens/verify", { Authorization: "Bearer " + e.CF_API_TOKEN }));
+      jobs.push((async () => { try { await S.cmd("PING"); out.Database = "ok"; } catch (x) { out.Database = "no answer"; } })());
+      await Promise.all(jobs);
+      return res.status(200).json({ results: out });
+    }
     return res.status(400).json({ error: "Unknown action" });
   } catch (e) {
     return res.status(500).json({ error: "Database problem: " + String(e.message || e).slice(0, 120) });

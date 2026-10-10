@@ -11,10 +11,10 @@
 //   ROUTE_CODE = mistral:mistral-large-latest, groq:openai/gpt-oss-120b
 
 const DEFAULT_ROUTES = {
-  chat: "gemini:gemini-3.5-flash, mistral:mistral-medium-latest, groq:openai/gpt-oss-120b, gemini:gemini-3.5-flash-lite",
-  code: "gemini:gemini-3.5-flash, mistral:mistral-large-latest, groq:openai/gpt-oss-120b, gemini:gemini-3.5-flash-lite",
-  image: "mistral:mistral-large-latest, gemini:gemini-3.5-flash, groq:openai/gpt-oss-120b, gemini:gemini-3.5-flash-lite",
-  video: "groq:openai/gpt-oss-120b, mistral:mistral-small-latest, gemini:gemini-3.5-flash-lite, gemini:gemini-3.5-flash",
+  chat: "gemini:gemini-3.5-flash, mistral:mistral-medium-latest, groq:openai/gpt-oss-120b, gemini:gemini-3.5-flash-lite, cloudflare:@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  code: "gemini:gemini-3.5-flash, mistral:mistral-large-latest, groq:openai/gpt-oss-120b, gemini:gemini-3.5-flash-lite, cloudflare:@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  image: "mistral:mistral-large-latest, gemini:gemini-3.5-flash, groq:openai/gpt-oss-120b, gemini:gemini-3.5-flash-lite, cloudflare:@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  video: "groq:openai/gpt-oss-120b, mistral:mistral-small-latest, gemini:gemini-3.5-flash-lite, gemini:gemini-3.5-flash, cloudflare:@cf/meta/llama-3.3-70b-instruct-fp8-fast",
 };
 const MAX_TOKENS = { chat: 4000, code: 12000, image: 12000, video: 3000 };
 
@@ -24,9 +24,12 @@ const PROVIDERS = {
   mistral: { url: "https://api.mistral.ai/v1/chat/completions", key: () => process.env.MISTRAL_API_KEY, vision: true, imgString: true },
   openrouter: { url: "https://openrouter.ai/api/v1/chat/completions", key: () => process.env.OPENROUTER_API_KEY, vision: true },
   cerebras: { url: "https://api.cerebras.ai/v1/chat/completions", key: () => process.env.CEREBRAS_API_KEY, vision: false },
+  // Cloudflare Workers AI text models: uses the same CF_ACCOUNT_ID and CF_API_TOKEN as AI photos, so it is a free extra backup.
+  cloudflare: { get url() { return "https://api.cloudflare.com/client/v4/accounts/" + process.env.CF_ACCOUNT_ID + "/ai/v1/chat/completions"; }, key: () => (process.env.CF_ACCOUNT_ID && process.env.CF_API_TOKEN ? process.env.CF_API_TOKEN : ""), vision: false },
 };
 
 const store = require("./_store.js");
+const P = require("./_plan.js");
 const CLIENT_ID = process.env.GOOGLE_CLIENT_ID || "";
 const ALLOW_GUEST = process.env.ALLOW_GUEST !== "0";
 const REQUIRE_LOGIN = (!!CLIENT_ID || store.accountsOn()) && process.env.REQUIRE_LOGIN !== "0";
@@ -107,7 +110,7 @@ async function callOpenAI(name, model, turns, images, maxTokens, signal) {
   }
   const body = { model, messages: msgs };
   if (name === "groq") { body.max_completion_tokens = Math.min(maxTokens, 4000); if (/gpt-oss/.test(model)) body.reasoning_effort = "low"; }
-  else body.max_tokens = maxTokens;
+  else body.max_tokens = name === "cloudflare" ? Math.min(maxTokens, 4000) : maxTokens;
   const r = await fetch(p.url, { method: "POST", signal, headers: { Authorization: "Bearer " + p.key(), "content-type": "application/json" }, body: JSON.stringify(body) });
   const data = await r.json().catch(() => ({}));
   if (!r.ok) throw err(r.status, (data.error && (data.error.message || data.error)) || (data.message) || "error");
@@ -138,8 +141,6 @@ module.exports = async (req, res) => {
   const ip = String(req.headers["x-forwarded-for"] || "").split(",")[0].trim() || "unknown";
   if (limitedIp(ip)) return res.status(429).json({ error: "Too many requests" });
   if (await store.isBlocked(who ? who.email : store.guestId(req))) return res.status(403).json({ error: "Your access has been blocked. Contact support." });
-  if (guest && limitedGuest(ip)) return res.status(429).json({ error: "Guest limit reached for today. Sign in for more." });
-  if (who && limitedUser(who.email)) return res.status(429).json({ error: "Daily limit reached. Come back tomorrow." });
 
   const body = req.body || {};
   const messages = Array.isArray(body.messages) ? body.messages : null;
@@ -155,6 +156,9 @@ module.exports = async (req, res) => {
   const images = (Array.isArray(body.images) ? body.images.slice(0, 6) : []).filter((b) => typeof b === "string" && b.length <= 2000000);
 
   const task = DEFAULT_ROUTES[body.task] ? body.task : body.tier === "complex" ? "code" : body.tier === "quick" ? "video" : "chat";
+  const feat = P.featureOf(body, task === "code" ? "code" : task === "video" ? "video" : "chat");
+  const lim = await P.checkLimit(req, who, feat);
+  if (!lim.ok) return res.status(lim.status).json({ error: lim.error, code: lim.code, retry: lim.retry, feature: lim.feature, plan: lim.plan });
   const route = parseRoute(process.env["ROUTE_" + task.toUpperCase()] || DEFAULT_ROUTES[task]);
   const maxTokens = MAX_TOKENS[task];
 
@@ -189,9 +193,10 @@ module.exports = async (req, res) => {
 
   let out = await run(false);
   if (!out && attempted === 0) out = await run(true);
-  const feature = typeof body.feature === "string" ? body.feature.slice(0, 16) : task;
+  const feature = feat;
   const preview = turns[turns.length - 1].content.replace(/^\[Instructions:[\s\S]*?\]\s*/, "");
   if (out) { await store.track(req, { who, feature, prompt: preview, q: preview, a: out.text, ok: true, via: out.via }); return res.status(200).json({ text: out.text, via: out.via }); }
+  await P.refund(lim.id, feat);
   await store.track(req, { who, feature, prompt: preview, ok: false });
   if (statuses.length && statuses.every((s) => s === 429)) return res.status(429).json({ error: "Free limit reached on all providers, try again in a minute" });
   return res.status(502).json({ error: "AI is busy or unavailable. " + errors.slice(0, 4).join("; ") });
