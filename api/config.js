@@ -10,7 +10,7 @@ module.exports = async (req, res) => {
     requireLogin: (!!e.GOOGLE_CLIENT_ID || store.accountsOn()) && e.REQUIRE_LOGIN !== "0",
     accounts: store.accountsOn(),
     imageAI: !!((e.CF_ACCOUNT_ID && e.CF_API_TOKEN) || e.POLLINATIONS_KEY),
-    videoAI: !!e.AGENS_API_KEY,
+    videoAI: !!e.process.env.AGNES_API_KEY,
     announcement: await store.announcement(),
   });
 };
