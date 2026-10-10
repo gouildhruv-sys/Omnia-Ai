@@ -53,6 +53,7 @@ nav button.on{color:#fff;background:var(--s2)}nav button.on svg{stroke:url(#gr)}
 .adprev img{width:48px;height:48px;border-radius:12px;object-fit:cover}.adprev .go{background:var(--g);border:0;color:#fff;font-weight:700;border-radius:10px;padding:8px 12px;font-size:13px}
 .sw{display:flex;align-items:center;gap:10px;margin-top:12px}.sw input{width:auto}
 .empty{text-align:center;padding:28px 10px;color:var(--mu)}
+.chk{display:flex;align-items:center;gap:10px;margin:10px 0 0;text-transform:none;letter-spacing:0;font-size:15px;color:var(--tx)}.chk input{width:auto}
 </style></head><body>
 <svg width="0" height="0" style="position:absolute"><defs><linearGradient id="gr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff7a59"/><stop offset="1" stop-color="#6c7bff"/></linearGradient></defs></svg>
 <div id="login"><div class="card"><div class="logo" style="margin-bottom:12px">O</div><h3>Omnia Admin</h3><p class="mu">Enter your admin password (the ADMIN_PASSWORD you set in Vercel).</p><input id="pw" type="password" placeholder="Admin password" autocomplete="current-password"><div class="err" id="lerr"></div><button class="btn" id="lgo" style="width:100%;margin-top:4px">Open dashboard</button></div></div>
@@ -93,13 +94,13 @@ function mkNav(){
   [].forEach.call($("nav").children,function(b){ b.onclick=function(){ if(b.dataset.t==="more") moreSheet(); else show(b.dataset.t); }; });
 }
 function moreSheet(){
-  openSheet('<h3 style="margin:0 0 8px">More</h3><div style="display:grid;gap:8px"><button class="btn g" data-g="activity">Live activity</button><button class="btn g" data-g="guests">Guests</button><button class="btn g" data-g="settings">Settings and status</button><button class="btn r" id="lo">Log out</button></div>');
+  openSheet('<h3 style="margin:0 0 8px">More</h3><div style="display:grid;gap:8px"><button class="btn g" data-g="premium">Premium and invites</button><button class="btn g" data-g="controls">Limits and switches</button><button class="btn g" data-g="insights">Insights</button><button class="btn g" data-g="chatsearch">Search all chats</button><button class="btn g" data-g="health">Health check</button><button class="btn g" data-g="activity">Live activity</button><button class="btn g" data-g="guests">Guests</button><button class="btn g" data-g="blocked">Blocked list</button><button class="btn g" data-g="settings">Settings and status</button><button class="btn r" id="lo">Log out</button></div>');
   [].forEach.call($("sbody").querySelectorAll("[data-g]"),function(b){ b.onclick=function(){ closeSheet(); show(b.dataset.g); }; });
   $("lo").onclick=logout;
 }
 async function show(t){
   TAB=t; clearInterval(timer);
-  [].forEach.call($("nav").children,function(b){ b.className=(b.dataset.t===t||(b.dataset.t==="more"&&["activity","guests","settings"].indexOf(t)>-1))?"on":""; });
+  [].forEach.call($("nav").children,function(b){ b.className=(b.dataset.t===t||(b.dataset.t==="more"&&["activity","guests","settings","premium","controls","insights","chatsearch","health","blocked"].indexOf(t)>-1))?"on":""; });
   $("view").innerHTML='<div class="card mu">Loading...</div>';
   try{ await V[t](); }catch(e){ $("view").innerHTML='<div class="card"><b>Could not load</b><p class="mu">'+esc(e.message)+'</p></div>'; }
   window.scrollTo(0,0);
@@ -125,6 +126,64 @@ var V={
   h+='<div class="card"><h3>Announcement banner</h3><p class="mu">Shown at the top of the app for everyone. Leave empty to remove it.</p><input id="ann" maxlength="240" placeholder="Example: New thumbnail maker is live!" value="'+esc(a.text)+'"><button class="btn" id="annb" style="margin-top:10px">Save announcement</button></div>';
   $("view").innerHTML=h;
   $("annb").onclick=async function(){ try{ await api("announce",{text:$("ann").value}); $("annb").textContent="Saved"; setTimeout(function(){ $("annb").textContent="Save announcement"; },1500); }catch(e){ alert(e.message); } };
+ },
+
+ premium:async function(){
+  var d=await Promise.all([api("premlist"),api("refs"),api("getcfg")]), pl=d[0].premium, rf=d[1].refs, pr=d[2].cfg.premium;
+  var h='<div class="card"><h3>Give Premium</h3><p class="mu">Use this after someone pays you. They need an Omnia account.</p><label>Email of the user</label><input id="pg-e" placeholder="name@email.com" inputmode="email"><label>Days</label><select id="pg-d"><option value="1">1 day</option><option value="7">7 days</option><option value="30" selected>30 days</option><option value="90">90 days</option><option value="365">365 days</option></select><div class="err" id="pg-err"></div><button class="btn" id="pg-go" style="margin-top:8px">Give Premium</button></div>';
+  h+='<div class="card"><h3>Premium members ('+pl.filter(function(x){return x.active}).length+' active)</h3>'+(pl.length?pl.map(function(x){ return '<div class="row"><div class="av">'+ini(x.name)+'</div><div class="m"><b>'+esc(x.name)+' <span class="tag '+(x.active?"ok":"warn")+'">'+(x.active?"active":"ended")+'</span></b><small class="mu">'+esc(x.email)+' · until '+esc(dt(x.until))+'</small></div><button class="btn r sm" data-r="'+esc(x.email)+'">End</button></div>'; }).join(""):'<div class="empty">No premium members yet.</div>')+'</div>';
+  h+='<div class="card"><h3>Top inviters</h3><p class="mu">Invites count when a new person joins from a link.</p>'+(rf.length?rf.map(function(x){ return '<div class="row"><div class="av">'+ini(x.name)+'</div><div class="m"><b>'+esc(x.name)+'</b><small class="mu">'+esc(x.email)+'</small></div><div style="text-align:right"><b>'+x.invites+'</b><small class="mu">'+x.days+' free days</small></div></div>'; }).join(""):'<div class="empty">No invites yet.</div>')+'</div>';
+  h+='<div class="card"><h3>Premium page settings</h3><label>Payment link (https://)</label><input id="ps-u" value="'+esc(pr.payUrl)+'" placeholder="https://rzp.io/l/yourlink" inputmode="url"><label>Price text</label><input id="ps-p" maxlength="60" value="'+esc(pr.price)+'" placeholder="Rs 99 for 30 days"><label>Note shown to users</label><input id="ps-n" maxlength="160" value="'+esc(pr.note)+'" placeholder="After paying, send the receipt on Discord"><label>Invites needed for a reward</label><input id="ps-i" type="number" min="1" value="'+pr.inviteNeed+'"><label>Premium days per reward</label><input id="ps-d" type="number" min="1" value="'+pr.inviteDays+'"><label>Most free days from invites (per person)</label><input id="ps-c" type="number" min="0" value="'+pr.inviteCapDays+'"><div class="err" id="ps-err"></div><button class="btn" id="ps-go" style="margin-top:8px">Save settings</button></div>';
+  $("view").innerHTML=h;
+  $("pg-go").onclick=async function(){ $("pg-err").textContent=""; try{ var r=await api("premgrant",{id:$("pg-e").value.trim(),days:Number($("pg-d").value)}); alert("Done. Premium until "+dt(r.until)); show("premium"); }catch(e){ $("pg-err").textContent=e.message; } };
+  [].forEach.call($("view").querySelectorAll("[data-r]"),function(b){ b.onclick=async function(){ if(!confirm("End Premium for this person?")) return; await api("premrevoke",{id:b.dataset.r}); show("premium"); }; });
+  $("ps-go").onclick=async function(){ $("ps-err").textContent=""; try{ await api("setcfg",{cfg:{premium:{payUrl:$("ps-u").value.trim(),price:$("ps-p").value,note:$("ps-n").value,inviteNeed:Number($("ps-i").value),inviteDays:Number($("ps-d").value),inviteCapDays:Number($("ps-c").value)}}}); $("ps-go").textContent="Saved"; setTimeout(function(){ $("ps-go").textContent="Save settings"; },1500); }catch(e){ $("ps-err").textContent=e.message; } };
+ },
+ controls:async function(){
+  var d=await api("getcfg"), c=d.cfg, F=d.features;
+  var nm={chat:"Chat",code:"Code builds",image:"Photos",thumb:"Thumbnails",video:"Video plans",vidimg:"Video scene photos",tools:"Creator tools",song:"Songs",aux:"Helpers"};
+  var h='<div class="card"><h3>How limits work</h3><p class="mu">Each person can do this many things. After that a timer starts and they wait, or get Premium. Numbers are for Guest, Signed-in and Premium.</p><label>Wait time after the limit (seconds)</label><input id="cd" type="number" min="10" max="3600" value="'+c.cooldownSec+'"><label>Daily cap (times the limit)</label><input id="dm" type="number" min="1" max="100" value="'+c.dailyMult+'"></div>';
+  h+='<div class="card"><h3>Limits per feature</h3>'+F.map(function(f){ var l=c.limits[f]||[0,0,0]; return '<div class="row" style="padding:9px 0"><div class="m"><b>'+esc(nm[f]||f)+'</b></div><input class="lm" data-f="'+f+'" data-i="0" type="number" min="0" value="'+l[0]+'" style="width:64px;padding:8px" aria-label="Guest"><input class="lm" data-f="'+f+'" data-i="1" type="number" min="0" value="'+l[1]+'" style="width:64px;padding:8px" aria-label="Signed in"><input class="lm" data-f="'+f+'" data-i="2" type="number" min="0" value="'+l[2]+'" style="width:64px;padding:8px" aria-label="Premium"></div>'; }).join("")+'<p class="mu" style="margin-top:8px">Order: Guest, Signed-in, Premium. 0 means not allowed.</p></div>';
+  h+='<div class="card"><h3>Feature switches</h3><p class="mu">Turn a feature off for everyone, for example when an AI key ran out.</p>'+F.map(function(f){ return '<label class="chk"><input type="checkbox" class="off" value="'+f+'"'+(c.off.indexOf(f)>-1?" checked":"")+'> Switch off: '+esc(nm[f]||f)+'</label>'; }).join("")+'</div>';
+  h+='<div class="card"><h3>Maintenance mode</h3><p class="mu">Stops all AI use and shows your message.</p><label class="chk"><input type="checkbox" id="mn"'+(c.maintenance.on?" checked":"")+'> Maintenance mode is on</label><label>Message</label><input id="mm" maxlength="200" value="'+esc(c.maintenance.msg)+'" placeholder="We are updating Omnia. Back in 10 minutes."></div>';
+  h+='<div class="err" id="cs-err"></div><button class="btn" id="cs-go" style="width:100%">Save all changes</button>';
+  $("view").innerHTML=h;
+  $("cs-go").onclick=async function(){
+    var limits={}; [].forEach.call($("view").querySelectorAll(".lm"),function(i){ var f=i.dataset.f; limits[f]=limits[f]||[0,0,0]; limits[f][Number(i.dataset.i)]=Math.max(0,Number(i.value)||0); });
+    var off=[].filter.call($("view").querySelectorAll(".off"),function(i){ return i.checked; }).map(function(i){ return i.value; });
+    try{ await api("setcfg",{cfg:{cooldownSec:Number($("cd").value),dailyMult:Number($("dm").value),limits:limits,off:off,maintenance:{on:$("mn").checked,msg:$("mm").value}}}); $("cs-go").textContent="Saved. It is live now."; setTimeout(function(){ $("cs-go").textContent="Save all changes"; },2000); }catch(e){ $("cs-err").textContent=e.message; }
+  };
+ },
+ insights:async function(){
+  var d=await api("insights"), a=await api("activity",{limit:500}), cc={};
+  a.activity.forEach(function(x){ var k=x.country||"?"; cc[k]=(cc[k]||0)+1; });
+  var ctr=Object.keys(cc).map(function(k){return [k,cc[k]]}).sort(function(x,y){return y[1]-x[1]}).slice(0,8), cmax=Math.max.apply(null,ctr.map(function(x){return x[1]}).concat([1]));
+  var fe=Object.keys(d.byFeat||{}).map(function(k){return [k,d.byFeat[k]]}).sort(function(x,y){return y[1]-x[1]}), fmax=Math.max.apply(null,fe.map(function(x){return x[1]}).concat([1]));
+  var bar=function(l,v,m){ return '<div class="row" style="padding:8px 0"><div class="m"><b>'+esc(l)+'</b></div><div class="meter"><div style="width:'+Math.round(v/m*100)+'%"></div></div><b style="width:34px;text-align:right;flex:none">'+v+'</b></div>'; };
+  var h='<div class="card"><h3>What people ask most</h3><p class="mu">From the last '+d.sample+' requests.</p>'+(d.top.length?d.top.map(function(x){ return '<div class="row" style="padding:8px 0"><div class="m"><b class="w" style="white-space:normal">'+esc(x.text)+'</b></div><span class="tag">'+x.n+'x</span></div>'; }).join(""):'<div class="empty">Not enough data yet.</div>')+'</div>';
+  h+='<div class="card"><h3>Top countries</h3>'+(ctr.length?ctr.map(function(x){return bar(x[0],x[1],cmax)}).join(""):'<div class="empty">No data yet.</div>')+'</div>';
+  h+='<div class="card"><h3>Most used features</h3>'+(fe.length?fe.map(function(x){return bar(x[0],x[1],fmax)}).join(""):'<div class="empty">No data yet.</div>')+'</div>';
+  h+='<div class="card"><h3>Most active people</h3>'+(d.topUsers.length?d.topUsers.map(function(u){ return '<div class="row"><div class="av">'+ini(u.name)+'</div><div class="m"><b>'+esc(u.name)+'</b><small class="mu">'+esc(u.email)+'</small></div><b>'+u.n+'</b></div>'; }).join(""):'<div class="empty">No data yet.</div>')+'</div>';
+  h+='<div class="card"><h3>Failed requests ('+d.fails.length+')</h3><p class="mu">If many fail, check Health check and your AI keys.</p>'+(d.fails.length?d.fails.slice(0,15).map(function(x){ return '<div class="row" style="padding:8px 0"><div class="m"><b>'+esc(x.name)+' <span class="tag bad">'+esc(x.feature)+'</span></b><small class="w mu" style="white-space:normal">'+esc(x.prompt||"")+'</small><small class="mu">'+ago(x.t)+'</small></div></div>'; }).join(""):'<div class="empty">No failures. Nice.</div>')+'</div>';
+  $("view").innerHTML=h;
+ },
+ chatsearch:async function(){
+  $("view").innerHTML='<div class="card"><h3>Search all chats</h3><p class="mu">Looks through the latest saved messages of recent people.</p><div class="fb" style="margin-top:8px"><input id="cs-q" placeholder="A word or phrase"><button class="btn" id="cs-go">Search</button></div></div><div id="cs-out"></div>';
+  async function go(){ var q=$("cs-q").value.trim(); if(q.length<2) return; $("cs-out").innerHTML='<div class="card mu">Searching...</div>';
+    try{ var d=await api("chatsearch",{q:q}); $("cs-out").innerHTML='<div class="card"><h3>'+d.hits.length+' found</h3><p class="mu">Checked '+d.scanned+' people.</p>'+(d.hits.length?d.hits.map(function(x,i){ return '<div class="row" data-i="'+i+'" style="cursor:pointer"><div class="av">'+ini(x.name)+'</div><div class="m"><b>'+esc(x.name)+' <span class="tag">'+esc(x.f)+'</span></b><small class="w" style="white-space:normal;color:#d6d3ff">'+esc(x.q||x.a)+'</small><small class="mu">'+ago(x.t)+'</small></div></div>'; }).join(""):'<div class="empty">Nothing found.</div>')+'</div>';
+      [].forEach.call($("cs-out").querySelectorAll(".row[data-i]"),function(r){ r.onclick=function(){ var x=d.hits[Number(r.dataset.i)]; readChat({id:x.id,name:x.name,t:x.t}); }; });
+    }catch(e){ $("cs-out").innerHTML='<div class="card"><b>Could not search</b><p class="mu">'+esc(e.message)+'</p></div>'; } }
+  $("cs-go").onclick=go; $("cs-q").onkeydown=function(e){ if(e.key==="Enter") go(); };
+ },
+ health:async function(){
+  async function run(){ $("view").innerHTML='<div class="card mu">Checking every service...</div>'; var d=await api("testproviders"), keys=Object.keys(d.results);
+    $("view").innerHTML='<div class="card"><h3>Health check</h3><p class="mu">Tests each service you have connected. If one says error, its key may be wrong or out of limit. Omnia keeps working with the others.</p>'+(keys.length?keys.map(function(k){ var ok=d.results[k]==="ok"; return '<div class="kv"><span>'+esc(k)+'</span><span class="tag '+(ok?"ok":"bad")+'">'+esc(ok?"working":d.results[k])+'</span></div>'; }).join(""):'<div class="empty">No services are connected yet.</div>')+'<button class="btn" id="hc" style="margin-top:12px">Check again</button></div>'; $("hc").onclick=run; }
+  await run();
+ },
+ blocked:async function(){
+  var d=await api("blocked");
+  $("view").innerHTML='<div class="card"><h3>Blocked ('+d.blocked.length+')</h3><p class="mu">People and guests who cannot use Omnia.</p>'+(d.blocked.length?d.blocked.map(function(id){ return '<div class="row"><div class="av">'+ini(id.replace("g:","G"))+'</div><div class="m"><b>'+esc(id)+'</b></div><button class="btn g sm" data-u="'+esc(id)+'">Unblock</button></div>'; }).join(""):'<div class="empty">Nobody is blocked.</div>')+'</div>';
+  [].forEach.call($("view").querySelectorAll("[data-u]"),function(b){ b.onclick=async function(){ await api("unblock",{id:b.dataset.u}); show("blocked"); }; });
  },
  users:async function(){ var d=await api("users"); C.users=d.users; drawUsers(""); },
  chats:async function(){
@@ -179,10 +238,17 @@ function drawUsers(q){
 }
 function openUser(u){
   var h='<div class="row" style="border:0"><div class="av">'+ini(u.name||u.email)+'</div><div class="m"><b style="font-size:17px">'+esc(u.name||u.email)+'</b><small class="mu">'+esc(u.email)+'</small></div></div>'+[["Phone",u.phone||"-"],["Creates",u.interest||"-"],["City",u.city||u.loc||"-"],["Country",u.country||"-"],["Signed up with",u.method||"-"],["Joined",dt(u.joined)],["Last seen",dt(u.last)],["Requests",u.count]].map(function(r){return '<div class="kv"><span>'+r[0]+'</span><span style="text-align:right;word-break:break-all">'+esc(r[1])+'</span></div>'}).join("");
-  h+='<div id="pwout" class="mu" style="margin:10px 0"></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn sm" id="u-chat">Read chats</button><button class="btn g sm" id="u-act">Activity</button><button class="btn g sm" id="u-blk">'+(u.blocked?"Unblock":"Block")+'</button><button class="btn g sm" id="u-pw">Reset password</button><button class="btn r sm" id="u-del">Delete</button><button class="btn g sm" id="u-x">Close</button></div>';
+  h+='<div id="ud" class="mu" style="margin:10px 0">Loading details...</div><div id="pwout" class="mu" style="margin:6px 0"></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn sm" id="u-chat">Read chats</button><button class="btn g sm" id="u-prem">Give Premium</button><button class="btn g sm" id="u-lim">Reset limits</button><button class="btn g sm" id="u-act">Activity</button><button class="btn g sm" id="u-blk">'+(u.blocked?"Unblock":"Block")+'</button><button class="btn g sm" id="u-pw">Reset password</button><button class="btn r sm" id="u-del">Delete</button><button class="btn g sm" id="u-x">Close</button></div>';
   openSheet(h);
   $("u-x").onclick=closeSheet;
   $("u-chat").onclick=function(){ readChat({id:u.email,name:u.name||u.email,country:u.country,city:u.city||u.loc,t:u.last}); };
+  api("userdetail",{id:u.email}).then(function(d){
+    var fe=Object.keys(d.usage||{}).map(function(k){ return k+" "+d.usage[k]; }).join(" · ")||"nothing yet", cds=Object.keys(d.cooldowns||{}).map(function(k){ return k+" "+d.cooldowns[k]+"s"; }).join(", ");
+    $("ud").innerHTML='<div class="kv"><span>Plan</span><span>'+(d.premiumUntil>Date.now()?'<span class="tag ok">Premium until '+esc(dt(d.premiumUntil))+'</span>':"Free")+'</span></div><div class="kv"><span>Invites</span><span>'+d.invites+(d.invitedBy?" · joined from "+esc(d.invitedBy):"")+'</span></div><div class="kv"><span>Used</span><span style="text-align:right">'+esc(fe)+'</span></div>'+(cds?'<div class="kv"><span>Waiting timers</span><span>'+esc(cds)+'</span></div>':"")+'<label>Private note about this person</label><input id="u-note" maxlength="300" value="'+esc(d.note||"")+'" placeholder="Example: friend, VIP, paid on 12 Oct"><button class="btn g sm" id="u-ns" style="margin-top:6px">Save note</button>';
+    $("u-ns").onclick=async function(){ await api("usernote",{id:u.email,note:$("u-note").value}); $("u-ns").textContent="Saved"; };
+  }).catch(function(e){ $("ud").textContent=e.message; });
+  $("u-prem").onclick=async function(){ var d=prompt("How many days of Premium?","30"); if(!d) return; try{ var r=await api("premgrant",{id:u.email,days:Number(d)}); $("pwout").textContent="Premium until "+dt(r.until); }catch(e){ $("pwout").textContent=e.message; } };
+  $("u-lim").onclick=async function(){ await api("resetlimits",{id:u.email}); $("pwout").textContent="Timers and limits cleared for this person."; };
   $("u-blk").onclick=async function(){ await api(u.blocked?"unblock":"block",{id:u.email}); closeSheet(); show("users"); };
   $("u-pw").onclick=async function(){ if(!confirm("Make a new temporary password for this user?")) return; try{ var d=await api("resetpw",{id:u.email}); $("pwout").innerHTML='New temporary password: <b style="color:#fff;font-size:18px">'+esc(d.temp)+'</b><br>Send it to the user. They can sign in with it.'; }catch(e){ $("pwout").textContent=e.message; } };
   $("u-del").onclick=async function(){ if(!confirm("Delete this account for good?")) return; await api("deleteuser",{id:u.email}); closeSheet(); show("users"); };
@@ -194,21 +260,22 @@ async function readChat(c){
     var d=await api("chat",{id:c.id}), m=d.messages||[];
     var h='<div class="row" style="border:0;padding-top:0"><div class="av">'+ini(c.name)+'</div><div class="m"><b style="font-size:17px">'+esc(c.name)+'</b><small class="mu">'+esc(c.id)+(place(c)?" · "+esc(place(c)):"")+'</small></div><button class="btn g sm" id="c-x">Close</button></div>';
     h+='<div class="thread">'+(m.length?m.map(function(x){ return '<div class="meta r"><span class="tag">'+esc(x.f)+'</span>'+esc(dt(x.t))+(x.ok===false?' <span class="tag bad">failed</span>':'')+'</div>'+(x.q?'<div class="msg u">'+esc(x.q)+'</div>':'')+(x.a?'<div class="msg a">'+esc(x.a)+'</div>':''); }).join(""):'<div class="empty">No saved messages.</div>')+'</div>';
-    h+='<div style="display:flex;gap:8px;margin-top:16px"><button class="btn r sm" id="c-del">Delete these chats</button></div>';
+    h+='<div style="display:flex;gap:8px;margin-top:16px"><button class="btn g sm" id="c-dl">Download .txt</button><button class="btn r sm" id="c-del">Delete these chats</button></div>';
     openSheet(h);
     $("c-x").onclick=closeSheet;
+    $("c-dl").onclick=function(){ var t=m.map(function(x){ return "["+dt(x.t)+"] ("+x.f+")\nUser: "+(x.q||"")+"\nOmnia: "+(x.a||"")+"\n"; }).join("\n"); var a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([t],{type:"text/plain"})); a.download="chat-"+String(c.id).replace(/[^a-z0-9]/gi,"_")+".txt"; a.click(); };
     $("c-del").onclick=async function(){ if(!confirm("Delete all saved chats of this person?")) return; await api("delchat",{id:c.id}); closeSheet(); if(TAB==="chats") show("chats"); };
   }catch(e){ openSheet('<div class="card"><b>Could not load</b><p class="mu">'+esc(e.message)+'</p></div>'); }
 }
 function adForm(a){
   a=a||{on:true,who:"all",cta:"Learn more"};
-  openSheet('<h3 style="margin:0 0 4px">'+(a.id?"Edit ad":"New ad")+'</h3><p class="mu">Shown with an "Ad" label. People can hide it.</p><label>Title</label><input id="f-t" maxlength="60" value="'+esc(a.title||"")+'" placeholder="Learn Python in 30 days"><label>Short text (optional)</label><input id="f-x" maxlength="140" value="'+esc(a.text||"")+'" placeholder="Free course for beginners"><label>Button text</label><input id="f-c" maxlength="20" value="'+esc(a.cta||"")+'" placeholder="Learn more"><label>Link (https://)</label><input id="f-u" value="'+esc(a.url||"")+'" placeholder="https://your-link.com" inputmode="url"><label>Picture link (optional, https://)</label><input id="f-i" value="'+esc(a.img||"")+'" placeholder="https://.../picture.png" inputmode="url"><label>Show to</label><select id="f-w"><option value="all"'+(a.who!=="guests"?" selected":"")+'>Everyone</option><option value="guests"'+(a.who==="guests"?" selected":"")+'>Guests only</option></select><div class="sw"><input type="checkbox" id="f-o"'+(a.on!==false?" checked":"")+'><span>Live (turn off to pause)</span></div><label>Preview</label><div class="adprev" id="f-p"></div><div class="err" id="f-e"></div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn" id="f-s" style="flex:1">Save ad</button><button class="btn g" id="f-c2">Cancel</button></div>');
+  openSheet('<h3 style="margin:0 0 4px">'+(a.id?"Edit ad":"New ad")+'</h3><p class="mu">Shown with an "Ad" label. People can hide it.</p><label>Title</label><input id="f-t" maxlength="60" value="'+esc(a.title||"")+'" placeholder="Learn Python in 30 days"><label>Short text (optional)</label><input id="f-x" maxlength="140" value="'+esc(a.text||"")+'" placeholder="Free course for beginners"><label>Button text</label><input id="f-c" maxlength="20" value="'+esc(a.cta||"")+'" placeholder="Learn more"><label>Link (https://)</label><input id="f-u" value="'+esc(a.url||"")+'" placeholder="https://your-link.com" inputmode="url"><label>Picture link (optional, https://)</label><input id="f-i" value="'+esc(a.img||"")+'" placeholder="https://.../picture.png" inputmode="url"><label>Show to</label><select id="f-w"><option value="all"'+(a.who!=="guests"?" selected":"")+'>Everyone</option><option value="guests"'+(a.who==="guests"?" selected":"")+'>Guests only</option></select><label>Start date (optional)</label><input id="f-s1" type="date" value="'+(a.start?new Date(a.start).toISOString().slice(0,10):"")+'"><label>End date (optional)</label><input id="f-s2" type="date" value="'+(a.end?new Date(a.end).toISOString().slice(0,10):"")+'"><label>Stop after this many views (0 = no limit)</label><input id="f-mv" type="number" min="0" value="'+(a.maxViews||0)+'"><div class="sw"><input type="checkbox" id="f-o"'+(a.on!==false?" checked":"")+'><span>Live (turn off to pause)</span></div><label>Preview</label><div class="adprev" id="f-p"></div><div class="err" id="f-e"></div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn" id="f-s" style="flex:1">Save ad</button><button class="btn g" id="f-c2">Cancel</button></div>');
   function prev(){ var img=$("f-i").value.trim(); $("f-p").innerHTML='<span class="lab">AD</span>'+(/^https:\/\//.test(img)?'<img alt="" src="'+esc(img)+'">':'')+'<div class="at"><b>'+esc($("f-t").value||"Your title")+'</b><p>'+esc($("f-x").value)+'</p></div><button class="go">'+esc($("f-c").value||"Learn more")+'</button>'; }
   ["f-t","f-x","f-c","f-i"].forEach(function(i){ $(i).oninput=prev; }); prev();
   $("f-c2").onclick=closeSheet;
   $("f-s").onclick=async function(){
     $("f-e").textContent="";
-    try{ await api("adsave",{ad:{id:a.id,title:$("f-t").value,text:$("f-x").value,cta:$("f-c").value,url:$("f-u").value.trim(),img:$("f-i").value.trim(),who:$("f-w").value,on:$("f-o").checked}}); closeSheet(); show("ads"); }
+    try{ await api("adsave",{ad:{id:a.id,title:$("f-t").value,text:$("f-x").value,cta:$("f-c").value,url:$("f-u").value.trim(),img:$("f-i").value.trim(),who:$("f-w").value,on:$("f-o").checked,startDay:$("f-s1").value,endDay:$("f-s2").value,maxViews:Number($("f-mv").value)||0}}); closeSheet(); show("ads"); }
     catch(e){ $("f-e").textContent=e.message; }
   };
 }

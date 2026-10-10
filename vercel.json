@@ -1,8 +1,16 @@
 {
   "functions": {
-    "api/ai.js": { "maxDuration": 60 },
-    "api/image.js": { "maxDuration": 60 },
-    "api/video-ai.js": { "maxDuration": 30 }
+    "api/ai.js": {
+      "maxDuration": 60
+    },
+    "api/image.js": {
+      "maxDuration": 60
+    }
   },
-  "rewrites": [{ "source": "/admin", "destination": "/admin.html" }]
+  "rewrites": [
+    {
+      "source": "/admin",
+      "destination": "/admin.html"
+    }
+  ]
 }
