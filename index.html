@@ -1272,13 +1272,13 @@ pre.src{margin:0;padding:14px;border-radius:22px;background:var(--code);color:va
     var p=$("vid-in").value.trim(); if(!p) return toast("Describe the video first");
     var out=$("vid-out"), btn=$("vid-go"); btn.disabled=true; waiting(out,"Starting your AI video. This takes 1 to 3 minutes...");
     try{
-      var st=await api("/api/video-ai",{action:"start",prompt:p+", cinematic, smooth camera motion, realistic, high quality"}), t0=Date.now();
+      var st=await api("/api/video-ai",{action:"start",ratio:ratio,prompt:p+", cinematic, smooth camera motion, realistic, high quality"}), t0=Date.now();
       for(;;){
         await sleep(5000);
         if(Date.now()-t0>360000) throw {code:"error",message:"It is taking too long. Try again."};
         var r=await api("/api/video-ai",{action:"status",status_url:st.status_url,response_url:st.response_url});
         if(r.done){ showRealVideo(r.url); break; }
-        var w=$("wt"); if(w) w.textContent="AI is making your video ("+Math.round((Date.now()-t0)/1000)+"s)...";
+        var w=$("wt"); if(w) w.textContent=(r.status==="IN_PROGRESS"?"AI is generating your video":"Waiting in the AI queue")+" ("+Math.round((Date.now()-t0)/1000)+"s)...";
       }
     }catch(e){ out.innerHTML='<div class="err">'+errText(e)+'</div>'; }
     btn.disabled=false;
