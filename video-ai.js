@@ -23,4 +23,32 @@ module.exports = async (req, res) => {
       const prompt = store.clip(b.prompt, 800);
       if (!prompt) return res.status(400).json({ error: "Describe the video first" });
       if (store.limited("va:" + store.ipOf(req), 6, 600000)) return res.status(429).json({ error: "Too many requests" });
-      if (bump(who.email, Number(process.env.VIDEO_AI_DAILY_LIMIT || 2))) return res.status(429).json({ error: "Daily AI video limit reached. Try again tomorrow." });
+      if (bump(who.email + (b.quality === "best" ? ":b" : ":f"), b.quality === "best" ? Number(process.env.VIDEO_BEST_DAILY_LIMIT || 1) : Number(process.env.VIDEO_AI_DAILY_LIMIT || 2))) return res.status(429).json({ error: "Daily AI video limit reached. Try again tomorrow." });
+      const best = b.quality === "best" && !!process.env.FAL_MODEL_BEST;
+      const model = best ? process.env.FAL_MODEL_BEST : (process.env.FAL_VIDEO_MODEL || "lightricks/ltx-2.5/text-to-video/fast");
+      let input;
+      if (best) { input = { prompt }; try { Object.assign(input, JSON.parse(process.env.FAL_INPUT_BEST || "{}")); } catch (e) {} }
+      else input = { prompt, duration: Number(process.env.FAL_VIDEO_SECONDS || 6), resolution: process.env.FAL_VIDEO_RES || "720p", aspect_ratio: b.ratio === "9:16" ? "9:16" : "16:9", generate_audio: process.env.FAL_VIDEO_AUDIO !== "0" };
+      const r = await fetch("https://queue.fal.run/" + model, { method: "POST", headers: H, body: JSON.stringify(input), signal: AbortSignal.timeout(20000) });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok || !d.status_url) return res.status(502).json({ error: "AI video service said no (" + r.status + ")" + (d.detail ? ": " + String(typeof d.detail === "string" ? d.detail : JSON.stringify(d.detail)).slice(0, 140) : "") });
+      await store.track(req, { who, feature: "aivideo", prompt, ok: true, via: model });
+      return res.status(200).json({ status_url: d.status_url, response_url: d.response_url });
+    }
+    if (b.action === "status") {
+      if (!okUrl(b.status_url) || !okUrl(b.response_url)) return res.status(400).json({ error: "Bad request" });
+      const s = await fetch(b.status_url, { headers: H, signal: AbortSignal.timeout(15000) });
+      const sd = await s.json().catch(() => ({}));
+      if (!s.ok) return res.status(502).json({ error: "Could not check the video" });
+      if (sd.status !== "COMPLETED") return res.status(200).json({ done: false, status: sd.status || "IN_QUEUE" });
+      const r = await fetch(b.response_url, { headers: H, signal: AbortSignal.timeout(15000) });
+      const d = await r.json().catch(() => ({}));
+      const vid = d && (d.video || (d.data && d.data.video)), url = vid && (vid.url || vid);
+      if (!r.ok || typeof url !== "string") return res.status(502).json({ error: "The video failed. Try a different description." });
+      return res.status(200).json({ done: true, url });
+    }
+    return res.status(400).json({ error: "Unknown action" });
+  } catch (e) {
+    return res.status(502).json({ error: "AI video is busy. Try again." });
+  }
+};
