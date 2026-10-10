@@ -1,11 +1,16 @@
 // Public settings the website needs. None of these are secret.
-module.exports = (req, res) => {
+const store = require("./_store.js");
+module.exports = async (req, res) => {
   res.setHeader("Cache-Control", "no-store");
+  const e = process.env;
   res.status(200).json({
-    googleClientId: process.env.GOOGLE_CLIENT_ID || "",
-    discordUrl: process.env.DISCORD_URL || "",
-    allowGuest: process.env.ALLOW_GUEST !== "0",
-    requireLogin: !!process.env.GOOGLE_CLIENT_ID && process.env.REQUIRE_LOGIN !== "0",
-    imageAI: !!((process.env.CF_ACCOUNT_ID && process.env.CF_API_TOKEN) || process.env.POLLINATIONS_KEY),
+    googleClientId: e.GOOGLE_CLIENT_ID || "",
+    discordUrl: e.DISCORD_URL || "",
+    allowGuest: e.ALLOW_GUEST !== "0",
+    requireLogin: (!!e.GOOGLE_CLIENT_ID || store.accountsOn()) && e.REQUIRE_LOGIN !== "0",
+    accounts: store.accountsOn(),
+    imageAI: !!((e.CF_ACCOUNT_ID && e.CF_API_TOKEN) || e.POLLINATIONS_KEY),
+    videoAI: !!e.FAL_KEY,
+    announcement: await store.announcement(),
   });
 };

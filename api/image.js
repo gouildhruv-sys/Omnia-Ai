@@ -8,8 +8,9 @@
 //   GUEST_IMAGE_LIMIT              per guest address per day, default 3
 // Login settings are shared with api/ai.js: GOOGLE_CLIENT_ID, REQUIRE_LOGIN, ALLOW_GUEST, ACCESS_CODE.
 
+const store = require("./_store.js");
 const CLIENT_ID = process.env.GOOGLE_CLIENT_ID || "";
-const REQUIRE_LOGIN = !!CLIENT_ID && process.env.REQUIRE_LOGIN !== "0";
+const REQUIRE_LOGIN = (!!CLIENT_ID || store.accountsOn()) && process.env.REQUIRE_LOGIN !== "0";
 const ALLOW_GUEST = process.env.ALLOW_GUEST !== "0";
 const hits = new Map(), daily = new Map(), tokenCache = new Map(), bad = new Map();
 
@@ -88,19 +89,21 @@ module.exports = async (req, res) => {
 
   let who = null;
   const auth = String(req.headers.authorization || "");
-  if (CLIENT_ID && auth.startsWith("Bearer ")) who = await verifyGoogle(auth.slice(7));
+  if (auth.startsWith("Bearer omnia.")) who = store.verifySession(auth.slice(7));
+  else if (CLIENT_ID && auth.startsWith("Bearer ")) who = await verifyGoogle(auth.slice(7));
   const code = process.env.ACCESS_CODE, codeOk = !!code && req.headers["x-access-code"] === code;
   let guest = false;
   if (REQUIRE_LOGIN) {
     if (!who && !codeOk) {
       if (ALLOW_GUEST && req.headers["x-guest"] === "1") guest = true;
-      else return res.status(401).json({ error: "Please sign in with Google" });
+      else return res.status(401).json({ error: "Please sign in" });
     }
   } else if (code && !codeOk && !who) return res.status(401).json({ error: "Access code required" });
 
   const ip = String(req.headers["x-forwarded-for"] || "").split(",")[0].trim() || "unknown";
   if (limitedIp(ip)) return res.status(429).json({ error: "Too many requests" });
-  if (guest && bump(daily, "g:" + ip, Number(process.env.GUEST_IMAGE_LIMIT || 3))) return res.status(429).json({ error: "Guest image limit reached for today. Sign in with Google for more." });
+  if (await store.isBlocked(who ? who.email : store.guestId(req))) return res.status(403).json({ error: "Your access has been blocked. Contact support." });
+  if (guest && bump(daily, "g:" + ip, Number(process.env.GUEST_IMAGE_LIMIT || 3))) return res.status(429).json({ error: "Guest image limit reached for today. Sign in for more." });
   if (who && bump(daily, "u:" + who.email, Number(process.env.IMAGE_DAILY_LIMIT || 20))) return res.status(429).json({ error: "Daily image limit reached. Come back tomorrow." });
 
   const body = req.body || {};
@@ -133,7 +136,9 @@ module.exports = async (req, res) => {
   }
   let out = await run(false);
   if (!out && tried === 0) out = await run(true);
-  if (out) return res.status(200).json(out);
+  const feature = typeof body.feature === "string" ? body.feature.slice(0, 16) : "image";
+  if (out) { await store.track(req, { who, feature, prompt, ok: true, via: out.via }); return res.status(200).json(out); }
+  await store.track(req, { who, feature, prompt, ok: false });
   if (statuses.length && statuses.every((s) => s === 429)) return res.status(429).json({ error: "Free image limit reached, try again later" });
   return res.status(502).json({ error: "Image AI is busy or not set up. " + errors.slice(0, 3).join("; ") });
 };
