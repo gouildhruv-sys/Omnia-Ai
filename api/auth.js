@@ -1,5 +1,6 @@
 // Sign up / sign in with email + password, and profile details.
 const S = require("./_store.js");
+const P = require("./_plan.js");
 
 const EMAIL = /^[^\s@]{1,64}@[^\s@]{1,190}\.[^\s@]{2,}$/;
 const INTERESTS = ["YouTuber", "Instagram creator", "Student", "Business owner", "Developer", "Other"];
@@ -35,8 +36,11 @@ module.exports = async (req, res) => {
       const made = await S.cmd("HSETNX", "omnia:users", email, JSON.stringify(user));
       if (made !== 1) return res.status(409).json({ error: "This email already has an account. Sign in instead." });
       await S.cmd("HSET", "omnia:pw", email, S.hashPw(pw));
+      await P.noteRegIp(email, ip);
+      let invited = null;
+      if (b.ref) invited = await P.redeemRef(b.ref, email, ip);
       const s = S.signSession(email, p.name);
-      return res.status(200).json({ token: s.token, exp: s.exp, user: { name: p.name, email } });
+      return res.status(200).json({ token: s.token, exp: s.exp, user: { name: p.name, email }, invited: !!(invited && invited.referrer) });
     }
     if (action === "login") {
       const email = S.clip(b.email, 254).toLowerCase(), pw = String(b.password || "");
