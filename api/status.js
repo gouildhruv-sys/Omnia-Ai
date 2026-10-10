@@ -1,8 +1,11 @@
 export default async function handler(req, res) {
-  const { video_id } = req.query;
+  const { name } = req.query;
   const r = await fetch(
-    `https://apihub.agnes-ai.com/agnesapi?video_id=${video_id}&model_name=agnes-video-2.5`,
-    { headers: { Authorization: `Bearer ${process.env.AGNES_API_KEY}` } }
+    `https://generativelanguage.googleapis.com/v1beta/${name}`,
+    { headers: { "x-goog-api-key": process.env.GEMINI_API_KEY } }
   );
-  res.status(r.status).json(await r.json());
+  const data = await r.json();
+  const uri =
+    data?.response?.generateVideoResponse?.generatedSamples?.[0]?.video?.uri;
+  res.json({ done: !!data.done, uri, error: data.error });
 }
