@@ -23,7 +23,7 @@ module.exports = async (req, res) => {
     return res.status(200).json({
       database: S.dbOn(), accounts: S.accountsOn(), sessionSecret: !!e.SESSION_SECRET,
       gemini: !!e.GEMINI_API_KEY, groq: !!e.GROQ_API_KEY, mistral: !!e.MISTRAL_API_KEY, openrouter: !!e.OPENROUTER_API_KEY, cerebras: !!e.CEREBRAS_API_KEY,
-      cloudflareImages: !!(e.CF_ACCOUNT_ID && e.CF_API_TOKEN), pollinations: !!e.POLLINATIONS_KEY, falVideo: !!e.FAL_KEY, google: !!e.GOOGLE_CLIENT_ID,
+      cloudflareImages: !!(e.CF_ACCOUNT_ID && e.CF_API_TOKEN), chatLog: e.CHAT_LOG !== "0", retentionDays: Number(e.CHAT_RETENTION_DAYS || 30), videoFast: e.FAL_VIDEO_MODEL || "lightricks/ltx-2.5/text-to-video/fast", videoBest: e.FAL_MODEL_BEST || "", pollinations: !!e.POLLINATIONS_KEY, falVideo: !!e.FAL_KEY, google: !!e.GOOGLE_CLIENT_ID,
       limits: { guestDaily: Number(e.GUEST_DAILY_LIMIT || 8), userDaily: Number(e.DAILY_LIMIT || 60), imageDaily: Number(e.IMAGE_DAILY_LIMIT || 20), guestImage: Number(e.GUEST_IMAGE_LIMIT || 3) },
     });
   }
@@ -31,11 +31,64 @@ module.exports = async (req, res) => {
   try {
     if (a === "overview") {
       const d = days(7);
-      const cmds = [["HLEN", "omnia:users"], ["HLEN", "omnia:gcnt"], ["SCARD", "omnia:blocked"]];
+      const cmds = [["HLEN", "omnia:users"], ["HLEN", "omnia:gcnt"], ["SCARD", "omnia:blocked"], ["HLEN", "omnia:cvl"], ["HVALS", "omnia:last"], ["HVALS", "omnia:glast"]];
       d.forEach((x) => { cmds.push(["HGETALL", "omnia:s:" + x], ["SCARD", "omnia:a:" + x]); });
       const r = await S.pipe(cmds, 8000);
-      const series = d.map((x, i) => ({ day: x, stats: hmap(r[3 + i * 2]), active: r[4 + i * 2] || 0 })).reverse();
-      return res.status(200).json({ users: r[0] || 0, guests: r[1] || 0, blocked: r[2] || 0, series });
+      const series = d.map((x, i) => ({ day: x, stats: hmap(r[6 + i * 2]), active: r[7 + i * 2] || 0 })).reverse();
+      const cut = Date.now() - 300000;
+      let online = (r[4] || []).filter((t) => Number(t) > cut).length;
+      (r[5] || []).forEach((v) => { try { if (JSON.parse(v).t > cut) online++; } catch (e) {} });
+      return res.status(200).json({ users: r[0] || 0, guests: r[1] || 0, blocked: r[2] || 0, chats: r[3] || 0, online, series });
+    }
+    if (a === "chatusers") {
+      const r = await S.pipe([["HGETALL", "omnia:cvl"]], 8000);
+      const m = hmap(r[0]), ids = Object.keys(m);
+      const lens = ids.length ? await S.pipe(ids.slice(0, 400).map((k) => ["LLEN", "omnia:cv:" + k]), 8000) : [];
+      const list = ids.slice(0, 400).map((k, i) => { let l = {}; try { l = JSON.parse(m[k]); } catch (e) {} return { id: k, name: l.name || k, t: l.t || 0, country: l.country || "", city: l.city || "", count: lens[i] || 0 }; }).filter((x) => x.count > 0);
+      list.sort((x, y) => y.t - x.t);
+      return res.status(200).json({ chats: list });
+    }
+    if (a === "chat") {
+      const id0 = S.clip(b.id, 254);
+      if (!id0) return res.status(400).json({ error: "Missing id" });
+      const rows = (await S.cmd("LRANGE", "omnia:cv:" + id0, 0, 149)) || [];
+      const list = rows.map((x) => { try { return JSON.parse(x); } catch (e) { return null; } }).filter(Boolean).reverse();
+      return res.status(200).json({ messages: list });
+    }
+    if (a === "delchat") {
+      const id1 = S.clip(b.id, 254);
+      if (!id1) return res.status(400).json({ error: "Missing id" });
+      await S.pipe([["DEL", "omnia:cv:" + id1], ["HDEL", "omnia:cvl", id1]], 5000);
+      return res.status(200).json({ ok: true });
+    }
+    if (a === "ads") {
+      const r = await S.pipe([["HGETALL", "omnia:ads"], ["HGETALL", "omnia:adst"]], 8000);
+      const ads = hmap(r[0]), st = hmap(r[1]);
+      const list = Object.keys(ads).map((k) => { let x = {}; try { x = JSON.parse(ads[k]); } catch (e) {} return Object.assign(x, { id: k, views: Number(st[k + ":v"] || 0), clicks: Number(st[k + ":c"] || 0) }); });
+      list.sort((x, y) => (y.created || 0) - (x.created || 0));
+      return res.status(200).json({ ads: list });
+    }
+    if (a === "adsave") {
+      const ad = b.ad || {};
+      const url = S.clip(ad.url, 400), img = S.clip(ad.img, 400);
+      if (!/^https:\/\//.test(url)) return res.status(400).json({ error: "The link must start with https://" });
+      if (img && !/^https:\/\//.test(img)) return res.status(400).json({ error: "The picture link must start with https://" });
+      const title = S.clip(ad.title, 60);
+      if (!title) return res.status(400).json({ error: "Add a title" });
+      const id2 = /^[a-z0-9]{4,20}$/.test(String(ad.id || "")) ? ad.id : crypto.randomBytes(5).toString("hex");
+      let old = {}; try { old = JSON.parse((await S.cmd("HGET", "omnia:ads", id2)) || "{}"); } catch (e) {}
+      const rec = { id: id2, title, text: S.clip(ad.text, 140), cta: S.clip(ad.cta, 20) || "Learn more", url, img, who: ad.who === "guests" ? "guests" : "all", on: ad.on !== false, created: old.created || Date.now() };
+      await S.cmd("HSET", "omnia:ads", id2, JSON.stringify(rec));
+      S.resetAdCache();
+      return res.status(200).json({ ok: true, id: id2 });
+    }
+    if (a === "adtoggle" || a === "addel") {
+      const id3 = S.clip(b.id, 40);
+      if (!/^[a-z0-9]{4,20}$/.test(id3)) return res.status(400).json({ error: "Bad id" });
+      if (a === "addel") await S.pipe([["HDEL", "omnia:ads", id3], ["HDEL", "omnia:adst", id3 + ":v"], ["HDEL", "omnia:adst", id3 + ":c"]], 5000);
+      else { let x = {}; try { x = JSON.parse((await S.cmd("HGET", "omnia:ads", id3)) || "{}"); } catch (e) {} x.on = !x.on; await S.cmd("HSET", "omnia:ads", id3, JSON.stringify(x)); }
+      S.resetAdCache();
+      return res.status(200).json({ ok: true });
     }
     if (a === "users") {
       const r = await S.pipe([["HGETALL", "omnia:users"], ["HGETALL", "omnia:cnt"], ["HGETALL", "omnia:last"], ["SMEMBERS", "omnia:blocked"]], 8000);

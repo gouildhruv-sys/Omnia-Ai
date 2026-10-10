@@ -10,7 +10,11 @@ module.exports = async (req, res) => {
     requireLogin: (!!e.GOOGLE_CLIENT_ID || store.accountsOn()) && e.REQUIRE_LOGIN !== "0",
     accounts: store.accountsOn(),
     imageAI: !!((e.CF_ACCOUNT_ID && e.CF_API_TOKEN) || e.POLLINATIONS_KEY),
-    videoAI: !!e.process.env.AGNES_API_KEY,
+    videoAI: !!e.FAL_KEY,
     announcement: await store.announcement(),
+    ads: await store.activeAds(),
+    videoBest: !!e.FAL_MODEL_BEST,
+    retentionDays: Number(e.CHAT_RETENTION_DAYS || 30),
+    chatLog: e.CHAT_LOG !== "0",
   });
 };

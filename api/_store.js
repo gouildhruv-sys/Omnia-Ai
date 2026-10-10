@@ -95,6 +95,9 @@ function place(req) {
   let city = ""; try { city = decodeURIComponent(h["x-vercel-ip-city"] || ""); } catch (e) {}
   return { country: clip(h["x-vercel-ip-country"], 4), city: clip(city, 40) };
 }
+const raw = (s, n) => String(s == null ? "" : s).slice(0, n);
+const CHAT_LOG = process.env.CHAT_LOG !== "0";
+const RETAIN = Math.max(1, Number(process.env.CHAT_RETENTION_DAYS || 30)) * 86400;
 const withTimeout = (p, ms) => Promise.race([p, new Promise((r) => setTimeout(() => r(null), ms))]);
 
 async function isBlocked(id) {
@@ -116,8 +119,31 @@ async function track(req, o) {
     ];
     if (o.who) { c.push(["HINCRBY", "omnia:cnt", id, 1], ["HSET", "omnia:last", id, Date.now()]); }
     else { c.push(["HINCRBY", "omnia:gcnt", id, 1], ["HSET", "omnia:glast", id, JSON.stringify({ t: Date.now(), country: pl.country, city: pl.city })]); }
+    if (CHAT_LOG && (o.q || o.a)) {
+      const key = "omnia:cv:" + id;
+      c.push(["LPUSH", key, JSON.stringify({ t: Date.now(), f: feature, q: raw(o.q, 3000), a: raw(o.a, 6000), ok: o.ok !== false })], ["LTRIM", key, 0, 149], ["EXPIRE", key, RETAIN], ["HSET", "omnia:cvl", id, JSON.stringify({ t: Date.now(), name: o.who ? clip(o.who.name, 40) : "Guest", country: pl.country, city: pl.city })]);
+    }
     await withTimeout(pipe(c, 1500), 1600);
   } catch (e) {}
+}
+
+// ---- ads ----
+let adCache = { v: [], t: 0 };
+async function activeAds() {
+  if (!dbOn()) return [];
+  if (Date.now() - adCache.t < 30000) return adCache.v;
+  try {
+    const r = await withTimeout(cmd("HGETALL", "omnia:ads"), 1500);
+    const list = [];
+    if (Array.isArray(r)) for (let i = 1; i < r.length; i += 2) { try { const a = JSON.parse(r[i]); if (a.on) list.push({ id: a.id, title: a.title, text: a.text, img: a.img, url: a.url, cta: a.cta, who: a.who || "all" }); } catch (e) {} }
+    adCache = { v: list.slice(0, 8), t: Date.now() };
+  } catch (e) {}
+  return adCache.v;
+}
+function resetAdCache() { adCache = { v: [], t: 0 }; }
+async function trackAd(id, type) {
+  if (!dbOn() || !/^[a-z0-9]{4,20}$/.test(id)) return;
+  try { await withTimeout(cmd("HINCRBY", "omnia:adst", id + ":" + (type === "c" ? "c" : "v"), 1), 1500); } catch (e) {}
 }
 
 let annCache = { v: "", t: 0 };
@@ -137,4 +163,4 @@ function limited(key, max, ms) {
   return arr.length > max;
 }
 
-module.exports = { dbOn, accountsOn, pipe, cmd, signSession, verifySession, verifyGoogle, whoFromHeader, hashPw, checkPw, today, clip, ipOf, guestId, place, isBlocked, track, announcement, setAnnCache, limited, GOOGLE_ID };
+module.exports = { activeAds, resetAdCache, trackAd, raw, dbOn, accountsOn, pipe, cmd, signSession, verifySession, verifyGoogle, whoFromHeader, hashPw, checkPw, today, clip, ipOf, guestId, place, isBlocked, track, announcement, setAnnCache, limited, GOOGLE_ID };

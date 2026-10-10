@@ -56,6 +56,10 @@ module.exports = async (req, res) => {
       const u = await loadUser(who.email);
       return res.status(200).json({ profile: u ? { name: u.name, phone: u.phone, interest: u.interest, city: u.city } : null });
     }
+    if (action === "deletechats") {
+      await S.pipe([["DEL", "omnia:cv:" + who.email], ["HDEL", "omnia:cvl", who.email]], 5000);
+      return res.status(200).json({ ok: true });
+    }
     if (action === "update") {
       const p = cleanProfile(b);
       if (p.name.length < 2) return res.status(400).json({ error: "Enter your name" });

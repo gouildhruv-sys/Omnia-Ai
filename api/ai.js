@@ -191,7 +191,7 @@ module.exports = async (req, res) => {
   if (!out && attempted === 0) out = await run(true);
   const feature = typeof body.feature === "string" ? body.feature.slice(0, 16) : task;
   const preview = turns[turns.length - 1].content.replace(/^\[Instructions:[\s\S]*?\]\s*/, "");
-  if (out) { await store.track(req, { who, feature, prompt: preview, ok: true, via: out.via }); return res.status(200).json({ text: out.text, via: out.via }); }
+  if (out) { await store.track(req, { who, feature, prompt: preview, q: preview, a: out.text, ok: true, via: out.via }); return res.status(200).json({ text: out.text, via: out.via }); }
   await store.track(req, { who, feature, prompt: preview, ok: false });
   if (statuses.length && statuses.every((s) => s === 429)) return res.status(429).json({ error: "Free limit reached on all providers, try again in a minute" });
   return res.status(502).json({ error: "AI is busy or unavailable. " + errors.slice(0, 4).join("; ") });

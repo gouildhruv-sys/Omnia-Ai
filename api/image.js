@@ -137,7 +137,7 @@ module.exports = async (req, res) => {
   let out = await run(false);
   if (!out && tried === 0) out = await run(true);
   const feature = typeof body.feature === "string" ? body.feature.slice(0, 16) : "image";
-  if (out) { await store.track(req, { who, feature, prompt, ok: true, via: out.via }); return res.status(200).json(out); }
+  if (out) { await store.track(req, { who, feature, prompt, q: prompt, a: "[picture created]", ok: true, via: out.via }); return res.status(200).json(out); }
   await store.track(req, { who, feature, prompt, ok: false });
   if (statuses.length && statuses.every((s) => s === 429)) return res.status(429).json({ error: "Free image limit reached, try again later" });
   return res.status(502).json({ error: "Image AI is busy or not set up. " + errors.slice(0, 3).join("; ") });
