@@ -200,8 +200,8 @@ main{flex:1;min-height:0;position:relative;display:flex;flex-direction:column}
 .panel{display:none;flex:1;min-height:0;flex-direction:column}
 .panel.on{display:flex;animation:panelin .4s cubic-bezier(.2,.8,.2,1)}
 @keyframes panelin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-nav{order:2;position:relative;display:grid;grid-template-columns:repeat(4,1fr);margin:6px 14px 10px;padding:5px;border-radius:24px;background:var(--s1);border:1px solid var(--line);box-shadow:var(--shadow)}
-nav .ind{position:absolute;top:5px;bottom:5px;left:5px;width:calc((100% - 10px)/4);border-radius:19px;background:var(--grad);box-shadow:0 8px 20px #e23fd055;transform:translateX(calc(var(--i,0)*100%));transition:transform .4s cubic-bezier(.3,1.4,.5,1)}
+nav{order:2;position:relative;display:grid;grid-template-columns:repeat(5,1fr);margin:6px 14px 10px;padding:5px;border-radius:24px;background:var(--s1);border:1px solid var(--line);box-shadow:var(--shadow)}
+nav .ind{position:absolute;top:5px;bottom:5px;left:5px;width:calc((100% - 10px)/5);border-radius:19px;background:var(--grad);box-shadow:0 8px 20px #e23fd055;transform:translateX(calc(var(--i,0)*100%));transition:transform .4s cubic-bezier(.3,1.4,.5,1)}
 nav button{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 0 8px;font-size:11.5px;font-weight:800;color:var(--mute);transition:color .25s}
 nav button em{font-style:normal}
 nav button .ico{width:23px;height:23px;transition:transform .3s}
@@ -215,7 +215,7 @@ nav button:hover .ico{transform:translateY(-2px) rotate(-6deg)}
   #side>.brand{display:flex;padding:0 6px 6px}
   .col{order:0}
   nav{order:0;display:flex;flex-direction:column;margin:0;padding:6px;gap:2px}
-  nav .ind{left:6px;right:6px;width:auto;top:6px;bottom:auto;height:calc((100% - 12px)/4);transform:translateY(calc(var(--i,0)*100%))}
+  nav .ind{left:6px;right:6px;width:auto;top:6px;bottom:auto;height:calc((100% - 12px)/5);transform:translateY(calc(var(--i,0)*100%))}
   nav button{flex-direction:row;gap:12px;padding:0 14px;height:52px;font-size:15px;justify-content:flex-start}
   .sidefoot{display:flex;flex-direction:column;gap:10px;margin-top:auto}
   .logo-btn{display:none}
@@ -273,7 +273,7 @@ nav button:hover .ico{transform:translateY(-2px) rotate(-6deg)}
 .box:focus-within{border-color:var(--c2);box-shadow:0 0 0 4px #e23fd022,var(--shadow)}
 .box textarea{flex:none;width:100%;border:0;background:transparent;padding:4px;min-height:92px;max-height:220px;color:var(--ink);font:inherit;line-height:1.45;resize:none}
 .box textarea:focus-visible{outline:none}
-.lbl{font-size:11.5px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:var(--mute);margin:2px 0 -4px}
+.lbl{font-size:11.5px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:var(--mute);margin:6px 0 0}
 .bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .box>.bar:last-child .btn{flex:1;min-width:140px}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
@@ -302,8 +302,8 @@ nav button:hover .ico{transform:translateY(-2px) rotate(-6deg)}
 .frame iframe{display:block;width:100%;height:100%;border:0;background:#fff}
 .frame.code{height:min(66vh,560px)}
 .frame.vid{background:#000;margin:0 auto}
-.imgbox{width:100%;aspect-ratio:1;border-radius:22px;border:1px solid var(--line);background:var(--s1);overflow:hidden;box-shadow:var(--shadow)}
-.imgbox img{width:100%;height:100%;display:block}
+.imgbox{width:100%;max-width:100%;border-radius:22px;border:1px solid var(--line);background:var(--s1);overflow:hidden;box-shadow:var(--shadow)}
+.imgbox img{width:100%;height:auto;max-height:72vh;object-fit:contain;display:block;margin:0 auto}
 pre.src{margin:0;padding:14px;border-radius:22px;background:var(--code);color:var(--codeink);overflow:auto;max-height:min(66vh,560px);font-size:12.5px;line-height:1.5}
 .wait{display:flex;flex-direction:column;gap:12px;align-items:center;padding:38px 10px;border-radius:24px;border:1.5px dashed var(--line);color:var(--mute);text-align:center}
 .loader{width:60px;height:60px;background:var(--ring) center/contain no-repeat;animation:spin 1s linear infinite}
@@ -326,6 +326,23 @@ pre.src{margin:0;padding:14px;border-radius:22px;background:var(--code);color:va
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}.reveal,.sr,.boottxt{opacity:1!important;transform:none!important}.demo-out{opacity:1!important;transform:none!important}}
 
 :root{--logo:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 512 512%22 width=%22512%22 height=%22512%22%3E  %3Cdefs%3E    %3ClinearGradient id=%22bg%22 x1=%220%22 y1=%220%22 x2=%220%22 y2=%221%22%3E%3Cstop offset=%220%22 stop-color=%22%231c1642%22/%3E%3Cstop offset=%221%22 stop-color=%22%230d0a24%22/%3E%3C/linearGradient%3E    %3ClinearGradient id=%22rg%22 gradientUnits=%22userSpaceOnUse%22 x1=%22120%22 y1=%22400%22 x2=%22400%22 y2=%22110%22%3E%3Cstop offset=%220%22 stop-color=%22%23ff7a59%22/%3E%3Cstop offset=%22.5%22 stop-color=%22%23e23fd0%22/%3E%3Cstop offset=%221%22 stop-color=%22%235b7cff%22/%3E%3C/linearGradient%3E    %3CradialGradient id=%22gl%22 cx=%22.5%22 cy=%22.5%22 r=%22.6%22%3E%3Cstop offset=%220%22 stop-color=%22%23e23fd0%22 stop-opacity=%22.35%22/%3E%3Cstop offset=%221%22 stop-color=%22%23e23fd0%22 stop-opacity=%220%22/%3E%3C/radialGradient%3E    %3Cfilter id=%22bl%22 x=%22-30%25%22 y=%22-30%25%22 width=%22160%25%22 height=%22160%25%22%3E%3CfeGaussianBlur stdDeviation=%2216%22/%3E%3C/filter%3E  %3C/defs%3E  %3Crect width=%22512%22 height=%22512%22 rx=%22118%22 fill=%22url%28%23bg%29%22/%3E  %3Ccircle cx=%22256%22 cy=%22256%22 r=%22230%22 fill=%22url%28%23gl%29%22/%3E  %3Cg transform=%22rotate%28-10 256 256%29%22 fill=%22none%22 stroke-linecap=%22round%22%3E    %3Ccircle cx=%22256%22 cy=%22256%22 r=%22148%22 stroke=%22url%28%23rg%29%22 stroke-width=%2250%22 stroke-dasharray=%22749 181%22 opacity=%22.55%22 filter=%22url%28%23bl%29%22/%3E    %3Ccircle cx=%22256%22 cy=%22256%22 r=%22148%22 stroke=%22url%28%23rg%29%22 stroke-width=%2250%22 stroke-dasharray=%22749 181%22/%3E  %3C/g%3E  %3Cpath d=%22M256 190Q263 249 322 256Q263 263 256 322Q249 263 190 256Q249 249 256 190Z%22 fill=%22%23fff%22/%3E  %3Ccircle cx=%22361%22 cy=%22151%22 r=%2240%22 fill=%22%23ffd166%22 opacity=%22.35%22 filter=%22url%28%23bl%29%22/%3E  %3Ccircle cx=%22361%22 cy=%22151%22 r=%2225%22 fill=%22%23ffd166%22/%3E%3C/svg%3E");--ring:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 512 512%22%3E%3Cdefs%3E%3ClinearGradient id=%22r%22 gradientUnits=%22userSpaceOnUse%22 x1=%22120%22 y1=%22400%22 x2=%22400%22 y2=%22110%22%3E%3Cstop offset=%220%22 stop-color=%22%23ff7a59%22/%3E%3Cstop offset=%22.5%22 stop-color=%22%23e23fd0%22/%3E%3Cstop offset=%221%22 stop-color=%22%235b7cff%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg transform=%22rotate%28-10 256 256%29%22 fill=%22none%22 stroke-linecap=%22round%22%3E%3Ccircle cx=%22256%22 cy=%22256%22 r=%22148%22 stroke=%22url%28%23r%29%22 stroke-width=%2256%22 stroke-dasharray=%22749 181%22/%3E%3C/g%3E%3C/svg%3E")}
+
+#auth{overflow-y:auto;padding:22px 0}
+.fi,.authcard select{width:100%;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:var(--s2);color:var(--ink);font:inherit;font-size:15px}
+.fi:focus,.authcard select:focus{outline:2px solid var(--c2);outline-offset:1px}
+.auf{display:flex;flex-direction:column;gap:9px;width:100%;text-align:left}
+.auf[hidden],.f-su[hidden]{display:none}
+.aerr{color:#ff6b6b;font-size:13.5px;min-height:0;text-align:left;width:100%}
+.aerr:empty{display:none}
+.authcard .seg{width:100%}.authcard .seg button{flex:1;justify-content:center}
+.annbar{display:flex;align-items:center;gap:10px;padding:9px 14px;background:var(--grad);color:#fff;font-weight:700;font-size:14px;position:relative;z-index:6}
+.annbar span{flex:1}.annbar button{color:#fff;font-size:20px;line-height:1;padding:0 6px}
+.annbar[hidden]{display:none}
+.hint{color:var(--mute);font-size:13px;line-height:1.4}
+.toolout{padding:16px;border-radius:20px;background:var(--s1);border:1px solid var(--line);line-height:1.55;font-size:15px;word-break:break-word}
+.fi.sm{padding:11px 12px}
+.studio .box .fi{background:var(--s2)}
+.modal .sheet .auf{margin:6px 0}
 </style>
 </head>
 <body>
@@ -334,6 +351,9 @@ pre.src{margin:0;padding:14px;border-radius:22px;background:var(--code);color:va
 <symbol id="i-code" viewBox="0 0 24 24"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></symbol>
 <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="M3 17l5-5 4 4 3-3 6 6"/></symbol>
 <symbol id="i-video" viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="12" rx="3"/><path d="M16 10l5-3v10l-5-3z"/></symbol>
+<symbol id="i-tools" viewBox="0 0 24 24"><path d="M4 20L15 9"/><path d="M15 3l1.4 3.1L19.5 7.5 16.4 8.9 15 12l-1.4-3.1L10.5 7.5l3.1-1.4z"/><path d="M19 14l.7 1.5L21 16l-1.3.5L19 18l-.7-1.5L17 16l1.3-.5z"/></symbol>
+<symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 010 7M19 6a8.5 8.5 0 010 12"/></symbol>
+<symbol id="i-mute" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 9l5 6M22 9l-5 6"/></symbol>
 <symbol id="i-send" viewBox="0 0 24 24"><path d="M21 3L10 14M21 3l-7 18-4-8-8-4 19-6z"/></symbol>
 <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2.5"/></symbol>
 <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></symbol>
@@ -370,28 +390,37 @@ pre.src{margin:0;padding:14px;border-radius:22px;background:var(--code);color:va
   <div class="authcard">
     <div class="mark" aria-hidden="true"><svg class="logo" viewBox="0 0 512 512" aria-hidden="true"><use href="#logo"/></svg></div>
     <h1>Welcome to Omnia</h1>
-    <p>Sign up or sign in with one tap. No password to remember.</p>
-    <ul class="perks">
-      <li><svg class="ico"><use href="#i-check"/></svg>Chat, code, images and videos in one place</li>
-      <li><svg class="ico"><use href="#i-check"/></svg>Free to use, in any language</li>
-      <li><svg class="ico"><use href="#i-check"/></svg>Higher daily limit than guests</li>
-    </ul>
+    <p id="au-p">Create a free account, or just look around as a guest.</p>
+    <div class="seg" id="au-tabs" hidden></div>
+    <div class="auf" id="au-form" hidden>
+      <input class="fi f-su" id="au-name" placeholder="Full name" autocomplete="name" maxlength="60">
+      <input class="fi" id="au-email" type="email" placeholder="Email" autocomplete="email" inputmode="email">
+      <input class="fi" id="au-pw" type="password" placeholder="Password (6+ characters)" autocomplete="current-password">
+      <input class="fi f-su" id="au-phone" type="tel" placeholder="Mobile number (optional)" autocomplete="tel" inputmode="tel" maxlength="20">
+      <select class="f-su" id="au-int" aria-label="What do you create"><option>YouTuber</option><option>Instagram creator</option><option>Student</option><option>Business owner</option><option>Developer</option><option>Other</option></select>
+      <input class="fi f-su" id="au-city" placeholder="City (optional)" autocomplete="address-level2" maxlength="40">
+      <div class="aerr" id="au-err" role="alert"></div>
+      <button class="btn" id="au-go">Create account</button>
+    </div>
     <div class="gwrap" id="gbtn2"></div>
     <div class="or" id="auth-or">or</div>
     <button class="btn ghost" id="auth-guest">Continue as guest</button>
     <a class="btn ghost" data-discord href="#" target="_blank" rel="noopener"><svg class="ico" style="color:#5865f2"><use href="#i-discord"/></svg>Join us on Discord</a>
-    <div class="legal">By continuing you agree to use Omnia responsibly. AI can make mistakes.</div>
+    <div class="legal">We save your sign-up details and what you create (like prompts) to run and improve Omnia. AI can make mistakes.</div>
   </div>
 </div>
 
 <div class="view" id="landing">
   <div class="lwrap">
     <span class="blob b1" aria-hidden="true"></span><span class="blob b2" aria-hidden="true"></span>
+    <div class="annbar" hidden><span></span><button aria-label="Dismiss">&times;</button></div>
     <header class="lnav">
       <div class="brand"><div class="mark" aria-hidden="true"><svg class="logo" viewBox="0 0 512 512" aria-hidden="true"><use href="#logo"/></svg></div><b>Omnia</b></div>
       <div class="nr">
+        <button class="ib sndbtn" aria-label="Sound"></button>
         <button class="themebtn" aria-label="Switch theme"></button>
         <a class="ib dsc" data-discord href="#" target="_blank" rel="noopener" aria-label="Contact us on Discord"><svg class="ico"><use href="#i-discord"/></svg></a>
+        <button class="ib sndbtn" aria-label="Sound"></button>
         <button class="pill js-signin" hidden><svg class="ico"><use href="#i-google"/></svg>Sign in</button>
         <button class="userchip" hidden aria-label="Account"><img alt=""><span></span></button>
         <button class="pill" data-open="chat">Open app</button>
@@ -399,9 +428,9 @@ pre.src{margin:0;padding:14px;border-radius:22px;background:var(--code);color:va
     </header>
     <section class="lhero">
       <div class="hl">
-        <div class="eyebrow reveal"><i><svg class="ico" style="width:13px;height:13px;stroke-width:2.4"><use href="#i-spark"/></svg></i>Free · Any language · No password</div>
+        <div class="eyebrow reveal"><i><svg class="ico" style="width:13px;height:13px;stroke-width:2.4"><use href="#i-spark"/></svg></i>Free · Any language · Made for creators</div>
         <h1 class="reveal d1">One AI for <em>everything.</em></h1>
-        <p class="reveal d2">Chat, build working apps, draw images and make videos. All in one beautiful place.</p>
+        <p class="reveal d2">Chat, build working apps, make realistic photos, thumbnails and videos. All in one beautiful place.</p>
         <div class="cta reveal d3">
           <button class="btn big shine" data-open="chat">Start creating<svg class="ico"><use href="#i-arrow"/></svg></button>
           <a class="btn big ghost" data-discord href="#" target="_blank" rel="noopener"><svg class="ico" style="color:#5865f2"><use href="#i-discord"/></svg>Discord</a>
@@ -416,8 +445,8 @@ pre.src{margin:0;padding:14px;border-radius:22px;background:var(--code);color:va
     <section class="lgrid">
       <button class="card sr" data-open="chat"><div class="mv mv-chat"><i></i><i></i><i></i></div><div class="row"><div class="ic"><svg class="ico"><use href="#i-chat"/></svg></div><b>Chat</b></div><span class="d">Ask anything in your own language. Clear answers, ideas and help.</span></button>
       <button class="card sr" data-open="code"><div class="mv mv-code"><i></i><i></i><i></i><i></i></div><div class="row"><div class="ic"><svg class="ico"><use href="#i-code"/></svg></div><b>Code</b></div><span class="d">Describe an app or game. It is built and runs live in front of you.</span></button>
-      <button class="card sr" data-open="image"><div class="mv mv-img"></div><div class="row"><div class="ic"><svg class="ico"><use href="#i-image"/></svg></div><b>Image</b></div><span class="d">Turn words into AI images or sharp vector art. Save as PNG.</span></button>
-      <button class="card sr" data-open="video"><div class="mv mv-vid"><i></i></div><div class="row"><div class="ic"><svg class="ico"><use href="#i-video"/></svg></div><b>Video</b></div><span class="d">Animated 10 or 20 second videos, even from a reference. Save as MP4.</span></button>
+      <button class="card sr" data-open="image"><div class="mv mv-img"></div><div class="row"><div class="ic"><svg class="ico"><use href="#i-image"/></svg></div><b>Image</b></div><span class="d">Realistic AI photos and YouTube thumbnails with your own text. Save as PNG.</span></button>
+      <button class="card sr" data-open="video"><div class="mv mv-vid"><i></i></div><div class="row"><div class="ic"><svg class="ico"><use href="#i-video"/></svg></div><b>Video</b></div><span class="d">Cinematic 10 or 20 second videos with AI photo scenes. Save as MP4.</span></button>
     </section>
     <section class="how sr"><h2>How Omnia works</h2><div class="steps">
       <div class="step"><b>Describe it</b><span>Type or speak what you want, in any language.</span></div>
@@ -438,6 +467,7 @@ pre.src{margin:0;padding:14px;border-radius:22px;background:var(--code);color:va
       <button data-t="code"><svg class="ico"><use href="#i-code"/></svg><em>Code</em></button>
       <button data-t="image"><svg class="ico"><use href="#i-image"/></svg><em>Image</em></button>
       <button data-t="video"><svg class="ico"><use href="#i-video"/></svg><em>Video</em></button>
+      <button data-t="tools"><svg class="ico"><use href="#i-tools"/></svg><em>Create</em></button>
     </nav>
     <div class="sidefoot">
       <a class="btn ghost" data-discord href="#" target="_blank" rel="noopener"><svg class="ico" style="color:#5865f2"><use href="#i-discord"/></svg>Contact us on Discord</a>
@@ -449,6 +479,7 @@ pre.src{margin:0;padding:14px;border-radius:22px;background:var(--code);color:va
   </aside>
 
   <div class="col">
+    <div class="annbar" hidden><span></span><button aria-label="Dismiss">&times;</button></div>
     <header class="appbar">
       <button class="logo-btn" id="home-m" aria-label="Home"><svg class="logo" viewBox="0 0 512 512" aria-hidden="true"><use href="#logo"/></svg></button>
       <div class="ttl"><b id="ttl">Chat</b><small id="sub">Ask anything, in any language</small></div>
@@ -490,16 +521,44 @@ pre.src{margin:0;padding:14px;border-radius:22px;background:var(--code);color:va
       <section class="panel" id="p-image">
         <div class="studio">
           <div class="ctrl">
-            <div class="sh"><div class="tile"><svg class="ico"><use href="#i-image"/></svg></div><div><h2>Image Studio</h2><p>Photo-real AI images or sharp vector art.</p></div></div>
+            <div class="sh"><div class="tile"><svg class="ico"><use href="#i-image"/></svg></div><div><h2>Photo Studio</h2><p>Realistic AI photos and YouTube thumbnails.</p></div></div>
             <div class="box">
+              <div class="bar"><span class="seg" id="img-mode"></span></div>
               <textarea id="img-in" placeholder="Example: a lion wearing a crown at sunset"></textarea>
-              <div class="bar" id="img-mode-row" hidden><span class="seg" id="img-mode"></span></div>
-              <div class="lbl">Style</div>
-              <div class="chips" id="img-styles"></div>
-              <div class="bar"><button class="btn shine" id="img-go"><svg class="ico"><use href="#i-spark"/></svg>Create image</button></div>
+              <div id="ph-box"><div class="lbl">Look</div><div class="chips" id="img-looks"></div></div>
+              <div id="th-box" hidden>
+                <div class="lbl">Headline on the thumbnail</div>
+                <input class="fi sm" id="th-head" maxlength="40" placeholder="Example: I TRIED AI FOR 24 HOURS">
+                <div class="bar"><button class="pill" id="th-sug">Suggest headlines</button></div>
+                <div class="chips" id="th-sugs"></div>
+                <div class="lbl">Text style</div><div class="chips" id="th-styles"></div>
+                <div class="lbl">Text position</div><div class="bar"><span class="seg" id="th-pos"></span></div>
+                <input type="file" id="th-file" accept="image/*" hidden>
+                <div class="bar"><button class="btn ghost" id="th-up"><svg class="ico"><use href="#i-plus"/></svg>Use my own photo</button><button class="pill" id="th-clr" hidden>Remove photo</button></div>
+                <div class="hint" id="th-hint"></div>
+              </div>
+              <div class="lbl">Shape</div>
+              <div class="bar"><span class="seg" id="img-ar"></span></div>
+              <div class="bar"><button class="btn shine" id="img-go"><svg class="ico"><use href="#i-spark"/></svg>Create photo</button></div>
             </div>
           </div>
-          <div class="out" id="img-out"><div class="empty"><svg class="ico big"><use href="#i-image"/></svg>Your image will appear here.</div></div>
+          <div class="out" id="img-out"><div class="empty"><svg class="ico big"><use href="#i-image"/></svg>Your photo or thumbnail will appear here.</div></div>
+        </div>
+      </section>
+
+      <section class="panel" id="p-tools">
+        <div class="studio">
+          <div class="ctrl">
+            <div class="sh"><div class="tile"><svg class="ico"><use href="#i-tools"/></svg></div><div><h2>Creator Tools</h2><p>Titles, captions, scripts and ideas.</p></div></div>
+            <div class="box">
+              <div class="chips" id="tool-list"></div>
+              <textarea id="tool-in" placeholder="What is your video about?"></textarea>
+              <div class="lbl">Language</div><div class="bar"><span class="seg" id="tool-lang"></span></div>
+              <div class="lbl">Tone</div><div class="bar"><span class="seg" id="tool-tone"></span></div>
+              <div class="bar"><button class="btn shine" id="tool-go"><svg class="ico"><use href="#i-spark"/></svg>Write it</button></div>
+            </div>
+          </div>
+          <div class="out" id="tool-out"><div class="empty"><svg class="ico big"><use href="#i-tools"/></svg>Your titles, captions or script will appear here.</div></div>
         </div>
       </section>
 
@@ -519,6 +578,8 @@ pre.src{margin:0;padding:14px;border-radius:22px;background:var(--code);color:va
                   <button class="pill" id="ref-clear">Remove</button>
                 </div>
               </div>
+              <div class="lbl" id="vid-mode-lbl" hidden>Video type</div>
+              <div class="bar" id="vid-mode-row" hidden><span class="seg" id="vid-mode"></span></div>
               <div class="lbl" id="vid-bg-lbl" hidden>Background</div>
               <div class="bar" id="vid-bg-row" hidden><span class="seg" id="vid-bg"></span></div>
               <div class="lbl">Format and length</div>
@@ -542,6 +603,20 @@ pre.src{margin:0;padding:14px;border-radius:22px;background:var(--code);color:va
     <button class="pill" id="login-cancel">Not now</button>
   </div>
 </div>
+<div class="modal" id="prof" role="dialog" aria-modal="true" aria-label="Your details">
+  <div class="sheet">
+    <h2>Tell us about you</h2>
+    <p>Just a few quick details to finish your account.</p>
+    <div class="auf">
+      <input class="fi" id="pf-name" placeholder="Full name" maxlength="60">
+      <input class="fi" id="pf-phone" type="tel" placeholder="Mobile number (optional)" maxlength="20">
+      <select id="pf-int" class="fi"><option>YouTuber</option><option>Instagram creator</option><option>Student</option><option>Business owner</option><option>Developer</option><option>Other</option></select>
+      <input class="fi" id="pf-city" placeholder="City (optional)" maxlength="40">
+      <div class="aerr" id="pf-err"></div>
+      <button class="btn" id="pf-save">Save and continue</button>
+    </div>
+  </div>
+</div>
 <div class="toast" id="toast" role="status"></div>
 
 <script>
@@ -549,18 +624,38 @@ pre.src{margin:0;padding:14px;border-radius:22px;background:var(--code);color:va
 (function(){
   var $=function(i){return document.getElementById(i)};
   function toast(m){ var t=$("toast"); t.textContent=m; t.classList.add("on"); setTimeout(function(){t.classList.remove("on")},2600); }
+
+  var sfx=(function(){
+    var ac=null, on=true; try{ on=localStorage.getItem("omnia-snd")!=="0"; }catch(e){}
+    function ctx(){ if(!ac){ try{ ac=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ return null; } } if(ac.state==="suspended") ac.resume(); return ac; }
+    function tone(f,t0,d,type,vol,slide){ try{ var a=ctx(); if(!a) return; var o=a.createOscillator(), g=a.createGain(), t=a.currentTime+t0; o.type=type||"sine"; o.frequency.setValueAtTime(f,t); if(slide) o.frequency.exponentialRampToValueAtTime(slide,t+d); g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(vol||.08,t+.01); g.gain.exponentialRampToValueAtTime(.0001,t+d); o.connect(g); g.connect(a.destination); o.start(t); o.stop(t+d+.03); }catch(e){} }
+    return {
+      isOn:function(){ return on; },
+      set:function(v){ on=!!v; try{ localStorage.setItem("omnia-snd",on?"1":"0"); }catch(e){} },
+      tap:function(){ if(on) tone(520,0,.07,"triangle",.05,780); },
+      ok:function(){ if(on){ tone(660,0,.12,"sine",.07); tone(880,.1,.12,"sine",.07); tone(1175,.2,.24,"sine",.06); } },
+      err:function(){ if(on) tone(230,0,.2,"sawtooth",.04,150); },
+      pop:function(){ if(on) tone(700,0,.09,"sine",.05,960); }
+    };
+  })();
+  function renderSnd(){ document.querySelectorAll(".sndbtn").forEach(function(b){ b.innerHTML='<svg class="ico" aria-hidden="true"><use href="#i-'+(sfx.isOn()?"sound":"mute")+'"/></svg>'; b.setAttribute("aria-label",sfx.isOn()?"Sound on":"Sound off"); b.onclick=function(){ sfx.set(!sfx.isOn()); renderSnd(); if(sfx.isOn()) sfx.pop(); }; }); }
+  document.addEventListener("pointerdown",function(e){ var t=e.target; if(t&&t.closest&&t.closest("button,a,[role=button]")&&!(t.closest(".sndbtn"))) sfx.tap(); },true);
   function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
 
   // ---------- Config, Discord, Google sign in ----------
   var DEFAULT_DISCORD="https://discord.gg/nfuCjtThz";
-  var CFG={googleClientId:"",discordUrl:DEFAULT_DISCORD,requireLogin:false,allowGuest:true,imageAI:false}, user=null, idToken="", gsiReady=false, loginWait=null, guest=false;
+  var CFG={googleClientId:"",discordUrl:DEFAULT_DISCORD,requireLogin:false,allowGuest:true,imageAI:false,accounts:false,videoAI:false,announcement:""}, user=null, idToken="", gsiReady=false, loginWait=null, guest=false;
   try{ guest=sessionStorage.getItem("omnia-guest")==="1"; }catch(e){}
   function ico(n){ return '<svg class="ico" aria-hidden="true"><use href="#i-'+n+'"/></svg>'; }
   function b64json(s){ s=s.replace(/-/g,"+").replace(/_/g,"/"); while(s.length%4) s+="="; return JSON.parse(decodeURIComponent(escape(atob(s)))); }
   function validToken(){ return !!idToken && !!user && user.exp*1000>Date.now()+60000; }
+  function avatar(n){ var ch=(String(n||"?").trim()[0]||"?").toUpperCase().replace(/[^A-Z0-9]/,"?"); return "data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff7a59"/><stop offset="1" stop-color="#5b7cff"/></linearGradient></defs><rect width="40" height="40" rx="20" fill="url(#g)"/><text x="20" y="27" font-size="20" font-weight="700" text-anchor="middle" fill="#fff" font-family="Arial,sans-serif">'+ch+'</text></svg>'); }
+  var vidTouched=false;
+  function autoBg(){ if(CFG.imageAI&&!vidTouched&&$("vid-bg")&&$("vid-bg").children.length){ vidBg="ai"; setSeg($("vid-bg"),"ai"); } }
   function renderUser(){
-    document.querySelectorAll(".userchip").forEach(function(c){ c.hidden=!user; if(user){ c.querySelector("img").src=user.picture||""; c.querySelector("span").textContent=(user.name||user.email||"").split(" ")[0]; } });
-    document.querySelectorAll(".js-signin").forEach(function(b){ b.hidden=!CFG.googleClientId||!!user; });
+    document.querySelectorAll(".userchip").forEach(function(c){ c.hidden=!user; if(user){ c.querySelector("img").src=user.picture||avatar(user.name||user.email); c.querySelector("span").textContent=(user.name||user.email||"").split(" ")[0]; } });
+    document.querySelectorAll(".js-signin").forEach(function(b){ b.hidden=!(CFG.googleClientId||CFG.accounts)||!!user; });
+    if(user) autoBg();
   }
   function hideLogin(){ $("login").classList.remove("on"); }
   function onCred(r){
@@ -568,11 +663,11 @@ pre.src{margin:0;padding:14px;border-radius:22px;background:var(--code);color:va
       var p=b64json(r.credential.split(".")[1]);
       idToken=r.credential; user={name:p.name,email:p.email,picture:p.picture,exp:p.exp};
       try{ sessionStorage.setItem("omnia-id",idToken); }catch(e){}
-      renderUser(); hideLogin(); toast("Signed in as "+(p.name||p.email)); afterAuth();
+      renderUser(); hideLogin(); toast("Signed in as "+(p.name||p.email)); sfx.ok(); afterAuth(); if(CFG.accounts) checkProfile();
       if(loginWait){ loginWait.ok(); loginWait=null; }
     }catch(e){ toast("Sign in failed. Try again."); }
   }
-  function signOut(){ idToken=""; user=null; guest=false; try{ sessionStorage.removeItem("omnia-id"); sessionStorage.removeItem("omnia-guest"); }catch(e){} try{ google.accounts.id.disableAutoSelect(); }catch(e){} renderUser(); toast("Signed out"); if(CFG.googleClientId) showAuth(); }
+  function signOut(){ idToken=""; user=null; guest=false; try{ sessionStorage.removeItem("omnia-id"); sessionStorage.removeItem("omnia-guest"); localStorage.removeItem("omnia-sess"); }catch(e){} try{ google.accounts.id.disableAutoSelect(); }catch(e){} renderUser(); toast("Signed out"); if(CFG.requireLogin) showAuth(); else goHome(); }
   function initGsi(){ if(gsiReady) return; google.accounts.id.initialize({client_id:CFG.googleClientId,callback:onCred}); gsiReady=true; }
   function loadGsi(cb){
     if(window.google&&google.accounts&&google.accounts.id){ initGsi(); return cb(); }
@@ -581,6 +676,7 @@ pre.src{margin:0;padding:14px;border-radius:22px;background:var(--code);color:va
     document.head.appendChild(s);
   }
   function showLogin(){
+    if(CFG.accounts){ showAuth(); return; }
     if(!CFG.googleClientId) return toast("Google sign in is not set up yet");
     $("login").classList.add("on");
     loadGsi(function(){ var el=$("gbtn"); el.innerHTML=""; google.accounts.id.renderButton(el,{theme:"filled_blue",size:"large",shape:"pill",text:"continue_with",width:260}); });
@@ -592,10 +688,11 @@ pre.src{margin:0;padding:14px;border-radius:22px;background:var(--code);color:va
   document.querySelectorAll("[data-discord]").forEach(function(a){ a.addEventListener("click",function(e){ if(!CFG.discordUrl){ e.preventDefault(); toast("Discord link coming soon"); } }); });
   async function loadConfig(){
     if(!(typeof claude!=="undefined" && claude && typeof claude.use==="function")){
-      try{ var ac=new AbortController(); setTimeout(function(){ ac.abort(); },5000); var r=await fetch("/api/config",{cache:"no-store",signal:ac.signal}); if(r.ok){ var c=await r.json(); CFG.googleClientId=c.googleClientId||""; CFG.discordUrl=c.discordUrl||DEFAULT_DISCORD; CFG.allowGuest=c.allowGuest!==false; CFG.requireLogin=!!c.requireLogin; CFG.imageAI=!!c.imageAI; } }catch(e){}
+      try{ var ac=new AbortController(); setTimeout(function(){ ac.abort(); },5000); var r=await fetch("/api/config",{cache:"no-store",signal:ac.signal}); if(r.ok){ var c=await r.json(); CFG.googleClientId=c.googleClientId||""; CFG.discordUrl=c.discordUrl||DEFAULT_DISCORD; CFG.allowGuest=c.allowGuest!==false; CFG.requireLogin=!!c.requireLogin; CFG.imageAI=!!c.imageAI; CFG.accounts=!!c.accounts; CFG.videoAI=!!c.videoAI; CFG.announcement=c.announcement||""; } }catch(e){}
     }
     document.querySelectorAll("[data-discord]").forEach(function(a){ if(CFG.discordUrl) a.href=CFG.discordUrl; });
     try{ var tk=sessionStorage.getItem("omnia-id"); if(tk){ var p=b64json(tk.split(".")[1]); if(p.exp*1000>Date.now()+60000){ idToken=tk; user={name:p.name,email:p.email,picture:p.picture,exp:p.exp}; } } }catch(e){}
+    try{ var ss=JSON.parse(localStorage.getItem("omnia-sess")||"null"); if(ss&&ss.token&&ss.exp*1000>Date.now()+60000){ idToken=ss.token; user={name:ss.name,email:ss.email,picture:"",exp:ss.exp}; } }catch(e){}
     renderUser();
   }
 
@@ -616,7 +713,7 @@ pre.src{margin:0;padding:14px;border-radius:22px;background:var(--code);color:va
     var res;
     try{ res=await call(); }catch(e){ if(e&&e.name==="AbortError") throw {code:"cancelled"}; throw {code:"network"}; }
     if(res.status===401){
-      if(CFG.googleClientId){
+      if(CFG.googleClientId||CFG.accounts){
         idToken=""; user=null; renderUser();
         try{ await askLogin(); }catch(e){ throw {code:"login"}; }
         try{ res=await call(); }catch(e){ throw {code:"network"}; }
@@ -637,7 +734,7 @@ pre.src{margin:0;padding:14px;border-radius:22px;background:var(--code);color:va
     opts=opts||{};
     var turns=typeof input==="string" ? [{role:"user",content:input}] : input;
     var imgs=[]; if(opts.images&&opts.images.length){ for(var i=0;i<opts.images.length;i++) imgs.push(await blobToB64(opts.images[i])); }
-    var d=await api("/api/ai",{messages:turns,tier:opts.modelTier||"default",task:opts.task||"",images:imgs},opts.signal);
+    var d=await api("/api/ai",{messages:turns,tier:opts.modelTier||"default",task:opts.task||"",feature:opts.feature||"",images:imgs},opts.signal);
     var text=d.text||"";
     if(opts.onText) opts.onText({text:text,delta:text});
     return {text:text,truncated:false};
@@ -650,8 +747,8 @@ pre.src{margin:0;padding:14px;border-radius:22px;background:var(--code);color:va
     return sample;
   }
   function errText(e){
-    var c=e&&e.code;
-    if(c==="login") return "Please sign in with Google to continue.";
+    var c=e&&e.code; sfx.err();
+    if(c==="login") return "Please sign in to continue.";
     if(c==="not_granted") return IN_CLAUDE ? "Access was not allowed, so I cannot answer. Reload the page and allow it." : "Sign in or access code was not accepted.";
     if(c==="rate_limited") return (e.message&&/Guest|Daily/i.test(e.message))?e.message:"Free limit reached for now. Wait a minute and try again.";
     if(c==="none") return "AI is not available here.";
@@ -677,8 +774,8 @@ pre.src{margin:0;padding:14px;border-radius:22px;background:var(--code);color:va
   function copy(t){ try{ navigator.clipboard.writeText(t).then(function(){ toast("Copied"); }); }catch(e){ toast("Copy not available"); } }
 
   // ---------- Views & tabs ----------
-  var TABS=["chat","code","image","video"];
-  var TITLES={chat:["Chat","Ask anything, in any language"],code:["Code Studio","Describe it, watch it run live"],image:["Image Studio","Words in, sharp vector art out"],video:["Video Studio","Animated videos you can save as MP4"]};
+  var TABS=["chat","code","image","video","tools"];
+  var TITLES={chat:["Chat","Ask anything, in any language"],code:["Code Studio","Describe it, watch it run live"],image:["Photo Studio","Realistic photos and thumbnails"],video:["Video Studio","Cinematic videos you can save as MP4"],tools:["Creator Tools","Titles, captions, scripts and ideas"]};
   function switchTab(t){
     var i=TABS.indexOf(t); if(i<0){ i=0; t="chat"; }
     $("nav").style.setProperty("--i",i);
@@ -688,7 +785,7 @@ pre.src{margin:0;padding:14px;border-radius:22px;background:var(--code);color:va
     $("newchat").style.display = t==="chat" ? "" : "none";
   }
   function showView(id){ ["boot","auth","landing","app"].forEach(function(v){ $(v).classList.toggle("on",v===id); }); }
-  function openApp(t){ showView("app"); switchTab(t||"chat"); try{ history.replaceState(null,"","#"+(t||"chat")); }catch(e){} }
+  function openApp(t){ if(CFG.requireLogin&&!user&&!guest){ pendingTab=t||"chat"; showAuth(); return; } showView("app"); switchTab(t||"chat"); try{ history.replaceState(null,"","#"+(t||"chat")); }catch(e){} }
   function goHome(){ showView("landing"); try{ history.replaceState(null,"",location.pathname); }catch(e){} }
   document.querySelectorAll("[data-open]").forEach(function(b){ b.onclick=function(){ openApp(b.getAttribute("data-open")); }; });
   $("nav").onclick=function(e){ var b=e.target.closest("button"); if(b) switchTab(b.getAttribute("data-t")); };
@@ -722,7 +819,7 @@ pre.src{margin:0;padding:14px;border-radius:22px;background:var(--code);color:va
     var h=document.createElement("div"); h.className="hero";
     h.innerHTML='<div class="herologo" aria-hidden="true"><svg class="logo" viewBox="0 0 512 512"><use href="#logo"/></svg></div><h2>What shall we create today?</h2><p>Ask anything in any language, or start a project below.</p>';
     var g=document.createElement("div"); g.className="qgrid";
-    [["chat","Ask anything","Answers, ideas, help","ask"],["code","Build an app","Runs live, instantly","code"],["image","Draw an image","AI images and vector art","image"],["video","Make a video","Save it as MP4","video"]].forEach(function(q){
+    [["chat","Ask anything","Answers, ideas, help","ask"],["code","Build an app","Runs live, instantly","code"],["image","Draw an image","Photos and thumbnails","image"],["video","Make a video","Save it as MP4","video"]].forEach(function(q){
       var b=document.createElement("button"); b.className="q";
       b.innerHTML='<span class="ic">'+ico(q[0])+'</span><b>'+q[1]+'</b><small>'+q[2]+'</small>';
       b.onclick=function(){ if(q[3]==="ask"){ $("in").focus(); } else switchTab(q[3]); };
@@ -750,7 +847,7 @@ pre.src{margin:0;padding:14px;border-radius:22px;background:var(--code);color:va
     try{
       var co={cache:false,signal:ctl.signal,onText:function(o){ final=o.text; b.innerHTML=md(final); scroll(); }}; if(!IN_CLAUDE) co.task="chat";
       var r=await s(input,co);
-      final=r.text||final; b.innerHTML=md(final||"(no answer)");
+      final=r.text||final; b.innerHTML=md(final||"(no answer)"); sfx.pop();
       turns.push({role:"assistant",content:final});
       var tl=document.createElement("div"); tl.className="tl";
       var cp=document.createElement("button"); cp.textContent="Copy"; cp.onclick=function(){ copy(final); };
@@ -783,13 +880,14 @@ pre.src{margin:0;padding:14px;border-radius:22px;background:var(--code);color:va
   // ---------- Studio helpers ----------
   function chips(el,list,onpick){ list.forEach(function(t){ var b=document.createElement("button"); b.textContent=t; b.onclick=function(){ onpick(t,b); }; el.appendChild(b); }); }
   function waiting(out,msg){ out.innerHTML='<div class="wait"><div class="loader"></div><div id="wt">'+msg+'</div></div>'; return function(n){ var w=$("wt"); if(w&&n) w.textContent=msg+" ("+n+" characters)"; }; }
-  async function generate(out,btn,prompt,msg,tier,images,task){
+  async function generate(out,btn,prompt,msg,tier,images,task,feature){
     var s=await getSample();
     if(!s){ out.innerHTML='<div class="err">'+errText({code:"none"})+'</div>'; return null; }
     btn.disabled=true; var tick=waiting(out,msg), text="";
     var opts={cache:false,modelTier:tier||"default",onText:function(o){ text=o.text; tick(text.length); }};
     if(images&&images.length) opts.images=images;
     if(task&&!IN_CLAUDE) opts.task=task;
+    if(feature&&!IN_CLAUDE) opts.feature=feature;
     try{ var r=await s(prompt,opts); text=r.text||text; btn.disabled=false; return text; }
     catch(e){ btn.disabled=false; out.innerHTML='<div class="err">'+errText(e)+'</div>'; return null; }
   }
@@ -807,7 +905,7 @@ pre.src{margin:0;padding:14px;border-radius:22px;background:var(--code);color:va
   var codeHtml="", codeView="preview";
   chips($("code-chips"),["Snake game","Calculator","Portfolio website","Quiz app","Pomodoro timer"],function(t){ $("code-in").value=t; });
   var CODE_RULES="You are an expert front-end developer. Output ONLY one complete, self-contained HTML file (inline CSS and JavaScript, no external libraries, fonts or network requests). Make it mobile-friendly with a polished modern design and working logic. Keep it under about 350 lines. No explanations and no markdown fences.";
-  function renderCode(){
+  function renderCode(){ sfx.ok();
     var out=$("code-out"); out.innerHTML="";
     var bar=document.createElement("div"); bar.className="bar";
     var seg=document.createElement("span"); seg.className="seg";
@@ -838,95 +936,138 @@ pre.src{margin:0;padding:14px;border-radius:22px;background:var(--code);color:va
   }
   $("code-go").onclick=function(){ runCode($("code-in").value,false); };
 
-  // ---------- Image Studio ----------
-  var imgStyle="Neon glow", svgText="", imgKind="vector", imgData="", imgMode="vector", vidBg="anim";
-  var STYLES=["Photorealistic","Cinematic","Anime","Neon glow","Low-poly","Retro sunset","Paper-cut layers","Flat geometric","Isometric"];
-  var STYLE_AI={"Photorealistic":"ultra realistic photograph, natural light, 35mm lens, high detail","Cinematic":"cinematic film still, dramatic lighting, shallow depth of field, 35mm","Anime":"high quality anime illustration, vibrant colors, detailed background","Neon glow":"neon glow, cyberpunk lighting, vivid colors, dark background","Low-poly":"low poly 3d art, faceted geometry, soft gradients","Retro sunset":"retro synthwave sunset, 80s style, warm gradients","Paper-cut layers":"layered paper cut art, depth, soft shadows","Flat geometric":"flat vector illustration, clean geometric shapes","Isometric":"isometric 3d illustration, clean, soft shadows"};
-  var sbox=$("img-styles");
-  var SWATCH={"Photorealistic":["#94a3b8","#0f172a"],"Cinematic":["#f59e0b","#7c2d12"],"Anime":["#f472b6","#60a5fa"],"Neon glow":["#22d3ee","#e23fd0"],"Low-poly":["#34d399","#2563eb"],"Retro sunset":["#ff7a59","#f43f5e"],"Paper-cut layers":["#fbbf24","#fb7185"],"Flat geometric":["#6366f1","#06b6d4"],"Isometric":["#a78bfa","#38bdf8"]};
-  STYLES.forEach(function(st){ var b=document.createElement("button"); var sw=SWATCH[st]||["#999","#666"]; b.innerHTML='<i class="sw" style="background:linear-gradient(135deg,'+sw[0]+','+sw[1]+')"></i>'+st; if(st===imgStyle) b.className="on"; b.onclick=function(){ imgStyle=st; [].forEach.call(sbox.children,function(c){c.className=""}); b.className="on"; }; sbox.appendChild(b); });
-  var IMG_RULES="You are a vector illustrator. Output ONLY one SVG, nothing else: root <svg> with xmlns, viewBox=\"0 0 1024 1024\", width=\"1024\" height=\"1024\". No scripts, no external images or fonts, no text. Keep it SIMPLE and COMPLETE: 40 to 120 elements total, and always finish the file with </svg>. Design: a limited palette of 5 colors; a gradient background; 2 or 3 layers of distant shapes for depth; ONE clear, large, recognisable subject built from a few overlapping shapes with gradient fills; a glow or light source; a soft dark vignette. Stylised and geometric is better than complicated. No explanations and no markdown fences.";
-  function repairSvg(t){
-    var a=t.indexOf("<svg"); if(a<0) return "";
-    var s=t.slice(a), b=s.lastIndexOf("</svg>");
-    if(b>-1) s=s.slice(0,b+6);
-    else {
-      var k=s.lastIndexOf(">"); if(k<0) return "";
-      s=s.slice(0,k+1);
-      var stack=[], re=/<(\/?)([a-zA-Z][\w:-]*)[^>]*?(\/?)>/g, m;
-      while((m=re.exec(s))){ if(m[3]==="/") continue; if(m[1]==="/"){ var i=stack.lastIndexOf(m[2]); if(i>-1) stack.length=i; } else stack.push(m[2]); }
-      while(stack.length) s+="</"+stack.pop()+">";
-    }
-    s=s.replace(/<script[\s\S]*?<\/script>/gi,"").replace(/\son\w+\s*=\s*("[^"]*"|'[^']*')/gi,"");
-    if(!/xmlns=/.test(s)) s=s.replace("<svg",'<svg xmlns="http://www.w3.org/2000/svg"');
-    if(!/<svg[^>]*\swidth=/.test(s)) s=s.replace("<svg",'<svg width="1024" height="1024"');
-    return s;
-  }
-  function svgOk(s){ try{ var d=new DOMParser().parseFromString(s,"image/svg+xml"); return !d.getElementsByTagName("parsererror").length; }catch(e){ return true; } }
-  function svgUrl(s){ return "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(s); }
-  function hashStr(s){ var h=2166136261; for(var i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); } return h>>>0; }
-  function posterSvg(p){
-    var h=hashStr(p), r=function(k){ var v=Math.sin((h%9973)+k*91.7)*43758.5453; return v-Math.floor(v); };
-    var hue=Math.floor(r(1)*360), c=function(hh,sa,l){ return "hsl("+((hh+360)%360)+","+sa+"%,"+l+"%)"; };
-    var o='<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+c(hue,70,16)+'"/><stop offset=".6" stop-color="'+c(hue+40,75,42)+'"/><stop offset="1" stop-color="'+c(hue+80,80,60)+'"/></linearGradient><radialGradient id="s"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="'+c(hue+150,90,60)+'" stop-opacity="0"/></radialGradient></defs><rect width="1024" height="1024" fill="url(#g)"/>';
-    for(var i=0;i<60;i++) o+='<circle cx="'+Math.round(r(i+2)*1024)+'" cy="'+Math.round(r(i+90)*560)+'" r="'+(1+r(i+7)*2.4).toFixed(1)+'" fill="#fff" opacity="'+(.3+.6*r(i+3)).toFixed(2)+'"/>';
-    var sx=300+r(5)*400, sy=280+r(6)*120;
-    o+='<circle cx="'+Math.round(sx)+'" cy="'+Math.round(sy)+'" r="190" fill="url(#s)"/><circle cx="'+Math.round(sx)+'" cy="'+Math.round(sy)+'" r="72" fill="'+c(hue+150,95,82)+'"/>';
-    for(var L=0;L<4;L++){ var base=540+L*95, pts="0,1024 "; for(var k=0;k<=8;k++) pts+=(k*128)+","+Math.round(base-r(L*10+k+11)*170)+" "; pts+="1024,1024"; o+='<polygon points="'+pts+'" fill="'+c(hue+25*L,55,Math.max(8,34-L*7))+'"/>'; }
-    var title=p.slice(0,34).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-    o+='<text x="512" y="965" text-anchor="middle" font-family="sans-serif" font-size="42" fill="#fff" opacity=".9">'+title+'</text></svg>';
-    return o;
-  }
-  function renderImg(note){
-    var out=$("img-out"); out.innerHTML="";
-    var bx=document.createElement("div"); bx.className="imgbox reveal"; var im=document.createElement("img"); im.alt="Generated image"; im.src=(imgKind==="ai"?imgData:svgUrl(svgText)); bx.appendChild(im); out.appendChild(bx);
+  // ---------- Photo Studio: realistic photos + thumbnails ----------
+  var vidBg="anim", vidMode="smart", imgMode="photo", imgLook="Natural", imgAspect="1:1", thStyle="yellow", thPos="left", ownPhoto="", imgFinal=null;
+  var LOOKS={"Natural":"ultra realistic photograph, natural light, 35mm lens, high detail","Cinematic":"cinematic film still, dramatic lighting, shallow depth of field, 35mm","Golden hour":"golden hour sunlight, warm tones, soft glow, realistic photo","Studio":"professional studio photo, softbox lighting, clean background, sharp focus","Product":"high-end product photography, clean backdrop, soft reflections, commercial look","Portrait":"professional portrait photograph, soft background blur, natural skin, 85mm lens"};
+  var AR={"1:1":[1024,1024],"16:9":[1280,720],"9:16":[720,1280]};
+  var TH={yellow:{fill:"#FFE600",stroke:"#000000",bar:"#FF2D55",label:"Bold Yellow",bg:["#1b0b3a","#ff2d55"]},red:{fill:"#FFFFFF",stroke:"#D90429",bar:"#FFE600",label:"Red Impact",bg:["#2a0008","#d90429"]},white:{fill:"#FFFFFF",stroke:"#000000",bar:"#00C2FF",label:"Clean White",bg:["#06122b","#0a7cff"]},neon:{fill:"#39FF14",stroke:"#12002b",bar:"#FF00E5",label:"Neon Pop",bg:["#12002b","#7a1fa2"]}};
+  function setSeg(el,v){ [].forEach.call(el.children,function(c){ c.className=c.getAttribute("data-v")===String(v)?"on":""; }); }
+  function loadImg(src){ return new Promise(function(ok,no){ var i=new Image(); i.onload=function(){ ok(i); }; i.onerror=function(){ no(new Error("image")); }; i.src=src; }); }
+  function coverDraw(ctx,im,W,H,zoom){ var z=Math.max(W/im.naturalWidth,H/im.naturalHeight)*(zoom||1), dw=im.naturalWidth*z, dh=im.naturalHeight*z; ctx.drawImage(im,(W-dw)/2,(H-dh)/2,dw,dh); }
+  async function fitAspect(data,ar){ var im=await loadImg(data), d=AR[ar], c=document.createElement("canvas"); c.width=d[0]; c.height=d[1]; coverDraw(c.getContext("2d"),im,d[0],d[1]); return c.toDataURL("image/jpeg",.92); }
+  var lbox=$("img-looks");
+  Object.keys(LOOKS).forEach(function(k){ var b=document.createElement("button"); b.textContent=k; if(k===imgLook) b.className="on"; b.onclick=function(){ imgLook=k; [].forEach.call(lbox.children,function(c){ c.className=c===b?"on":""; }); }; lbox.appendChild(b); });
+  var tsbox=$("th-styles");
+  Object.keys(TH).forEach(function(k){ var t=TH[k], b=document.createElement("button"); b.innerHTML='<i class="sw" style="background:linear-gradient(135deg,'+t.fill+','+t.bar+')"></i>'+t.label; if(k===thStyle) b.className="on"; b.onclick=function(){ thStyle=k; [].forEach.call(tsbox.children,function(c){ c.className=c===b?"on":""; }); }; tsbox.appendChild(b); });
+  seg($("img-mode"),[["photo","Photo"],["thumb","Thumbnail"]],function(){return imgMode},function(v){
+    imgMode=v; $("ph-box").hidden=v!=="photo"; $("th-box").hidden=v!=="thumb";
+    imgAspect=v==="thumb"?"16:9":"1:1"; setSeg($("img-ar"),imgAspect);
+    $("img-in").placeholder=v==="thumb"?"What is the picture? Example: a shocked man looking at a glowing robot":"Example: a lion wearing a crown at sunset";
+    $("img-go").lastChild.textContent=v==="thumb"?"Create thumbnail":"Create photo";
+  });
+  seg($("img-ar"),[["1:1","1:1"],["16:9","16:9"],["9:16","9:16"]],function(){return imgAspect},function(v){ imgAspect=v; });
+  seg($("th-pos"),[["left","Left"],["center","Center"],["right","Right"]],function(){return thPos},function(v){ thPos=v; });
+  function canvasPng(src,cb){ loadImg(src).then(function(im){ var c=document.createElement("canvas"); c.width=im.naturalWidth; c.height=im.naturalHeight; c.getContext("2d").drawImage(im,0,0); c.toBlob(function(b){ cb(b); },"image/png"); },function(){ cb(null); }); }
+  function showResult(src,name,note,again,withFix){
+    var out=$("img-out"); out.innerHTML=""; imgFinal={src:src,name:name}; sfx.ok();
+    var bx=document.createElement("div"); bx.className="imgbox reveal"; var im=document.createElement("img"); im.alt="Result"; im.src=src; bx.appendChild(im); out.appendChild(bx);
     if(note){ var nt=document.createElement("div"); nt.className="vwarn"; nt.textContent=note; out.appendChild(nt); }
     var bar=document.createElement("div"); bar.className="bar";
-    var d1=document.createElement("button"); d1.className="btn"; d1.textContent="Save PNG";
-    d1.onclick=function(){
-      var i2=new Image(); i2.onload=function(){ var c=document.createElement("canvas"); var sz=(imgKind==="ai")?(i2.naturalWidth||1024):2048; c.width=sz; c.height=sz; c.getContext("2d").drawImage(i2,0,0,sz,sz); c.toBlob(function(bl){ if(bl) download("omnia-image.png",bl); else toast("Could not make PNG"); },"image/png"); };
-      i2.onerror=function(){ toast("Could not make PNG"); }; i2.src=(imgKind==="ai"?imgData:svgUrl(svgText));
-    };
-    var d2=document.createElement("button"); d2.className="btn ghost"; d2.textContent="Save SVG"; d2.onclick=function(){ download("omnia-image.svg",svgText); };
-    var rg=document.createElement("button"); rg.className="btn ghost"; rg.textContent="New version"; rg.onclick=function(){ runImg(); };
-    bar.appendChild(d1); if(imgKind!=="ai") bar.appendChild(d2); bar.appendChild(rg); out.appendChild(bar);
-    var ch=document.createElement("div"); ch.className="box";
-    ch.innerHTML='<textarea id="img-fix" placeholder="Want changes? Example: make the sky purple and add stars"></textarea><div class="bar"><button class="btn" id="img-upd">Update image</button></div>';
-    out.appendChild(ch);
-    $("img-upd").onclick=function(){ runImg($("img-fix").value); };
+    var d1=document.createElement("button"); d1.className="btn"; d1.textContent="Save PNG"; d1.onclick=function(){ canvasPng(src,function(b){ if(b) download(name+".png",b); else toast("Could not make PNG"); }); };
+    var d2=document.createElement("button"); d2.className="btn ghost"; d2.textContent="Save JPG"; d2.onclick=function(){ fetch(src).then(function(r){ return r.blob(); }).then(function(b){ download(name+".jpg",b); }); };
+    var rg=document.createElement("button"); rg.className="btn ghost"; rg.textContent="New version"; rg.onclick=function(){ again(); };
+    bar.appendChild(d1); bar.appendChild(d2); bar.appendChild(rg); out.appendChild(bar);
+    if(withFix){
+      var ch=document.createElement("div"); ch.className="box";
+      ch.innerHTML='<textarea id="img-fix" placeholder="Want changes? Example: make it night time with city lights"></textarea><div class="bar"><button class="btn" id="img-upd">Update photo</button></div>';
+      out.appendChild(ch); $("img-upd").onclick=function(){ runPhoto($("img-fix").value); };
+    }
   }
-  async function runAiImage(p,change){
+  async function runPhoto(change){
+    var p=$("img-in").value.trim(); if(!p) return toast("Describe the photo first");
     var out=$("img-out"), upd=!!(change&&change.trim()), btn=upd?$("img-upd"):$("img-go");
-    var full=p+(upd?", "+change.trim():"");
-    if(upd) $("img-in").value=full;
-    var prompt=full+", "+(STYLE_AI[imgStyle]||"")+", highly detailed, sharp focus, no text, no watermark";
-    btn.disabled=true; waiting(out,"Omnia is painting...");
+    if(!CFG.imageAI){ out.innerHTML='<div class="err">AI photos are not turned on yet. The site owner needs to add the free Cloudflare keys.</div>'; sfx.err(); return; }
+    var full=p+(upd?", "+change.trim():""); if(upd) $("img-in").value=full;
+    btn.disabled=true; waiting(out,"Omnia is taking your photo...");
     try{
-      var d=await api("/api/image",{prompt:prompt});
-      btn.disabled=false;
+      var d=await api("/api/image",{prompt:full+", "+LOOKS[imgLook]+", sharp focus, no text, no watermark",feature:"image"});
       if(!d.image) throw {code:"error",message:"No image returned"};
-      imgData=d.image; imgKind="ai"; renderImg();
+      var src=await fitAspect(d.image,imgAspect); btn.disabled=false;
+      showResult(src,"omnia-photo",null,function(){ runPhoto(); },true);
     }catch(e){ btn.disabled=false; out.innerHTML='<div class="err">'+errText(e)+'</div>'; }
   }
-  async function runImg(change){
-    var p=$("img-in").value.trim(); if(!p) return toast("Describe the image first");
-    if(imgMode==="ai" && CFG.imageAI) return runAiImage(p,change);
-    var out=$("img-out"), upd=!!(change&&change.trim()), btn=upd?$("img-upd"):$("img-go"), t, s="";
-    if(upd) t=await generate(out,btn,"["+IMG_RULES+"]\n\nHere is the current SVG:\n"+svgText+"\n\nApply this change and return the full updated SVG: "+change,"Omnia is updating the picture...","complex",null,"image");
-    else t=await generate(out,btn,"["+IMG_RULES+"]\n\nStyle: "+imgStyle+"\nDraw this: "+p,"Omnia is drawing...","complex",null,"image");
-    if(t===null) return;
-    s=repairSvg(t);
-    if(!s||!svgOk(s)){
-      var t2=await generate(out,btn,"["+IMG_RULES+"]\n\nIMPORTANT: keep it very simple, under 60 elements, valid XML, and end with </svg>.\nStyle: "+imgStyle+"\nDraw this: "+p,"Trying a simpler drawing...","default",null,"image");
-      if(t2===null) return;
-      s=repairSvg(t2);
-    }
-    if(!s||!svgOk(s)){
-      svgText=posterSvg(p); imgKind="vector"; renderImg("The AI drawing did not finish, so this is a basic art card. Tap New version to try again."); return;
-    }
-    svgText=s; imgKind="vector"; renderImg();
+  function wrapText(ctx,text,maxW){ var words=text.split(" "), lines=[], cur=""; words.forEach(function(w){ var t=cur?cur+" "+w:w; if(ctx.measureText(t).width>maxW&&cur){ lines.push(cur); cur=w; } else cur=t; }); if(cur) lines.push(cur); return lines; }
+  async function composeThumb(bgSrc,head,ar,style,pos){
+    var d=AR[ar], W=d[0], H=d[1], t=TH[style], c=document.createElement("canvas"); c.width=W; c.height=H; var ctx=c.getContext("2d");
+    try{ await document.fonts.load('900 60px "Bricolage Grotesque"'); }catch(e){}
+    if(bgSrc){ var im=await loadImg(bgSrc); ctx.filter="contrast(1.12) saturate(1.22)"; coverDraw(ctx,im,W,H,1.04); ctx.filter="none"; }
+    else { var g0=ctx.createLinearGradient(0,0,W,H); g0.addColorStop(0,t.bg[0]); g0.addColorStop(1,t.bg[1]); ctx.fillStyle=g0; ctx.fillRect(0,0,W,H); ctx.fillStyle="rgba(255,255,255,.08)"; for(var k=0;k<7;k++){ ctx.beginPath(); ctx.arc(W*(.15+.12*k),H*(k%2?.28:.72),H*(.12+.03*k),0,7); ctx.fill(); } }
+    var g;
+    if(pos==="center"){ g=ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,"rgba(0,0,0,.25)"); g.addColorStop(.5,"rgba(0,0,0,.55)"); g.addColorStop(1,"rgba(0,0,0,.25)"); }
+    else { g=ctx.createLinearGradient(pos==="left"?0:W,0,pos==="left"?W*.7:W*.3,0); g.addColorStop(0,"rgba(0,0,0,.8)"); g.addColorStop(1,"rgba(0,0,0,0)"); }
+    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+    var maxW=pos==="center"?W*.86:W*.56, fs=H*(ar==="9:16"?.085:.2), lines, tries=0, font=function(s){ return '900 '+s+'px "Bricolage Grotesque",Impact,"Arial Black",sans-serif'; };
+    do{ ctx.font=font(fs); lines=wrapText(ctx,head,maxW); var widest=Math.max.apply(null,lines.map(function(l){return ctx.measureText(l).width})); if(lines.length*fs*1.02<=H*.72&&widest<=maxW) break; fs*=.9; tries++; }while(tries<14);
+    var lh=fs*1.02, blockH=lines.length*lh, top=(H-blockH)/2, x=pos==="center"?W/2:pos==="left"?W*.05:W*.95;
+    ctx.textAlign=pos==="center"?"center":pos==="left"?"left":"right"; ctx.textBaseline="middle"; ctx.lineJoin="round"; ctx.font=font(fs);
+    lines.forEach(function(l,i){ var y=top+i*lh+lh/2; ctx.shadowColor="rgba(0,0,0,.6)"; ctx.shadowBlur=fs*.12; ctx.shadowOffsetY=fs*.05; ctx.lineWidth=fs*.17; ctx.strokeStyle=t.stroke; ctx.strokeText(l,x,y); ctx.shadowColor="transparent"; ctx.fillStyle=t.fill; ctx.fillText(l,x,y); });
+    var bw=Math.min(maxW*.5,fs*3), bx=pos==="center"?W/2-bw/2:pos==="left"?x:x-bw; ctx.fillStyle=t.bar; ctx.fillRect(bx,top+blockH+fs*.12,bw,Math.max(6,fs*.1));
+    return c.toDataURL("image/jpeg",.93);
   }
-  $("img-go").onclick=function(){ runImg(); };
+  async function runThumb(){
+    var topic=$("img-in").value.trim(), head=$("th-head").value.trim().toUpperCase().slice(0,40);
+    if(!ownPhoto&&!topic) return toast("Describe the picture or add your own photo");
+    if(!head) return toast("Type the headline text first");
+    var out=$("img-out"), btn=$("img-go"); btn.disabled=true; waiting(out,"Designing your thumbnail...");
+    try{
+      var bg=ownPhoto;
+      if(!bg&&CFG.imageAI){ var d=await api("/api/image",{prompt:topic+", dramatic cinematic lighting, high contrast, vibrant colors, subject on the right side, empty space on the left, YouTube thumbnail style photo, no text, no watermark",feature:"thumb"}); bg=d.image; }
+      var src=await composeThumb(bg,head,imgAspect,thStyle,thPos); btn.disabled=false;
+      showResult(src,"omnia-thumbnail",bg?null:"AI photos are off, so this uses a color background. Add your own photo to get a real picture.",function(){ runThumb(); },false);
+    }catch(e){ btn.disabled=false; out.innerHTML='<div class="err">'+errText(e)+'</div>'; }
+  }
+  $("img-go").onclick=function(){ if(imgMode==="thumb") runThumb(); else runPhoto(); };
+  $("th-up").onclick=function(){ $("th-file").click(); };
+  $("th-file").onchange=function(){
+    var f=this.files&&this.files[0]; this.value=""; if(!f) return;
+    var rd=new FileReader(); rd.onload=function(){ loadImg(rd.result).then(function(im){ var s=Math.min(1,1600/Math.max(im.naturalWidth,im.naturalHeight)), c=document.createElement("canvas"); c.width=Math.round(im.naturalWidth*s); c.height=Math.round(im.naturalHeight*s); c.getContext("2d").drawImage(im,0,0,c.width,c.height); ownPhoto=c.toDataURL("image/jpeg",.9); $("th-clr").hidden=false; $("th-hint").textContent="Your photo will be the background."; toast("Photo added"); },function(){ toast("Could not read that photo"); }); };
+    rd.readAsDataURL(f);
+  };
+  $("th-clr").onclick=function(){ ownPhoto=""; $("th-clr").hidden=true; $("th-hint").textContent=""; };
+  $("th-sug").onclick=async function(){
+    var topic=$("img-in").value.trim(); if(!topic) return toast("Describe your video first");
+    var btn=$("th-sug"), bx=$("th-sugs"); bx.innerHTML='<span class="hint">Thinking...</span>';
+    var s=await getSample(); if(!s){ bx.innerHTML=""; return; }
+    btn.disabled=true;
+    try{
+      var o={cache:false,modelTier:"quick"}; if(!IN_CLAUDE){ o.task="chat"; o.feature="tools"; }
+      var r=await s("[Give exactly 6 viral YouTube thumbnail headlines, 1 to 4 words each, ALL CAPS, in the same language as the topic. One per line. No numbering, no quotes, nothing else.]\n\nVideo topic: "+topic,o);
+      var ls=(r.text||"").split("\n").map(function(l){ return l.replace(/^[\s\-\d.*)]+/,"").replace(/["*]/g,"").trim(); }).filter(function(l){ return l&&l.length<=40; }).slice(0,6);
+      bx.innerHTML=""; ls.forEach(function(l){ var b=document.createElement("button"); b.textContent=l; b.onclick=function(){ $("th-head").value=l.toUpperCase(); }; bx.appendChild(b); });
+      if(!ls.length) bx.innerHTML='<span class="hint">No ideas this time. Try again.</span>';
+    }catch(e){ bx.innerHTML='<span class="hint">'+esc(errText(e))+'</span>'; }
+    btn.disabled=false;
+  };
+
+  // ---------- Create: content tools for creators ----------
+  var TOOLS=[
+    {id:"titles",name:"YouTube titles",ph:"What is your video about?",p:"Write 8 catchy, clickable YouTube video titles (under 70 characters each) for this video: "},
+    {id:"desc",name:"Description + tags",ph:"What is your video about?",p:"Write an SEO friendly YouTube description (a strong hook in the first 2 lines, then key points) and 12 hashtags for this video: "},
+    {id:"caption",name:"Instagram caption",ph:"What is your post about?",p:"Write 4 Instagram captions with emojis (one short, one medium, one story style, one funny) and 15 relevant hashtags for this post: "},
+    {id:"reel",name:"Reel / Shorts script",ph:"What is your reel about?",p:"Write a 30 second Reels/Shorts script with: a hook for the first 3 seconds, scenes with on-screen text and voiceover, and a call to action. Topic: "},
+    {id:"hooks",name:"Viral hooks",ph:"What is your video about?",p:"Write 10 scroll-stopping opening lines (hooks) for a short video about: "},
+    {id:"ideas",name:"Content ideas",ph:"Your niche. Example: fitness for beginners",p:"Give 10 fresh, specific video ideas, each with a catchy title and a one line hook, for this niche: "},
+    {id:"bio",name:"Bio + channel names",ph:"Who are you and what do you make?",p:"Write 5 creator bio options (under 150 characters each) and 8 channel or brand name ideas for: "}
+  ];
+  var toolId="titles", toolLang="English", toolTone="Fun", toolLast="";
+  var tlist=$("tool-list");
+  TOOLS.forEach(function(t){ var b=document.createElement("button"); b.textContent=t.name; if(t.id===toolId) b.className="on"; b.onclick=function(){ toolId=t.id; $("tool-in").placeholder=t.ph; [].forEach.call(tlist.children,function(c){ c.className=c===b?"on":""; }); }; tlist.appendChild(b); });
+  seg($("tool-lang"),[["English","English"],["Hinglish","Hinglish"],["Hindi","Hindi"]],function(){return toolLang},function(v){ toolLang=v; });
+  seg($("tool-tone"),[["Fun","Fun"],["Professional","Pro"],["Emotional","Emotional"],["Viral","Viral"]],function(){return toolTone},function(v){ toolTone=v; });
+  async function runTool(){
+    var topic=$("tool-in").value.trim(); if(!topic) return toast("Tell Omnia what it is about");
+    var t=TOOLS.filter(function(x){ return x.id===toolId; })[0], out=$("tool-out"), btn=$("tool-go");
+    var prompt="[Write in "+(toolLang==="Hinglish"?"Hinglish (Hindi written in English letters)":toolLang)+". Tone: "+toolTone+". Be specific and ready to post. No filler, no intro, output only the content.]\n\n"+t.p+topic;
+    var text=await generate(out,btn,prompt,"Omnia is writing...","default",null,"chat","tools");
+    if(text===null) return;
+    toolLast=text; sfx.ok(); out.innerHTML="";
+    var card=document.createElement("div"); card.className="toolout"; card.innerHTML=md(text); out.appendChild(card);
+    var bar=document.createElement("div"); bar.className="bar";
+    var cp=document.createElement("button"); cp.className="btn"; cp.textContent="Copy"; cp.onclick=function(){ copy(toolLast); };
+    var rg=document.createElement("button"); rg.className="btn ghost"; rg.textContent="New version"; rg.onclick=function(){ runTool(); };
+    bar.appendChild(cp); bar.appendChild(rg); out.appendChild(bar);
+  }
+  $("tool-go").onclick=runTool;
 
   // ---------- Video Studio ----------
   // The AI writes the PLAN (text, colors, style). Omnia's own animation engine draws it, so videos always look polished.
@@ -1027,13 +1168,15 @@ pre.src{margin:0;padding:14px;border-radius:22px;background:var(--code);color:va
       }
     }
     function bg(t,i,lt){
+      var photo=false;
       var a=t*.18, x1=W/2+Math.cos(a)*W*.6, y1=H/2+Math.sin(a)*H*.6, g=ctx.createLinearGradient(x1,y1,W-x1,H-y1);
       g.addColorStop(0,P[0]); g.addColorStop(1,P[1]); ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
       if(S.useRef&&imgs.length){
         var im=imgs[i%imgs.length];
-        if(im.complete&&im.naturalWidth){ var z=Math.max(W/im.naturalWidth,H/im.naturalHeight)*(1.02+.1*lt/per), dw=im.naturalWidth*z, dh=im.naturalHeight*z; ctx.drawImage(im,(W-dw)/2,(H-dh)/2,dw,dh); var o=ctx.createLinearGradient(0,0,0,H); o.addColorStop(0,rgba(P[0],.62)); o.addColorStop(1,rgba(P[1],.45)); ctx.fillStyle=o; ctx.fillRect(0,0,W,H); }
+        if(im.complete&&im.naturalWidth){ var pr=lt/per, dir=i%4, zz=1.07+.17*(dir%2?1-pr:pr), z=Math.max(W/im.naturalWidth,H/im.naturalHeight)*zz, dw=im.naturalWidth*z, dh=im.naturalHeight*z, px=(dir<2?-1:1)*(pr-.5)*W*.07, py=(dir%3?1:-1)*(pr-.5)*H*.05; ctx.drawImage(im,(W-dw)/2+px,(H-dh)/2+py,dw,dh); var o=ctx.createLinearGradient(0,0,0,H); o.addColorStop(0,rgba(P[0],.3)); o.addColorStop(.5,rgba(P[0],.42)); o.addColorStop(1,rgba(P[1],.6)); ctx.fillStyle=o; ctx.fillRect(0,0,W,H); photo=true; }
       }
-      layers(t);
+      if(!photo) layers(t);
+      else { ctx.fillStyle="rgba(255,255,255,"+(.035+.02*Math.sin(t*9))+")"; for(var q=0;q<26;q++){ ctx.fillRect(rnd(q+Math.floor(t*14))*W,rnd(q*3+Math.floor(t*14)+7)*H,2,2); } }
     }
     function wrapLines(txt,fs,maxW){ ctx.font="800 "+fs+"px "+FONT; var words=txt.split(" "), lines=[], cur=""; words.forEach(function(w){ var tt=cur?cur+" "+w:w; if(ctx.measureText(tt).width>maxW&&cur){ lines.push(cur); cur=w; } else cur=tt; }); if(cur) lines.push(cur); return lines; }
     function scene(i,t){
@@ -1097,7 +1240,7 @@ pre.src{margin:0;padding:14px;border-radius:22px;background:var(--code);color:va
   }
   function setStatus(m){ var el=$("vid-status"); if(el) el.textContent=m||""; }
   function renderVid(){
-    var out=$("vid-out"); out.innerHTML="";
+    var out=$("vid-out"); out.innerHTML=""; sfx.ok();
     var rr=RATIOS[ratio], f=document.createElement("div"); f.className="frame vid reveal";
     f.style.aspectRatio=rr[0]+" / "+rr[1]; f.style.maxHeight="68vh"; if(rr[0]<rr[1]) f.style.maxWidth="min(100%,"+(68*rr[0]/rr[1])+"vh)";
     var ifr=document.createElement("iframe"); ifr.setAttribute("sandbox","allow-scripts"); ifr.title="Video preview"; ifr.srcdoc=buildDoc(vspec,vrefs,rr[2],rr[3]); f.appendChild(ifr); out.appendChild(f); vframe=ifr;
@@ -1124,7 +1267,34 @@ pre.src{margin:0;padding:14px;border-radius:22px;background:var(--code);color:va
       if(sv) sv.disabled=false; setStatus("This animation had a bug. Tap New version.");
     }
   });
+  function sleep(ms){ return new Promise(function(r){ setTimeout(r,ms); }); }
+  async function runRealVideo(){
+    var p=$("vid-in").value.trim(); if(!p) return toast("Describe the video first");
+    var out=$("vid-out"), btn=$("vid-go"); btn.disabled=true; waiting(out,"Starting your AI video. This takes 1 to 3 minutes...");
+    try{
+      var st=await api("/api/video-ai",{action:"start",prompt:p+", cinematic, smooth camera motion, realistic, high quality"}), t0=Date.now();
+      for(;;){
+        await sleep(5000);
+        if(Date.now()-t0>360000) throw {code:"error",message:"It is taking too long. Try again."};
+        var r=await api("/api/video-ai",{action:"status",status_url:st.status_url,response_url:st.response_url});
+        if(r.done){ showRealVideo(r.url); break; }
+        var w=$("wt"); if(w) w.textContent="AI is making your video ("+Math.round((Date.now()-t0)/1000)+"s)...";
+      }
+    }catch(e){ out.innerHTML='<div class="err">'+errText(e)+'</div>'; }
+    btn.disabled=false;
+  }
+  function showRealVideo(url){
+    var out=$("vid-out"); out.innerHTML=""; sfx.ok();
+    var f=document.createElement("div"); f.className="frame vid reveal"; f.style.maxHeight="68vh";
+    var v=document.createElement("video"); v.src=url; v.controls=true; v.playsInline=true; v.loop=true; v.autoplay=true; v.muted=true; v.style.cssText="width:100%;max-height:68vh;display:block;background:#000"; f.appendChild(v); out.appendChild(f);
+    var bar=document.createElement("div"); bar.className="bar";
+    var a=document.createElement("a"); a.className="btn shine"; a.href=url; a.target="_blank"; a.rel="noopener"; a.download="omnia-ai-video.mp4"; a.textContent="Download video";
+    var rg=document.createElement("button"); rg.className="btn ghost"; rg.textContent="New version"; rg.onclick=function(){ runVid(); };
+    bar.appendChild(a); bar.appendChild(rg); out.appendChild(bar);
+    var n=document.createElement("div"); n.className="note"; n.textContent="Download it now. The link may expire."; out.appendChild(n);
+  }
   async function runVid(){
+    if(vidMode==="real"&&CFG.videoAI) return runRealVideo();
     var p=$("vid-in").value.trim(); if(!p&&!refFrames.length) return toast("Describe the video or add a reference");
     if(!p) p="A video inspired by the reference";
     var out=$("vid-out"), btn=$("vid-go"), images=null, refText="";
@@ -1141,11 +1311,11 @@ pre.src{margin:0;padding:14px;border-radius:22px;background:var(--code);color:va
     vspec=normSpec(o,p,n);
     vrefs=(vspec.useRef?refFrames.map(function(f){return f.data}):[]);
     if(vidBg==="ai" && CFG.imageAI){
-      var urls=[], cnt=Math.min(3,vspec.scenes.length); btn.disabled=true;
+      var urls=[], cnt=Math.min(4,vspec.scenes.length); btn.disabled=true;
       for(var k=0;k<cnt;k++){
-        waiting(out,"Painting backgrounds "+(k+1)+" of "+cnt+"...");
+        waiting(out,"Painting AI scenes "+(k+1)+" of "+cnt+"...");
         try{
-          var di=await api("/api/image",{prompt:"cinematic background for a video about "+vspec.title+": "+vspec.scenes[k].text+", atmospheric, rich colors, no text, no letters, no watermark"});
+          var di=await api("/api/image",{prompt:"cinematic photo for a video about "+p+" ("+vspec.scenes[k].text+"), realistic, dramatic lighting, rich colors, no text, no letters, no watermark",feature:"video"});
           if(di.image) urls.push(di.image);
         }catch(e2){ if(e2&&(e2.code==="rate_limited"||e2.code==="login")){ toast(errText(e2)); break; } }
       }
@@ -1170,30 +1340,81 @@ pre.src{margin:0;padding:14px;border-radius:22px;background:var(--code);color:va
     var cols=["#ff6b4a","#d946ef","#4f6bff","#ffd166","#2ee59d"];
     for(var i=0;i<46;i++){ var c=document.createElement("i"); c.className="cf"; c.style.left=(Math.random()*100)+"vw"; c.style.background=cols[i%5]; c.style.animationDelay=(Math.random()*.4)+"s"; document.body.appendChild(c); setTimeout((function(el){ return function(){ el.remove(); }; })(c),2400); }
   }
+  var auMode="signup", pendingTab="";
+  function setAuMode(m){
+    auMode=m; setSeg($("au-tabs"),m);
+    document.querySelectorAll(".f-su").forEach(function(e){ e.hidden=m!=="signup"; });
+    $("au-go").textContent=m==="signup"?"Create account":"Sign in";
+    $("au-pw").autocomplete=m==="signup"?"new-password":"current-password";
+    $("au-p").textContent=m==="signup"?"Create your free account in 20 seconds. Or look around as a guest.":"Welcome back. Sign in to continue.";
+    $("au-err").textContent="";
+  }
+  async function submitAuth(){
+    var err=$("au-err"); err.textContent="";
+    var body={action:auMode==="signup"?"signup":"login",email:$("au-email").value.trim(),password:$("au-pw").value};
+    if(auMode==="signup"){ body.name=$("au-name").value.trim(); body.phone=$("au-phone").value.trim(); body.interest=$("au-int").value; body.city=$("au-city").value.trim(); if(body.name.length<2){ err.textContent="Enter your name"; return; } }
+    if(!/^\S+@\S+\.\S+$/.test(body.email)){ err.textContent="Enter a valid email"; return; }
+    if(body.password.length<6){ err.textContent="Password must be at least 6 characters"; return; }
+    var b=$("au-go"); b.disabled=true;
+    try{
+      var r=await fetch("/api/auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+      var d=await r.json().catch(function(){ return {}; }); b.disabled=false;
+      if(!r.ok){ err.textContent=d.error||"Something went wrong. Try again."; sfx.err(); return; }
+      idToken=d.token; user={name:d.user.name,email:d.user.email,picture:"",exp:d.exp};
+      try{ localStorage.setItem("omnia-sess",JSON.stringify({token:d.token,exp:d.exp,name:user.name,email:user.email})); }catch(e){}
+      renderUser(); toast("Welcome, "+String(user.name).split(" ")[0]+"!"); sfx.ok(); afterAuth();
+      if(loginWait){ loginWait.ok(); loginWait=null; }
+    }catch(e){ b.disabled=false; err.textContent="Cannot reach the server. Check your internet."; }
+  }
+  $("au-go").onclick=submitAuth;
+  ["au-email","au-pw","au-name","au-phone","au-city"].forEach(function(id){ $(id).addEventListener("keydown",function(e){ if(e.key==="Enter") submitAuth(); }); });
+  seg($("au-tabs"),[["signup","Create account"],["login","Sign in"]],function(){return auMode},function(v){ setAuMode(v); });
+  async function checkProfile(){
+    try{
+      var r=await fetch("/api/auth",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+idToken},body:JSON.stringify({action:"me"})});
+      var d=await r.json().catch(function(){ return {}; });
+      if(r.ok&&!d.profile){ $("pf-name").value=(user&&user.name)||""; $("prof").classList.add("on"); }
+    }catch(e){}
+  }
+  $("pf-save").onclick=async function(){
+    var err=$("pf-err"); err.textContent="";
+    var body={action:"update",name:$("pf-name").value.trim(),phone:$("pf-phone").value.trim(),interest:$("pf-int").value,city:$("pf-city").value.trim()};
+    if(body.name.length<2){ err.textContent="Enter your name"; return; }
+    try{
+      var r=await fetch("/api/auth",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+idToken},body:JSON.stringify(body)});
+      var d=await r.json().catch(function(){ return {}; });
+      if(!r.ok){ err.textContent=d.error||"Could not save"; return; }
+      $("prof").classList.remove("on"); toast("Saved. Thank you!");
+    }catch(e){ err.textContent="Cannot reach the server."; }
+  };
   function showAuth(){
     showView("auth");
-    var hasG=!!CFG.googleClientId, g=$("gbtn2"); g.innerHTML="";
+    var hasG=!!CFG.googleClientId, acc=!!CFG.accounts, any=hasG||acc;
+    $("au-tabs").hidden=!acc; $("au-form").hidden=!acc; if(acc) setAuMode(auMode);
+    var g=$("gbtn2"); g.innerHTML="";
     if(hasG){ loadGsi(function(){ google.accounts.id.renderButton(g,{theme:"filled_blue",size:"large",shape:"pill",text:"continue_with",width:300}); }); }
-    else g.innerHTML='<div class="gnote">Google sign up turns on after setup. For now, continue below.</div>';
-    var gb=$("auth-guest"); gb.textContent=hasG?"Continue as guest":"Get started"; gb.className=hasG?"btn ghost":"btn"; gb.hidden=hasG&&CFG.allowGuest===false; $("auth-or").hidden=gb.hidden||!hasG;
+    else if(!acc) g.innerHTML='<div class="gnote">Sign up turns on after setup. For now, continue below.</div>';
+    else g.hidden=true;
+    if(hasG) g.hidden=false;
+    var gb=$("auth-guest"); gb.textContent=any?"Continue as guest":"Get started"; gb.className=any?"btn ghost":"btn"; gb.hidden=any&&CFG.allowGuest===false; $("auth-or").hidden=gb.hidden||!any;
   }
-  function setupImageAI(){
-    if(!CFG.imageAI) return;
-    imgMode="ai"; imgStyle="Photorealistic";
-    $("img-mode-row").hidden=false;
-    seg($("img-mode"),[["ai","Photo-real AI"],["vector","Vector art"]],function(){return imgMode},function(v){imgMode=v});
-    [].forEach.call(sbox.children,function(c){ c.className=(c.textContent.trim()===imgStyle)?"on":""; });
-    $("vid-bg-lbl").hidden=false; $("vid-bg-row").hidden=false;
-    seg($("vid-bg"),[["anim","Animated"],["ai","AI images"]],function(){return vidBg},function(v){vidBg=v});
+  function showAnn(){
+    var t=CFG.announcement, dismissed=""; try{ dismissed=sessionStorage.getItem("omnia-ann")||""; }catch(e){}
+    document.querySelectorAll(".annbar").forEach(function(b){ b.hidden=!t||t===dismissed; b.querySelector("span").textContent=t||""; b.querySelector("button").onclick=function(){ try{ sessionStorage.setItem("omnia-ann",t); }catch(e){} document.querySelectorAll(".annbar").forEach(function(x){ x.hidden=true; }); }; });
+  }
+  function setupFeatures(){
+    renderSnd(); showAnn();
+    if(CFG.imageAI){ $("vid-bg-lbl").hidden=false; $("vid-bg-row").hidden=false; seg($("vid-bg"),[["anim","Animated"],["ai","AI photos"]],function(){return vidBg},function(v){ vidBg=v; vidTouched=true; });
+      if(user||!CFG.requireLogin) autoBg(); }
+    if(CFG.videoAI){ $("vid-mode-lbl").hidden=false; $("vid-mode-row").hidden=false; seg($("vid-mode"),[["smart","Smart video"],["real","Real AI video"]],function(){return vidMode},function(v){ vidMode=v; $("vid-bg-lbl").hidden=!CFG.imageAI||v==="real"; $("vid-bg-row").hidden=!CFG.imageAI||v==="real"; }); }
   }
   function route(){
     var h=(location.hash||"").slice(1);
     if(h==="welcome"){ showAuth(); return; }
-    if(CFG.googleClientId && !user && !guest){ showAuth(); return; }
     if(TABS.indexOf(h)>-1) openApp(h); else showView("landing");
   }
-  function afterAuth(){ if($("auth").classList.contains("on")){ confetti(); try{ history.replaceState(null,"",location.pathname); }catch(e){} route(); } }
-  $("auth-guest").onclick=function(){ guest=true; try{ sessionStorage.setItem("omnia-guest","1"); }catch(e){} try{ history.replaceState(null,"",location.pathname); }catch(e){} route(); };
+  function afterAuth(){ if($("auth").classList.contains("on")){ confetti(); var t=pendingTab||"chat"; pendingTab=""; openApp(t); } }
+  $("auth-guest").onclick=function(){ guest=true; try{ sessionStorage.setItem("omnia-guest","1"); }catch(e){} var t=pendingTab||""; pendingTab=""; if(t) openApp(t); else { try{ history.replaceState(null,"",location.pathname); }catch(e){} route(); } };
   (function(){
     var els=document.querySelectorAll(".sr");
     if(!("IntersectionObserver" in window)){ els.forEach(function(e){ e.classList.add("in"); }); return; }
@@ -1227,7 +1448,7 @@ pre.src{margin:0;padding:14px;border-radius:22px;background:var(--code);color:va
     run();
   })();
 
-  Promise.all([loadConfig(), new Promise(function(r){ setTimeout(r,1000); })]).then(function(){ setupImageAI(); route(); },route);
+  Promise.all([loadConfig(), new Promise(function(r){ setTimeout(r,1000); })]).then(function(){ setupFeatures(); route(); },function(){ renderSnd(); route(); });
 })();
 
 })();
