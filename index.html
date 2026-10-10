@@ -619,7 +619,8 @@ details.more[open] summary:after{content:"\2212"}
               <div id="ph-box"><div class="lbl">Look</div><div class="chips" id="img-looks"></div>
                 <div class="lbl">Camera</div><div class="chips" id="img-cam"></div>
                 <div class="lbl">Light</div><div class="chips" id="img-light"></div>
-                <div class="lbl">How many</div><div class="bar"><span class="seg" id="img-count"></span></div></div>
+                <div class="lbl">How many</div><div class="bar"><span class="seg" id="img-count"></span></div>
+                <div class="lbl">Prompt help</div><div class="bar"><span class="seg" id="img-smart"></span></div></div>
               <div id="me-box" hidden>
                 <div class="lbl">Top text</div><input class="fi sm" id="me-top" maxlength="50" placeholder="WHEN THE WIFI DROPS">
                 <div class="lbl">Bottom text</div><input class="fi sm" id="me-bot" maxlength="50" placeholder="BUT YOU ARE ON A CALL">
@@ -684,6 +685,7 @@ details.more[open] summary:after{content:"\2212"}
             <div class="box">
               <div class="lbl" style="margin-top:0">Video type</div><div class="chips" id="vid-tpl"></div>
               <textarea id="vid-in" placeholder="Example: an intro for my cooking channel"></textarea>
+              <div class="vwarn" id="vid-noai" hidden>AI photo scenes are off right now, so videos only show moving text. The site owner must fix the Cloudflare keys (CF_ACCOUNT_ID and CF_API_TOKEN).</div>
               <div class="ref" id="ref">
                 <input type="file" id="ref-file" accept="video/*" hidden>
                 <div class="bar"><button class="btn ghost" id="ref-btn"><svg class="ico"><use href="#i-plus"/></svg>Add reference video</button></div>
@@ -1421,14 +1423,18 @@ details.more[open] summary:after{content:"\2212"}
   chipRow($("img-cam"),CAMS,function(){return imgCam},function(v){ imgCam=v; });
   chipRow($("img-light"),LIGHTS,function(){return imgLight},function(v){ imgLight=v; });
   seg($("img-count"),[["1","1 photo"],["2","2 photos"]],function(){return String(imgCount)},function(v){ imgCount=Number(v); });
+  var imgSmart=true;
+  seg($("img-smart"),[["1","AI improves my words"],["0","My words only"]],function(){return imgSmart?"1":"0"},function(v){ imgSmart=v==="1"; });
+  async function improvePrompt(p){
+    var s=await getSample(); if(!s) return "";
+    var o={cache:false,modelTier:"quick"}; if(!IN_CLAUDE){ o.task="chat"; o.feature="aux"; }
+    var r=await Promise.race([s("[Rewrite this as one detailed image prompt in English, max 50 words. Include a clear subject, the setting, mood, colors, lighting and camera angle. Output only the prompt, no quotes.]\n\n"+p,o),new Promise(function(ok){ setTimeout(function(){ ok(null); },12000); })]);
+    return r&&r.text?String(r.text).replace(/^["'\s]+|["'\s]+$/g,"").slice(0,420):"";
+  }
   $("img-improve").onclick=async function(){
     var p=$("img-in").value.trim(); if(!p) return toast("Write a short idea first");
-    var s=await getSample(); if(!s) return; var btn=$("img-improve"); btn.disabled=true;
-    try{
-      var o={cache:false,modelTier:"quick"}; if(!IN_CLAUDE){ o.task="chat"; o.feature="aux"; }
-      var r=await s("[Rewrite this as one vivid, detailed image prompt in English (max 45 words): subject, setting, mood, colors and camera. Output only the prompt, no quotes.]\n\n"+p,o);
-      var t=(r.text||"").replace(/^["'\s]+|["'\s]+$/g,"").slice(0,400); if(t){ $("img-in").value=t; toast("Prompt improved"); }
-    }catch(e){ toast(errText(e)); }
+    var btn=$("img-improve"); btn.disabled=true;
+    try{ var t=await improvePrompt(p); if(t){ $("img-in").value=t; toast("Prompt improved"); } else toast("Could not improve it right now"); }catch(e){ toast(errText(e)); }
     btn.disabled=false;
   };
   // ---- My images (small copies kept on this device) ----
@@ -1526,7 +1532,9 @@ details.more[open] summary:after{content:"\2212"}
     var out=$("img-out"), upd=!!(change&&change.trim()), btn=upd?$("img-upd"):$("img-go");
     if(!CFG.imageAI){ out.innerHTML='<div class="err">AI photos are not turned on yet. The site owner needs to add the free Cloudflare keys.</div>'; sfx.err(); return; }
     var full=p+(upd?", "+change.trim():""); if(upd) $("img-in").value=full;
-    var prompt=full+", "+LOOKS[imgLook]+(imgCam?", "+imgCam:"")+(imgLight?", "+imgLight:"")+", sharp focus, no text, no watermark";
+    var base=full;
+    if(imgSmart&&!upd&&p.length<160){ waiting(out,"Omnia is imagining the scene..."); btn.disabled=true; try{ var im2=await improvePrompt(p); if(im2) base=im2; }catch(e){} }
+    var prompt=base+", "+LOOKS[imgLook]+(imgCam?", "+imgCam:"")+(imgLight?", "+imgLight:"")+", sharp focus, highly detailed, professional quality";
     btn.disabled=true; waiting(out,imgCount>1?"Omnia is taking "+imgCount+" photos...":"Omnia is taking your photo...");
     try{
       var jobs=[]; for(var k=0;k<imgCount;k++) jobs.push(api("/api/image",{prompt:prompt,feature:"image"}).then(function(d){ return d.image?fitAspect(d.image,imgAspect):null; },function(e){ return {err:e}; }));
@@ -1556,7 +1564,7 @@ details.more[open] summary:after{content:"\2212"}
     var out=$("img-out"), btn=$("img-go"); btn.disabled=true; waiting(out,"Making your meme...");
     try{
       var bg=ownPhoto;
-      if(!bg&&CFG.imageAI){ var d=await api("/api/image",{prompt:topic+", funny expressive scene, subject centered, clear space at top and bottom, realistic photo, no text, no watermark",feature:"image"}); bg=d.image; }
+      if(!bg&&CFG.imageAI){ var d=await api("/api/image",{prompt:topic+", funny expressive scene, subject centered, clear space at top and bottom, realistic photograph, highly detailed",feature:"image"}); bg=d.image; }
       var src=await composeMeme(bg,top,bot,imgAspect); btn.disabled=false;
       galAdd(src,top||bot,"meme"); showResult(src,"omnia-meme",bg?null:"AI photos are off, so this uses a color background. Add your own photo for a real picture.",function(){ runMeme(); },false);
     }catch(e){ btn.disabled=false; out.innerHTML='<div class="err">'+errText(e)+'</div>'; }
@@ -1586,7 +1594,7 @@ details.more[open] summary:after{content:"\2212"}
     var out=$("img-out"), btn=$("img-go"); btn.disabled=true; waiting(out,"Designing your thumbnail...");
     try{
       var bg=ownPhoto;
-      if(!bg&&CFG.imageAI){ var d=await api("/api/image",{prompt:topic+", dramatic cinematic lighting, high contrast, vibrant colors, subject on the right side, empty space on the left, YouTube thumbnail style photo, no text, no watermark",feature:"thumb"}); bg=d.image; }
+      if(!bg&&CFG.imageAI){ var d=await api("/api/image",{prompt:topic+", dramatic cinematic lighting, high contrast, vibrant colors, subject on the right side, empty space on the left, YouTube thumbnail style photo, highly detailed",feature:"thumb"}); bg=d.image; }
       var src=await composeThumb(bg,head,imgAspect,thStyle,thPos); btn.disabled=false;
       galAdd(src,head,"thumbnail"); showResult(src,"omnia-thumbnail",bg?null:"AI photos are off, so this uses a color background. Add your own photo to get a real picture.",function(){ runThumb(); },false);
     }catch(e){ btn.disabled=false; out.innerHTML='<div class="err">'+errText(e)+'</div>'; }
@@ -2173,7 +2181,7 @@ details.more[open] summary:after{content:"\2212"}
         var act=document.createElement("div"); act.className="sca";
         act.appendChild(iconBtn("New photo","New AI photo",function(){
           var b=this; b.disabled=true; b.textContent="...";
-          api("/api/image",{prompt:"cinematic photo, "+(sc.text||vspec.title)+", realistic, dramatic lighting, rich colors, no text, no letters, no watermark",feature:"video"}).then(function(d){ if(d.image) sc.ph=d.image; draw(); },function(e){ toast(errText(e)); draw(); });
+          api("/api/image",{prompt:"cinematic photo, "+(sc.text||vspec.title)+", realistic, dramatic lighting, rich colors, highly detailed",feature:"video"}).then(function(d){ if(d.image) sc.ph=d.image; draw(); },function(e){ toast(errText(e)); draw(); });
         },!CFG.imageAI));
         act.appendChild(iconBtn("Upload","Upload a photo",function(){ fiTarget=i; fi.click(); }));
         if(sc.ph) act.appendChild(iconBtn("No photo","Remove photo",function(){ delete sc.ph; draw(); }));
@@ -2190,12 +2198,6 @@ details.more[open] summary:after{content:"\2212"}
       vspec.useRef=vspec.scenes.some(function(x){ return x.ph; })||(refMode==="frames"&&refFrames.length>0); vrefs=refsFor(vspec); renderVid();
     };
   }
-  function startVideoImages(p,count){
-    var shots=["wide establishing shot","close-up detail shot","dramatic low angle","cinematic medium shot","aerial view","soft focus portrait style shot"], warned=false;
-    return shots.slice(0,count).map(function(sh){
-      return api("/api/image",{prompt:"cinematic photo, "+p+", "+sh+", realistic, dramatic lighting, rich colors, no text, no letters, no watermark",feature:"video"}).then(function(d){ return d.image||null; },function(e){ if(!warned&&e&&(e.code==="rate_limited"||e.code==="cooldown"||e.code==="daily")){ warned=true; toast(errText(e)); } return null; });
-    });
-  }
   async function runVid(){
     var p=$("vid-in").value.trim(); if(!p&&!refFrames.length) return toast("Describe the video or add a reference");
     if(!p) p="A video inspired by the reference";
@@ -2206,19 +2208,29 @@ details.more[open] summary:after{content:"\2212"}
       else toast("Reference frames are not supported here. Using your text only.");
     }
     var n=vidDur<=10?4:vidDur<=20?6:vidDur<=30?8:10;
-    var imgJobs=null; if(vidBg==="ai"&&CFG.imageAI) imgJobs=startVideoImages(p,vidDur<=10?3:vidDur<=20?4:5);
+    var useAI=vidBg==="ai"&&CFG.imageAI;
     var tpl=vidTpl?"\n\nVideo type: "+vidTpl.name+". "+vidTpl.hint:"";
     var prompt="You are a creative director for short social videos. Reply with ONLY a JSON object (no markdown, no explanation) in exactly this shape: {\"title\":\"...\",\"mood\":\"energetic or calm or dramatic or fresh\",\"style\":\"particles or waves or grid or bubbles or stars or rays\",\"palette\":[\"#darkbg\",\"#darkbg2\",\"#brightaccent1\",\"#brightaccent2\",\"#lighttext\"],\"scenes\":[{\"text\":\"max 7 punchy words\",\"sub\":\"max 12 words, optional\",\"icon\":\"one emoji\"}]}. Use exactly "+n+" scenes: a hook first, the key points in the middle, and a closing call to action last. Write in the same language as the topic. Topic: "+p+tpl+refText;
-    var t=await generate(out,btn,prompt,imgJobs?"Omnia is planning and painting your video...":"Omnia is planning your video...","default",images,"video");
+    var t=await generate(out,btn,prompt,useAI?"Omnia is writing your story...":"Omnia is planning your video...","default",images,"video");
     if(t===null) return;
     var o=null; try{ var a=t.indexOf("{"), b=t.lastIndexOf("}"); o=JSON.parse(t.slice(a+1>0?a:0,b+1)); }catch(e){ o=null; }
     vspec=normSpec(o,p,n);
     var endTxt=($("vid-end").value||"").trim(); if(endTxt&&vspec.scenes.length<10) vspec.scenes.push({text:endTxt.slice(0,70),sub:wmText()||"",icon:"\uD83D\uDD14"});
-    if(imgJobs){
-      btn.disabled=true; waiting(out,"Finishing AI scenes...");
-      var urls=(await Promise.all(imgJobs)).filter(Boolean); btn.disabled=false;
-      if(urls.length){ vspec.scenes.forEach(function(sc,i){ sc.ph=urls[i%urls.length]; }); vspec.useRef=true; if(urls.length<imgJobs.length) toast("Made "+urls.length+" of "+imgJobs.length+" AI scenes (photo limit)."); }
-      else toast("Could not make AI scenes, so this video uses animated scenes. Wait for the timer and try again.");
+    if(useAI){
+      btn.disabled=true; var N=vspec.scenes.length, cnt=Math.min(N,vidDur<=10?4:vidDur<=20?5:6), warned=false, done=0;
+      waiting(out,"Painting scene photos (0 of "+cnt+")...");
+      var jobs=[];
+      for(var j=0;j<cnt;j++){ (function(j){
+        var si=Math.min(N-1,Math.floor(j*N/cnt)), sc=vspec.scenes[si];
+        var generic=(j===0||j===cnt-1||/subscribe|follow|thank|like|share/i.test(sc.text)), subject=generic?p:(sc.text+(sc.sub?", "+sc.sub:"")+", "+p);
+        jobs.push(api("/api/image",{prompt:"cinematic photograph of "+subject.slice(0,200)+", dramatic lighting, rich colors, shallow depth of field, professional quality",feature:"video"}).then(function(d){ done++; var w=$("wt"); if(w) w.textContent="Painting scene photos ("+done+" of "+cnt+")..."; return d.image||null; },function(e){ done++; if(!warned&&e&&(e.code==="rate_limited"||e.code==="cooldown"||e.code==="daily")){ warned=true; toast(errText(e)); } return null; }));
+      })(j); }
+      var urls=await Promise.all(jobs); btn.disabled=false;
+      var good=urls.filter(Boolean);
+      if(good.length){
+        vspec.scenes.forEach(function(sc,i){ var j=Math.min(cnt-1,Math.floor(i*cnt/N)), u=urls[j], k; for(k=j;k>=0&&!u;k--) u=urls[k]; for(k=j;k<cnt&&!u;k++) u=urls[k]; sc.ph=u; });
+        vspec.useRef=true; if(good.length<cnt) toast("Made "+good.length+" of "+cnt+" photos (limit).");
+      } else toast("Could not make AI photos, so this video uses animated scenes. Wait for the timer and try again.");
     } else if(vspec.useRef){ vspec.scenes.forEach(function(sc,i){ sc.ph=undefined; }); }
     vrefs=refsFor(vspec);
     renderVid();
@@ -2304,6 +2316,7 @@ details.more[open] summary:after{content:"\2212"}
     document.querySelectorAll(".annbar").forEach(function(b){ b.hidden=!t||t===dismissed; b.querySelector("span").textContent=t||""; b.querySelector("button").onclick=function(){ try{ sessionStorage.setItem("omnia-ann",t); }catch(e){} document.querySelectorAll(".annbar").forEach(function(x){ x.hidden=true; }); }; });
   }
   function setupFeatures(){
+    var na=$("vid-noai"); if(na) na.hidden=!!CFG.imageAI;
     renderSnd(); showAnn(); showMaint();
     document.querySelectorAll(".prembtn").forEach(function(b){ b.hidden=IN_CLAUDE||!CFG.planCfg; b.onclick=openPremium; });
     refreshMe(); showTopAd();
