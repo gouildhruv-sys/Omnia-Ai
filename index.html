@@ -1206,25 +1206,15 @@ button,.btn,.ib,.pill{transition:transform .12s ease,box-shadow .2s ease,backgro
   $("tool-go").onclick=runTool;
 
   // ---------- Video Studio ----------
-  async function makeVideo(prompt) {
-  const s = await fetch("/api/video", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ prompt }),
-  }).then(r => r.json());
-  if (!s.name) throw new Error(s.error?.message || "Start nahi hua");
-
-  while (true) {
-    await new Promise(r => setTimeout(r, 10000));
-    const st = await fetch("/api/status?name=" + s.name).then(r => r.json());
-    if (st.error) throw new Error(st.error.message);
-    if (st.done) {
-      if (!st.uri) throw new Error("Video nahi mili");
-      return "/api/download?uri=" + encodeURIComponent(st.uri);
-    }
+  // The AI writes the PLAN (text, colors, style). Omnia's own animation engine draws it, so videos always look polished.
+  var ratio="16:9", vidDur=10, vspec=null, vrefs=[], vframe=null, recTimer=null;
+  var refFrames=[], refMode="colors", refPalette=null;
+  var RATIOS={"16:9":[16,9,1280,720],"9:16":[9,16,720,1280],"1:1":[1,1,1000,1000]};
+  var STYLES_V=["particles","waves","grid","bubbles","stars","rays"];
+  var PALS={energetic:["#1b0b3a","#7a1fa2","#ff6b4a","#ffd166","#ffffff"],calm:["#071a2f","#0f4c75","#3fc1c9","#a8e6cf","#f4fbff"],dramatic:["#0b0b14","#3a0ca3","#f72585","#ffd60a","#ffffff"],fresh:["#062925","#0b6e4f","#2ee59d","#c7f464","#ffffff"]};
+  function seg(el,items,get,set){
+    items.forEach(function(it){ var b=document.createElement("button"); b.textContent=it[1]; b.setAttribute("data-v",String(it[0])); if(it[0]===get()) b.className="on"; b.onclick=function(){ set(it[0]); [].forEach.call(el.children,function(c){c.className=""}); b.className="on"; }; el.appendChild(b); });
   }
-}
-// url = await makeVideo(prompt); videoElement.src = url;
   seg($("vid-ratio"),[["16:9","16:9"],["9:16","9:16"],["1:1","1:1"]],function(){return ratio},function(v){ratio=v});
   seg($("vid-len"),[[10,"10 sec"],[20,"20 sec"]],function(){return vidDur},function(v){vidDur=v});
   seg($("ref-mode"),[["colors","Match its colors"],["frames","Use its frames"]],function(){return refMode},function(v){refMode=v});
