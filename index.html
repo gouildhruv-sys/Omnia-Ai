@@ -13,7 +13,7 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="manifest" href="/manifest.webmanifest">
 <meta property="og:image" content="/icon-512.png">
-<script>try{var __t=localStorage.getItem("omnia-theme");if(__t==="light"||__t==="dark")document.documentElement.setAttribute("data-theme",__t)}catch(e){}</script>
+<script>try{var __t=localStorage.getItem("omnia-theme");if(__t==="light")__t="white";if(__t==="dark")__t="multi";if(__t!=="black"&&__t!=="white")__t="multi";document.documentElement.setAttribute("data-theme",__t)}catch(e){document.documentElement.setAttribute("data-theme","multi")}</script>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -24,10 +24,7 @@
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
 }
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){--bg:#0b0920;--s1:#15122f;--s2:#1d1942;--ink:#f4f2ff;--mute:#a09cc8;--line:#2a2658;--code:#080618;--shadow:0 16px 50px #00000066;--ok:#34d399}
-}
-:root[data-theme="dark"]{--bg:#0b0920;--s1:#15122f;--s2:#1d1942;--ink:#f4f2ff;--mute:#a09cc8;--line:#2a2658;--code:#080618;--shadow:0 16px 50px #00000066;--ok:#34d399}
+:root[data-theme="multi"]{--bg:#0b0920;--s1:#15122f;--s2:#1d1942;--ink:#f4f2ff;--mute:#a09cc8;--line:#2a2658;--code:#080618;--shadow:0 16px 50px #00000066;--ok:#34d399}
 *,*::before,*::after{box-sizing:inherit}
 html,body{height:100%;margin:0}
 body{background:radial-gradient(900px 520px at 8% -8%,#ff7a591f,transparent 60%),radial-gradient(900px 560px at 100% 0%,#5b7cff26,transparent 60%),var(--bg);color:var(--ink);font-family:"Figtree",system-ui,sans-serif;font-size:16px;-webkit-font-smoothing:antialiased}
@@ -417,6 +414,28 @@ details.more[open] summary:after{content:"\2212"}
 .lypart{font-size:12px;letter-spacing:.6px;text-transform:uppercase;color:var(--mute);margin:12px 0 4px}
 .lyline{padding:4px 8px;border-radius:8px;line-height:1.4;transition:background .2s,color .2s}
 .lyline.on{background:var(--grad);color:#fff;font-weight:700}
+
+/* ===== v12: themes, cleaner buttons ===== */
+:root[data-theme="black"]{--bg:#000;--s1:#0d0d0f;--s2:#17171a;--ink:#fff;--mute:#9b9ba4;--line:#2a2a2f;--code:#000;--shadow:0 16px 50px #000000aa;--ok:#34d399;--c1:#4b4b55;--c2:#3a3a42;--c3:#60606c}
+:root[data-theme="white"]{--bg:#fff;--s1:#fff;--s2:#f3f3f6;--ink:#101014;--mute:#6a6a75;--line:#e3e3e8;--code:#101014;--shadow:0 12px 36px #00000014;--ok:#16a34a;--c1:#2c2c34;--c2:#1b1b21;--c3:#46464f}
+:root[data-theme="black"] body,:root[data-theme="white"] body{background:var(--bg)}
+:root[data-theme="black"] .btn,:root[data-theme="white"] .btn{box-shadow:0 6px 18px #0004}
+:root[data-theme="black"] .box:focus-within,:root[data-theme="white"] .box:focus-within{box-shadow:0 0 0 3px #8884,var(--shadow)}
+:root[data-theme="black"] .chips button.on,:root[data-theme="white"] .chips button.on{background:var(--s2);border-color:var(--ink)}
+:root[data-theme="black"] .ico.big,:root[data-theme="white"] .ico.big{color:var(--mute)}
+:root[data-theme="black"] .sh .tile,:root[data-theme="white"] .sh .tile{box-shadow:none}
+.thdot{display:inline-block;width:20px;height:20px;border-radius:50%;border:2px solid var(--ink);flex:none}
+.thdot.th-black{background:#000}.thdot.th-white{background:#fff}
+.thdot.th-multi{background:conic-gradient(#ff7a59,#e23fd0,#5b7cff,#2ee59d,#ff7a59)}
+.btn::after{display:none}
+.btn{border-radius:14px;font-weight:700;letter-spacing:.1px}
+.pill{padding:9px 15px;font-weight:600}
+.chips button,.seg button{min-height:38px}
+.seg button{font-weight:700}
+.box{border-radius:20px}
+.hgrow{display:flex;gap:10px;align-items:center}.hgrow img{width:52px;height:52px;border-radius:14px;object-fit:cover;flex:none;background:var(--s2)}
+#hg-box,#qk-box{display:flex;flex-direction:column;gap:12px}#hg-box[hidden],#qk-box[hidden]{display:none}#hg-go,#vid-go{flex:1;width:100%}
+@media (hover:none){.chips button:hover{transform:none}}
 </style>
 </head>
 <body>
@@ -616,11 +635,11 @@ details.more[open] summary:after{content:"\2212"}
               <div class="bar"><span class="seg" id="img-mode"></span></div>
               <textarea id="img-in" placeholder="Example: a lion wearing a crown at sunset"></textarea>
               <div class="bar"><button class="pill" id="img-improve">Improve my prompt</button><button class="pill" id="img-gal" hidden>My images</button></div>
-              <div id="ph-box"><div class="lbl">Look</div><div class="chips" id="img-looks"></div>
+              <div id="ph-box"><div hidden><div class="lbl">Look</div><div class="chips" id="img-looks"></div>
                 <div class="lbl">Camera</div><div class="chips" id="img-cam"></div>
                 <div class="lbl">Light</div><div class="chips" id="img-light"></div>
                 <div class="lbl">How many</div><div class="bar"><span class="seg" id="img-count"></span></div>
-                <div class="lbl">Prompt help</div><div class="bar"><span class="seg" id="img-smart"></span></div></div>
+                <div class="lbl">Prompt help</div><div class="bar"><span class="seg" id="img-smart"></span></div></div></div>
               <div id="me-box" hidden>
                 <div class="lbl">Top text</div><input class="fi sm" id="me-top" maxlength="50" placeholder="WHEN THE WIFI DROPS">
                 <div class="lbl">Bottom text</div><input class="fi sm" id="me-bot" maxlength="50" placeholder="BUT YOU ARE ON A CALL">
@@ -629,10 +648,9 @@ details.more[open] summary:after{content:"\2212"}
               <div id="th-box" hidden>
                 <div class="lbl">Headline on the thumbnail</div>
                 <input class="fi sm" id="th-head" maxlength="40" placeholder="Example: I TRIED AI FOR 24 HOURS">
-                <div class="bar"><button class="pill" id="th-sug">Suggest headlines</button></div>
-                <div class="chips" id="th-sugs"></div>
+                <div hidden><div class="bar"><button class="pill" id="th-sug">Suggest headlines</button></div><div class="chips" id="th-sugs"></div></div>
                 <div class="lbl">Text style</div><div class="chips" id="th-styles"></div>
-                <div class="lbl">Text position</div><div class="bar"><span class="seg" id="th-pos"></span></div>
+                <div hidden><div class="lbl">Text position</div><div class="bar"><span class="seg" id="th-pos"></span></div></div>
                 <input type="file" id="th-file" accept="image/*" hidden>
                 <div class="bar"><button class="btn ghost" id="th-up"><svg class="ico"><use href="#i-plus"/></svg>Use my own photo</button><button class="pill" id="th-clr" hidden>Remove photo</button></div>
                 <div class="hint" id="th-hint"></div>
@@ -666,7 +684,7 @@ details.more[open] summary:after{content:"\2212"}
                 <div class="lbl">Lyrics language</div><div class="bar"><span class="seg" id="sg-lang"></span></div>
                 <div class="lbl">Length</div><div class="bar"><span class="seg" id="sg-len"></span></div>
                 <div class="bar"><button class="btn shine" id="sg-go"><svg class="ico"><use href="#i-music"/></svg>Make my song</button></div>
-                <div class="hint">AI writes the lyrics. The music is made on your phone. There is no singing voice, you can read the lyrics aloud or sing them yourself.</div>
+                <div class="hint">AI writes the lyrics and a voice says them line by line over the music. A phone voice cannot truly sing, so it sounds like speaking. Turn Voice off to sing it yourself.</div>
               </div>
             </div>
             <div class="box">
@@ -681,37 +699,36 @@ details.more[open] summary:after{content:"\2212"}
       <section class="panel" id="p-video">
         <div class="studio">
           <div class="ctrl">
-            <div class="sh"><div class="tile"><svg class="ico"><use href="#i-video"/></svg></div><div><h2>Video Studio</h2><p>AI photo scenes, captions and music. Save as MP4.</p></div></div>
+            <div class="sh"><div class="tile"><svg class="ico"><use href="#i-video"/></svg></div><div><h2>Video Studio</h2><p>Talking AI avatar videos, or a quick slideshow video.</p></div></div>
             <div class="box">
-              <div class="lbl" style="margin-top:0">Video type</div><div class="chips" id="vid-tpl"></div>
-              <textarea id="vid-in" placeholder="Example: an intro for my cooking channel"></textarea>
-              <div class="vwarn" id="vid-noai" hidden>AI photo scenes are off right now, so videos only show moving text. The site owner must fix the Cloudflare keys (CF_ACCOUNT_ID and CF_API_TOKEN).</div>
-              <div class="ref" id="ref">
-                <input type="file" id="ref-file" accept="video/*" hidden>
-                <div class="bar"><button class="btn ghost" id="ref-btn"><svg class="ico"><use href="#i-plus"/></svg>Add reference video</button></div>
-                <div class="hint" id="ref-hint">Optional. Omnia reads 5 frames of your video (not the sound) for its colors and mood.</div>
-                <div class="thumbs" id="ref-thumbs"></div>
-                <div class="bar" id="ref-opts" hidden>
-                  <span class="seg" id="ref-mode"></span>
-                  <button class="pill" id="ref-clear">Remove</button>
-                </div>
+              <div class="bar"><span class="seg" id="vid-kind"></span></div>
+              <div id="hg-box">
+                <textarea id="hg-in" maxlength="1500" placeholder="Write what the avatar should say. Example: Hello friends, welcome to my channel."></textarea>
+                <div class="lbl">Avatar</div>
+                <div class="hgrow"><img id="hg-pv" alt="" hidden><select class="fi sm" id="hg-av" aria-label="Avatar"><option value="">Loading...</option></select></div>
+                <div class="lbl">Voice</div>
+                <select class="fi sm" id="hg-vo" aria-label="Voice"><option value="">Loading...</option></select>
+                <div class="lbl">Shape</div>
+                <div class="bar"><span class="seg" id="hg-shape"></span></div>
+                <div class="bar"><button class="btn shine" id="hg-go"><svg class="ico"><use href="#i-spark"/></svg>Make AI video</button></div>
+                <div class="hint">Takes 2 to 5 minutes. You can make a few videos per day. Sign in is needed.</div>
               </div>
-              <div class="lbl" id="vid-bg-lbl" hidden>Background</div>
-              <div class="bar" id="vid-bg-row" hidden><span class="seg" id="vid-bg"></span></div>
-              <div class="lbl">Music</div>
-              <div class="bar"><span class="seg" id="vid-mus"></span></div>
-              <details class="more"><summary>More options</summary>
-                <div class="lbl">Look</div><div class="chips" id="vid-grade"></div>
-                <div class="lbl">Captions</div><div class="bar"><span class="seg" id="vid-cap"></span></div>
-                <div class="lbl">Transition</div><div class="bar"><span class="seg" id="vid-tr"></span></div>
-                <div class="lbl">Camera motion</div><div class="bar"><span class="seg" id="vid-mo"></span></div>
-                <div class="lbl">Sound effects</div><div class="bar"><span class="seg" id="vid-fx"></span></div>
-                <div class="lbl">Channel name (Premium)</div><input class="fi sm" id="vid-wm" maxlength="30" placeholder="Premium: your name. Blank removes the mark.">
-                <div class="lbl">End card (optional)</div><input class="fi sm" id="vid-end" maxlength="60" placeholder="Example: Subscribe for more">
-              </details>
-              <div class="lbl">Format and length</div>
-              <div class="bar"><span class="seg" id="vid-ratio"></span><span class="seg" id="vid-len"></span></div>
-              <div class="bar"><button class="btn shine" id="vid-go"><svg class="ico"><use href="#i-spark"/></svg>Make video</button></div>
+              <div id="qk-box" hidden>
+                <textarea id="vid-in" placeholder="Example: an intro for my cooking channel"></textarea>
+                <div class="vwarn" id="vid-noai" hidden>AI photo scenes are off right now, so videos only show moving text. The site owner must add GEMINI_API_KEY or the Cloudflare keys.</div>
+                <div class="lbl">Music</div>
+                <div class="bar"><span class="seg" id="vid-mus"></span></div>
+                <div class="lbl">Format and length</div>
+                <div class="bar"><span class="seg" id="vid-ratio"></span><span class="seg" id="vid-len"></span></div>
+                <div class="bar"><button class="btn shine" id="vid-go"><svg class="ico"><use href="#i-spark"/></svg>Make video</button></div>
+              </div>
+              <div id="vid-legacy" hidden>
+                <div class="chips" id="vid-tpl"></div>
+                <div class="ref" id="ref"><input type="file" id="ref-file" accept="video/*" hidden><div class="bar"><button class="btn ghost" id="ref-btn"></button></div><div class="hint" id="ref-hint"></div><div class="thumbs" id="ref-thumbs"></div><div class="bar" id="ref-opts" hidden><span class="seg" id="ref-mode"></span><button class="pill" id="ref-clear">Remove</button></div></div>
+                <div class="lbl" id="vid-bg-lbl" hidden>Background</div><div class="bar" id="vid-bg-row" hidden><span class="seg" id="vid-bg"></span></div>
+                <div class="chips" id="vid-grade"></div><div class="bar"><span class="seg" id="vid-cap"></span></div><div class="bar"><span class="seg" id="vid-tr"></span></div><div class="bar"><span class="seg" id="vid-mo"></span></div><div class="bar"><span class="seg" id="vid-fx"></span></div>
+                <input class="fi sm" id="vid-wm" maxlength="30"><input class="fi sm" id="vid-end" maxlength="60">
+              </div>
             </div>
           </div>
           <div class="out" id="vid-out"><div class="empty"><svg class="ico big"><use href="#i-video"/></svg>Your video will appear here.</div></div>
@@ -812,7 +829,7 @@ details.more[open] summary:after{content:"\2212"}
     }
   }
   var sfx=(function(){
-    var ac=null, master=null, rev=null, mbus=null, nbuf=null, on=true, mus=false, timer=null, mBase=0, mPos=0, BPM=84, ready=false;
+    var SV=.4, ac=null, master=null, rev=null, mbus=null, nbuf=null, on=true, mus=false, timer=null, mBase=0, mPos=0, BPM=84, ready=false;
     try{ on=localStorage.getItem("omnia-snd")!=="0"; mus=localStorage.getItem("omnia-mus")==="1"; }catch(e){}
     function init(){
       if(ac){ if(ac.state==="suspended") ac.resume(); return ac; }
@@ -828,11 +845,11 @@ details.more[open] summary:after{content:"\2212"}
     function voice(f,t0,d,o){ o=o||{}; var a=init(); if(!a||!on) return; var t=a.currentTime+t0, g=a.createGain(), fl=a.createBiquadFilter(), o1=a.createOscillator(), o2=a.createOscillator(), g2=a.createGain(), sd=a.createGain();
       fl.type="lowpass"; fl.frequency.value=o.cut||5200; o1.type=o.type||"sine"; o1.frequency.setValueAtTime(f,t); if(o.slide) o1.frequency.exponentialRampToValueAtTime(o.slide,t+d);
       o2.type="sine"; o2.frequency.setValueAtTime(f*(o.ratio||2.01),t); g2.gain.value=o.partial==null?.22:o.partial;
-      g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(o.vol||.09,t+(o.att||.008)); g.gain.exponentialRampToValueAtTime(.0001,t+d);
+      g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime((o.vol||.09)*SV,t+(o.att||.008)); g.gain.exponentialRampToValueAtTime(.0001,t+d);
       o1.connect(fl); o2.connect(g2); g2.connect(fl); fl.connect(g); g.connect(master); sd.gain.value=o.send==null?.35:o.send; g.connect(sd); sd.connect(rev);
       o1.start(t); o2.start(t); o1.stop(t+d+.05); o2.stop(t+d+.05); }
     function hiss(t0,d,v,hp,sweep){ var a=init(); if(!a||!on||!nbuf) return; var t=a.currentTime+t0, s=a.createBufferSource(), g=a.createGain(), fl=a.createBiquadFilter(); s.buffer=nbuf; fl.type="bandpass"; fl.Q.value=.9; fl.frequency.setValueAtTime(hp,t); if(sweep) fl.frequency.exponentialRampToValueAtTime(sweep,t+d);
-      g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(v,t+.01); g.gain.exponentialRampToValueAtTime(.0001,t+d); s.connect(fl); fl.connect(g); g.connect(master); s.start(t,.2); s.stop(t+d+.05); }
+      g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(v*SV,t+.01); g.gain.exponentialRampToValueAtTime(.0001,t+d); s.connect(fl); fl.connect(g); g.connect(master); s.start(t,.2); s.stop(t+d+.05); }
     function tick(){
       if(!ac||!mus||!on) return;
       var target=ac.currentTime-mBase+.9; if(target>mPos){ scheduleMusic(ac,mbus,mBase,mPos,target,BPM); mPos=target; }
@@ -848,7 +865,7 @@ details.more[open] summary:after{content:"\2212"}
       set:function(v){ on=!!v; try{ localStorage.setItem("omnia-snd",on?"1":"0"); }catch(e){} if(!on) stopMusic(); else if(mus) startMusic(); },
       setMusic:function(v){ mus=!!v; try{ localStorage.setItem("omnia-mus",mus?"1":"0"); }catch(e){} if(mus&&on) startMusic(); else stopMusic(); },
       wake:function(){ if(mus&&on&&!timer) startMusic(); if(ac&&ac.state==="suspended") ac.resume(); },
-      tap:function(){ voice(880,0,.09,{vol:.045,type:"triangle",slide:1200,partial:.1,send:.15}); },
+      tap:function(){ voice(880,0,.09,{vol:.03,type:"triangle",slide:1200,partial:.1,send:.15}); },
       nav:function(){ voice(523.25,0,.12,{vol:.06}); voice(783.99,.07,.18,{vol:.05}); },
       toggle:function(v){ if(v){ voice(587,0,.1,{vol:.06}); voice(880,.07,.16,{vol:.06}); } else { voice(880,0,.1,{vol:.05}); voice(587,.07,.16,{vol:.05}); } },
       send:function(){ hiss(0,.22,.05,900,5200); voice(659,0,.12,{vol:.06,slide:990}); },
@@ -1407,13 +1424,13 @@ details.more[open] summary:after{content:"\2212"}
   Object.keys(LOOKS).forEach(function(k){ var b=document.createElement("button"); b.textContent=k; if(k===imgLook) b.className="on"; b.onclick=function(){ imgLook=k; [].forEach.call(lbox.children,function(c){ c.className=c===b?"on":""; }); }; lbox.appendChild(b); });
   var tsbox=$("th-styles");
   Object.keys(TH).forEach(function(k){ var t=TH[k], b=document.createElement("button"); b.innerHTML='<i class="sw" style="background:linear-gradient(135deg,'+t.fill+','+t.bar+')"></i>'+t.label; if(k===thStyle) b.className="on"; b.onclick=function(){ thStyle=k; [].forEach.call(tsbox.children,function(c){ c.className=c===b?"on":""; }); }; tsbox.appendChild(b); });
-  seg($("img-mode"),[["photo","Photo"],["thumb","Thumbnail"],["meme","Meme"]],function(){return imgMode},function(v){
+  seg($("img-mode"),[["photo","Photo"],["thumb","YouTube thumbnail"]],function(){return imgMode},function(v){
     imgMode=v; $("ph-box").hidden=v!=="photo"; $("th-box").hidden=v!=="thumb"; $("me-box").hidden=v!=="meme";
     imgAspect=v==="thumb"?"16:9":"1:1"; setSeg($("img-ar"),imgAspect);
     $("img-in").placeholder=v==="thumb"?"What is the picture? Example: a shocked man looking at a glowing robot":v==="meme"?"The picture. Example: a cat looking surprised at a laptop":"Example: a lion wearing a crown at sunset";
     $("img-go").lastChild.textContent=v==="thumb"?"Create thumbnail":v==="meme"?"Create meme":"Create photo";
   });
-  seg($("img-ar"),[["1:1","1:1"],["16:9","16:9"],["9:16","9:16"],["4:5","4:5"],["2:3","2:3"],["3:1","3:1"]],function(){return imgAspect},function(v){ imgAspect=v; });
+  seg($("img-ar"),[["1:1","1:1"],["16:9","16:9"],["9:16","9:16"]],function(){return imgAspect},function(v){ imgAspect=v; });
   seg($("th-pos"),[["left","Left"],["center","Center"],["right","Right"]],function(){return thPos},function(v){ thPos=v; });
   function canvasPng(src,cb){ loadImg(src).then(function(im){ var c=document.createElement("canvas"); c.width=im.naturalWidth; c.height=im.naturalHeight; c.getContext("2d").drawImage(im,0,0); c.toBlob(function(b){ cb(b); },"image/png"); },function(){ cb(null); }); }
   var imgCam="", imgLight="", imgCount=1, ED=null;
@@ -1667,9 +1684,9 @@ details.more[open] summary:after{content:"\2212"}
   $("tool-go").onclick=runTool;
   // ---------- Song Studio: AI lyrics + music made on the device ----------
   var GENRES={
-    "Pop":{bpm:104,prog:[0,4,5,3],minor:false,drums:"pop",bass:"eighth",lead:"triangle",pad:"tri"},
+    "Pop":{bpm:104,prog:[0,4,5,3],minor:false,drums:"pop",bass:"eighth",lead:"synth",pad:"tri"},
     "Hip-hop":{bpm:90,prog:[0,5,2,6],minor:true,drums:"hiphop",bass:"sub",lead:"square",pad:"tri"},
-    "Lo-fi":{bpm:78,prog:[1,4,0,5],minor:false,drums:"lofi",bass:"soft",lead:"sine",pad:"ep",seventh:true,swing:.1},
+    "Lo-fi":{bpm:78,prog:[1,4,0,5],minor:false,drums:"lofi",bass:"soft",lead:"pluck",pad:"ep",seventh:true,swing:.1},
     "EDM":{bpm:126,prog:[5,3,0,4],minor:false,drums:"four",bass:"pump",lead:"saw",pad:"saw",arp:true},
     "Rock":{bpm:118,prog:[0,3,4,3],minor:false,drums:"rock",bass:"eighth",lead:"saw",pad:"saw"},
     "Bollywood":{bpm:100,prog:[0,5,3,4],minor:false,drums:"dhol",bass:"eighth",lead:"flute",pad:"strings",tabla:true},
@@ -1718,6 +1735,15 @@ details.more[open] summary:after{content:"\2212"}
       for(var i=0;i<n;i++){ var idx=i0+i; if(idx>=L) break; var tt=i/SR, f=tt<sw?f0*Math.pow(f1/f0,tt/sw):f1; ph+=f/SR; mix[idx]+=Math.sin(TAU*ph)*vol*Math.exp(-dcy*i); }
     }
     function kick(t,v){ sweep(t,150,42,.13,.3,v); }
+    function ks(f,t,dur,vol,rv){
+      var N=Math.max(2,Math.round(SR/f)), buf=new Float32Array(N), pv=0, i;
+      for(i=0;i<N;i++){ var x=rnd()*2-1; pv=(pv+x)*.5; buf[i]=pv*1.6; }
+      var n=Math.floor(dur*SR), i0=Math.floor(t*SR), p=0, rl=Math.floor(.08*SR);
+      for(i=0;i<n;i++){
+        var idx=i0+i; if(idx>=L) break; var nx=buf[(p+1)%N], cu=buf[p]; buf[p]=(cu+nx)*.5*.9965; p=(p+1)%N;
+        var fd=i>n-rl?(n-i)/rl:1, v=cu*vol*fd; mix[idx]+=v; if(rv) send[idx]+=v*rv;
+      }
+    }
     function snare(t,v,rev){ noise(t,.16,v*.7,1400,rev); tone("triangle",190,t,.06,v*.35,{a:.002,r:.06,s:.2}); }
     function tabla(t,v,hi){ sweep(t,hi?340:190,hi?250:95,.12,.18,v); noise(t,.02,v*.4,3000); }
     var intro=N>=24?2:1, outro=N>=16?2:1, units=Math.max(1,Math.floor((N-intro-outro)/4)), seq=[], u;
@@ -1729,8 +1755,9 @@ details.more[open] summary:after{content:"\2212"}
       var sec=secs2[si];
       for(var b=0;b<sec.bars;b++){
         var bi=b0+b, t0=bi*bar, ch=chord(G.prog[bi%G.prog.length]), isC=sec.t==="C", isV=sec.t==="V", isI=sec.t==="I", isO=sec.t==="O";
-        var padT=(G.pad==="saw"||G.pad==="strings")?"saw":G.pad==="ep"?"sine":"triangle", plp=G.pad==="saw"?1500:G.pad==="strings"?1800:2400, padV=isC?.1:.07;
+        var padT=(G.pad==="saw"||G.pad==="strings")?"saw":G.pad==="ep"?"sine":"triangle", plp=G.pad==="saw"?1500:G.pad==="strings"?1800:2400, padV=(isC?.1:.07)*(G.pad==="tri"?.3:1);
         ch.forEach(function(sem){ tone(padT,midiF(root+12+sem),t0,bar*.97,padV/ch.length*1.6,{a:G.pad==="strings"?.4:.06,r:.4,lp:plp,det:(rnd()-.5)*14,rev:.35,s:.9}); });
+        if(G.pad==="tri"&&!isI){ [0,8,12].forEach(function(sp2,k2){ ch.forEach(function(sem,j2){ ks(midiF(root+sem),t0+sp2*step+j2*.014,step*7,k2===0?.07:.05,.18); }); }); }
         if(G.drone&&!isO) tone("saw",midiF(root-12),t0,bar,.05,{a:.3,lp:500,s:1,r:.3});
         if(!isI){
           var bn=root-12+ch[0], bv=isC?.3:.24;
@@ -1753,7 +1780,8 @@ details.more[open] summary:after{content:"\2212"}
           else pat.forEach(function(s,i){
             var m=root+24+deg(motifDeg[(i+bi)%motifDeg.length]+7), type=lt==="flute"?"sine":lt==="pluck"?"triangle":lt==="strings"?"saw":lt, vol=isC?.1:.07;
             if(lt==="flute") tone("sine",midiF(m),t0+s*step,step*3.2,vol*1.2,{a:.05,r:.2,vib:6,rev:.3});
-            else if(lt==="pluck") tone("triangle",midiF(m),t0+s*step,step*2,vol*1.3,{a:.002,r:.25,s:.2,rev:.2});
+            else if(lt==="pluck") ks(midiF(m),t0+s*step,step*3,vol*1.5,.22);
+            else if(lt==="synth"){ tone("saw",midiF(m),t0+s*step,step*2.4,vol*.55,{a:.01,r:.15,lp:2400,det:-8,rev:.3}); tone("saw",midiF(m),t0+s*step,step*2.4,vol*.55,{a:.01,r:.15,lp:2400,det:8,rev:.3}); }
             else if(lt==="strings") tone("saw",midiF(m),t0+s*step,step*3.5,vol*.8,{a:.15,r:.3,lp:2200,rev:.4});
             else tone(type,midiF(m),t0+s*step,step*2.2,vol,{a:.01,r:.12,lp:2600,rev:.25});
           });
@@ -1791,8 +1819,8 @@ details.more[open] summary:after{content:"\2212"}
   }
   function stopSong(){ if(sgPlayer){ try{ sgPlayer.stop(); }catch(e){} sgPlayer=null; } try{ window.speechSynthesis&&window.speechSynthesis.cancel(); }catch(e){} }
   function songPlayer(r,lines,onLine){
-    var ctx=new (window.AudioContext||window.webkitAudioContext)(), an=ctx.createAnalyser(); an.fftSize=64; an.connect(ctx.destination);
-    var P={playing:false,off:0,t0:0,src:null,dur:r.buffer.duration,ctx:ctx,an:an};
+    var ctx=new (window.AudioContext||window.webkitAudioContext)(), an=ctx.createAnalyser(); an.fftSize=64; var vg=ctx.createGain(); vg.gain.value=.6; an.connect(vg); vg.connect(ctx.destination);
+    var P={playing:false,off:0,t0:0,src:null,dur:r.buffer.duration,ctx:ctx,an:an,vg:vg};
     function start(off){ if(P.src){ try{ P.src.onended=null; P.src.stop(); }catch(e){} } var s=ctx.createBufferSource(); s.buffer=r.buffer; s.connect(an); P.src=s; P.off=off; P.t0=ctx.currentTime; s.start(0,off); P.playing=true; s.onended=function(){ if(P.playing&&P.pos()>=P.dur-.3){ P.playing=false; P.off=0; if(P.onend) P.onend(); } }; }
     P.pos=function(){ return P.playing?Math.min(P.dur,P.off+ctx.currentTime-P.t0):P.off; };
     P.play=function(){ if(ctx.state==="suspended") ctx.resume(); start(P.off>=P.dur-.3?0:P.off); };
@@ -1814,12 +1842,14 @@ details.more[open] summary:after{content:"\2212"}
     song.parts.forEach(function(p){ var hd=document.createElement("div"); hd.className="lypart"; hd.textContent=p.name; lyr.appendChild(hd); p.lines.forEach(function(l){ var e=document.createElement("div"); e.className="lyline"; e.textContent=l; lyr.appendChild(e); lineEls.push(e); }); });
     card.appendChild(lyr); out.appendChild(card);
     var P=songPlayer(r,lineEls); sgPlayer=P;
+    var voiceOn=true;
+    function singLine(txt){ var ss=window.speechSynthesis; if(!ss) return; try{ ss.cancel(); var u=new SpeechSynthesisUtterance(txt); u.lang=sgLang==="English"?"en-US":sgLang==="Punjabi"?"pa-IN":"hi-IN"; u.pitch=1.2; var sec=Math.max(1.2,per*.95); u.rate=Math.max(.6,Math.min(1.5,(txt.length/13)/sec)); ss.speak(u); }catch(e){} }
     var winStart=Math.min(r.intro,r.buffer.duration*.15), winEnd=Math.max(winStart+4,r.buffer.duration-Math.min(r.outro,6)-1), per=(winEnd-winStart)/Math.max(1,lineEls.length), cur=-1, raf=0;
     function fmt(x){ x=Math.floor(x); return Math.floor(x/60)+":"+("0"+x%60).slice(-2); }
     var g=cv.getContext("2d"), fr=new Uint8Array(P.an.frequencyBinCount);
     function frame(){
       var p=P.pos(); tm.textContent=fmt(p)+" / "+fmt(P.dur); rg.value=String(Math.round(1000*p/P.dur));
-      var idx=p<winStart?-1:Math.min(lineEls.length-1,Math.floor((p-winStart)/per)); if(idx!==cur){ if(cur>-1&&lineEls[cur]) lineEls[cur].classList.remove("on"); cur=idx; if(cur>-1&&lineEls[cur]){ lineEls[cur].classList.add("on"); try{ lineEls[cur].scrollIntoView({block:"nearest",behavior:"smooth"}); }catch(e){} } }
+      var idx=p<winStart?-1:Math.min(lineEls.length-1,Math.floor((p-winStart)/per)); if(idx!==cur){ if(cur>-1&&lineEls[cur]) lineEls[cur].classList.remove("on"); cur=idx; if(cur>-1&&lineEls[cur]){ lineEls[cur].classList.add("on"); if(voiceOn&&P.playing) singLine(lineEls[cur].textContent); try{ lineEls[cur].scrollIntoView({block:"nearest",behavior:"smooth"}); }catch(e){} } }
       P.an.getByteFrequencyData(fr); g.clearRect(0,0,600,120); var bw=600/fr.length;
       for(var i=0;i<fr.length;i++){ var hgt=Math.max(4,fr[i]/255*110); var gr=g.createLinearGradient(0,120-hgt,0,120); gr.addColorStop(0,"#ff7a59"); gr.addColorStop(1,"#6c7bff"); g.fillStyle=gr; g.fillRect(i*bw+2,120-hgt,bw-4,hgt); }
       raf=requestAnimationFrame(frame);
@@ -1827,17 +1857,16 @@ details.more[open] summary:after{content:"\2212"}
     frame();
     var guard=setInterval(function(){ if(!document.body.contains(card)){ clearInterval(guard); cancelAnimationFrame(raf); if(sgPlayer===P) stopSong(); } },1500);
     P.onend=function(){ pb.textContent="Play"; };
-    pb.onclick=function(){ if(P.playing){ P.pause(); pb.textContent="Play"; } else { P.play(); pb.textContent="Pause"; } };
-    rg.oninput=function(){ P.seek(P.dur*Number(rg.value)/1000); };
+    pb.onclick=function(){ if(P.playing){ P.pause(); try{ window.speechSynthesis.cancel(); }catch(e){} pb.textContent="Play"; } else { P.play(); pb.textContent="Pause"; } };
+    rg.oninput=function(){ try{ window.speechSynthesis.cancel(); }catch(e){} cur=-2; P.seek(P.dur*Number(rg.value)/1000); };
     var bar=document.createElement("div"); bar.className="bar";
     function mk(t,c,f){ var b=document.createElement("button"); b.className=c; b.textContent=t; b.onclick=f; bar.appendChild(b); return b; }
     mk("Download song","btn",function(){ download("omnia-song.wav",wavBlob(r.buffer)); });
     mk("Copy lyrics","btn ghost",function(){ copy(song.title+"\n\n"+song.parts.map(function(p){ return "["+p.name+"]\n"+p.lines.join("\n"); }).join("\n\n")); });
-    var sp=mk("Read aloud","btn ghost",function(){
-      var ss=window.speechSynthesis; if(!ss){ toast("Speech is not available on this device"); return; }
-      if(ss.speaking){ ss.cancel(); sp.textContent="Read aloud"; return; }
-      var lang=sgLang==="English"?"en-US":sgLang==="Punjabi"?"pa-IN":"hi-IN"; if(!P.playing){ P.play(); pb.textContent="Pause"; }
-      lineEls.forEach(function(e){ var u=new SpeechSynthesisUtterance(e.textContent); u.lang=lang; u.rate=.95; ss.speak(u); }); sp.textContent="Stop reading";
+    var sp=mk("Voice: On","btn ghost",function(){
+      if(!window.speechSynthesis){ toast("Voice is not available on this device"); return; }
+      voiceOn=!voiceOn; sp.textContent=voiceOn?"Voice: On":"Voice: Off"; P.vg.gain.value=voiceOn?.6:1;
+      if(!voiceOn){ try{ window.speechSynthesis.cancel(); }catch(e){} } else if(P.playing&&cur>-1&&lineEls[cur]) singLine(lineEls[cur].textContent);
     });
     mk("New music","btn ghost",function(){ sgSeed=Math.floor(Math.random()*1e9); makeSong(true); });
     if(window.lyricVideo) mk("Make lyric video","btn ghost",function(){ window.lyricVideo(song,genre,mood); });
@@ -2238,15 +2267,70 @@ details.more[open] summary:after{content:"\2212"}
   seg($("vid-mus"),[["1","With music"],["0","No music"]],function(){return vidMusic?"1":"0"},function(v){ vidMusic=v==="1"; });
   $("vid-go").onclick=runVid;
 
+  // ---------- AI avatar video (HeyGen through /api/video-ai) ----------
+  var vidKind="ai", hgShape="wide", hgLoaded=false;
+  seg($("vid-kind"),[["ai","AI Avatar"],["quick","Quick video"]],function(){return vidKind},function(v){ hgKind(v); });
+  seg($("hg-shape"),[["wide","Wide 16:9"],["tall","Tall 9:16"]],function(){return hgShape},function(v){ hgShape=v; });
+  function hgKind(v){ vidKind=v; setSeg($("vid-kind"),v); $("hg-box").hidden=v!=="ai"; $("qk-box").hidden=v!=="quick"; if(v==="ai") hgLoad(); }
+  function hgSetup(){ var row=$("vid-kind").parentNode; if(!CFG.videoAI){ row.hidden=true; hgKind("quick"); } else { row.hidden=false; if(vidKind==="ai") hgLoad(); } }
+  async function hgCall(payload){
+    if(CFG.requireLogin && !validToken() && !guest){ try{ await askLogin(); }catch(e){ throw {code:"login"}; } }
+    var h={"Content-Type":"application/json"}; if(validToken()) h["Authorization"]="Bearer "+idToken; else if(guest) h["x-guest"]="1";
+    var r; try{ r=await fetch("/api/video-ai",{method:"POST",headers:h,body:JSON.stringify(payload)}); }catch(e){ throw {code:"network"}; }
+    var j={}; try{ j=await r.json(); }catch(e){}
+    if(!r.ok) throw {code:r.status===401?"login":"error",message:j.error||("Server error "+r.status)};
+    return j;
+  }
+  function hgPv(){ var o=$("hg-av").selectedOptions[0], im=$("hg-pv"), u=o&&o.getAttribute("data-pv"); if(u&&/^https:\/\//.test(u)){ im.src=u; im.hidden=false; } else im.hidden=true; }
+  $("hg-av").onchange=hgPv;
+  async function hgLoad(){
+    if(hgLoaded||!CFG.videoAI) return; hgLoaded=true;
+    var av=$("hg-av"), vo=$("hg-vo");
+    try{
+      var A=await hgCall({action:"avatars"}), V=await hgCall({action:"voices"});
+      av.innerHTML=""; (A.avatars||[]).forEach(function(x){ var o=document.createElement("option"); o.value=x.id; o.textContent=x.name||x.id; o.setAttribute("data-pv",x.preview||""); av.appendChild(o); });
+      var rank=function(x){ return /hindi/i.test(x.language||"")?0:/english/i.test(x.language||"")?1:2; };
+      vo.innerHTML=""; (V.voices||[]).slice().sort(function(a,b){ return rank(a)-rank(b); }).forEach(function(x){ var o=document.createElement("option"); o.value=x.id; o.textContent=(x.name||x.id)+" ("+(x.language||"")+(x.gender?", "+x.gender:"")+")"; vo.appendChild(o); });
+      hgPv();
+    }catch(e){ hgLoaded=false; av.innerHTML='<option value="">Could not load</option>'; vo.innerHTML='<option value="">Could not load</option>'; toast(errText(e)); }
+  }
+  function hgShow(out,url){
+    if(!/^https:\/\//.test(url)) return;
+    out.innerHTML=""; var card=document.createElement("div"); card.className="toolout";
+    var v=document.createElement("video"); v.controls=true; v.playsInline=true; v.style.cssText="width:100%;border-radius:16px;background:#000"; v.src=url; card.appendChild(v);
+    var bar=document.createElement("div"); bar.className="bar";
+    var a=document.createElement("a"); a.className="btn"; a.href=url; a.target="_blank"; a.rel="noopener"; a.textContent="Open or download"; bar.appendChild(a); card.appendChild(bar);
+    out.appendChild(card); sfx.ok(); adAfter(out);
+  }
+  $("hg-go").onclick=async function(){
+    var text=$("hg-in").value.trim(); if(!text) return toast("Write what the avatar should say");
+    var av=$("hg-av").value, vo=$("hg-vo").value; if(!av||!vo) return toast("Pick an avatar and a voice");
+    var out=$("vid-out"), btn=$("hg-go"); btn.disabled=true; waiting(out,"Sending your script...");
+    try{
+      var d=await hgCall({action:"create",text:text,avatar:av,voice:vo,shape:hgShape}); sfx.pop();
+      for(var i=0;i<75;i++){
+        await new Promise(function(r){ setTimeout(r,6000); });
+        if(!document.body.contains(out)) break;
+        var st=await hgCall({action:"status",id:d.id});
+        if(st.status==="completed"&&st.url){ hgShow(out,st.url); btn.disabled=false; return; }
+        if(st.status==="failed") throw {code:"error",message:st.error||"The video could not be made"};
+        var w=$("wt"); if(w) w.textContent="Making your AI video... "+((i+1)*6)+" sec";
+      }
+      throw {code:"error",message:"Still working. Check again in a few minutes."};
+    }catch(e){ out.innerHTML='<div class="err"></div>'; out.firstChild.textContent=errText(e); }
+    btn.disabled=false;
+  };
+
   // ---------- Theme, welcome screen, routing ----------
-  function effTheme(){ var t=document.documentElement.getAttribute("data-theme"); if(t) return t; return (window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light"; }
+  var THEMES=["black","white","multi"], THNAME={black:"Black",white:"White",multi:"Multi"}, THCOL={black:"#000000",white:"#ffffff",multi:"#100e24"};
+  function effTheme(){ var t=document.documentElement.getAttribute("data-theme"); return (t==="black"||t==="white")?t:"multi"; }
   function paintTheme(){
-    var d=effTheme()==="dark";
-    document.querySelectorAll(".themebtn").forEach(function(b){ b.innerHTML=ico(d?"sun":"moon")+(b.classList.contains("wide")?(d?"Light mode":"Dark mode"):""); b.setAttribute("aria-label",d?"Switch to light mode":"Switch to dark mode"); });
-    var m=document.querySelector('meta[name="theme-color"]'); if(m) m.setAttribute("content",d?"#100e24":"#f5f4fb");
+    var t=effTheme();
+    document.querySelectorAll(".themebtn").forEach(function(b){ var wide=b.classList.contains("wide"); b.innerHTML='<i class="thdot th-'+t+'"></i>'+(wide?"Theme: "+THNAME[t]:""); b.setAttribute("aria-label","Theme: "+THNAME[t]+". Tap to change"); });
+    var m=document.querySelector('meta[name="theme-color"]'); if(m) m.setAttribute("content",THCOL[t]);
   }
   function setTheme(t){ document.documentElement.setAttribute("data-theme",t); try{ localStorage.setItem("omnia-theme",t); }catch(e){} paintTheme(); }
-  document.querySelectorAll(".themebtn").forEach(function(b){ b.onclick=function(){ setTheme(effTheme()==="dark"?"light":"dark"); }; });
+  document.querySelectorAll(".themebtn").forEach(function(b){ b.onclick=function(){ setTheme(THEMES[(THEMES.indexOf(effTheme())+1)%3]); }; });
   paintTheme();
   function confetti(){
     var cols=["#ff6b4a","#d946ef","#4f6bff","#ffd166","#2ee59d"];
@@ -2316,6 +2400,7 @@ details.more[open] summary:after{content:"\2212"}
     document.querySelectorAll(".annbar").forEach(function(b){ b.hidden=!t||t===dismissed; b.querySelector("span").textContent=t||""; b.querySelector("button").onclick=function(){ try{ sessionStorage.setItem("omnia-ann",t); }catch(e){} document.querySelectorAll(".annbar").forEach(function(x){ x.hidden=true; }); }; });
   }
   function setupFeatures(){
+    try{ hgSetup(); }catch(e){}
     var na=$("vid-noai"); if(na) na.hidden=!!CFG.imageAI;
     renderSnd(); showAnn(); showMaint();
     document.querySelectorAll(".prembtn").forEach(function(b){ b.hidden=IN_CLAUDE||!CFG.planCfg; b.onclick=openPremium; });

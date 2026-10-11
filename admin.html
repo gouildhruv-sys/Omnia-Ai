@@ -190,9 +190,10 @@ var V={
   var d=await api("chatusers"); C.chats=d.chats;
   $("view").innerHTML='<div class="fb"><input id="cq" placeholder="Search name, email or place"></div><div class="card" id="clist"></div>';
   function draw(){ var q=$("cq").value.toLowerCase(), l=C.chats.filter(function(c){ return !q||(c.name+" "+c.id+" "+place(c)).toLowerCase().indexOf(q)>-1; });
-    $("clist").innerHTML='<h3>Conversations ('+l.length+')</h3><p class="mu">Chats and prompts that people typed. Kept for a limited time, then removed automatically.</p>'+(l.length?l.map(function(c,i){ return '<div class="row" data-i="'+i+'" style="cursor:pointer"><div class="av">'+ini(c.name)+'</div><div class="m"><b>'+esc(c.name)+'</b><small class="mu">'+esc(c.id)+'</small><small class="mu">'+c.count+' messages · '+esc(place(c)||"unknown place")+' · '+ago(c.t)+'</small></div></div>'; }).join(""):'<div class="empty">No saved chats yet.</div>');
+    $("clist").innerHTML='<h3>Conversations ('+l.length+')</h3><p class="mu">Live list, refreshes every 8 seconds. Chats and prompts that people typed. Kept for a limited time, then removed automatically.</p>'+(l.length?l.map(function(c,i){ return '<div class="row" data-i="'+i+'" style="cursor:pointer"><div class="av">'+ini(c.name)+'</div><div class="m"><b>'+esc(c.name)+'</b><small class="mu">'+esc(c.id)+'</small><small class="mu">'+c.count+' messages · '+esc(place(c)||"unknown place")+' · '+ago(c.t)+'</small></div></div>'; }).join(""):'<div class="empty">No saved chats yet.</div>');
     [].forEach.call($("clist").querySelectorAll(".row[data-i]"),function(r){ r.onclick=function(){ readChat(l[Number(r.dataset.i)]); }; }); }
   $("cq").oninput=draw; draw();
+  timer=setInterval(async function(){ if($("sheet").classList.contains("on")) return; try{ var d2=await api("chatusers"); C.chats=d2.chats; draw(); }catch(e){} },8000);
  },
  ads:async function(){
   var d=await api("ads"); C.ads=d.ads;
@@ -221,7 +222,7 @@ var V={
  },
  settings:async function(){
   var s=await api("system"), yes=function(v){return v?'<span class="tag ok">on</span>':'<span class="tag bad">missing</span>'};
-  var rows=[["Database (Upstash)",s.database],["Accounts (SESSION_SECRET)",s.accounts],["Google sign-in",s.google],["Gemini",s.gemini],["Groq",s.groq],["Mistral",s.mistral],["OpenRouter",s.openrouter],["Cerebras",s.cerebras],["AI photos (Cloudflare)",s.cloudflareImages],["AI photos (Pollinations)",s.pollinations],["Real AI video (fal.ai)",s.falVideo],["Best video model",!!s.videoBest],["Chat saving",s.chatLog]];
+  var rows=[["Database (Upstash)",s.database],["Accounts (SESSION_SECRET)",s.accounts],["Google sign-in",s.google],["Gemini",s.gemini],["Groq",s.groq],["Mistral",s.mistral],["OpenRouter",s.openrouter],["Cerebras",s.cerebras],["AI photos (Cloudflare)",s.cloudflareImages],["AI photos (Pollinations)",s.pollinations],["AI avatar video (HeyGen)",s.heygen],["Chat saving",s.chatLog]];
   $("view").innerHTML='<div class="card"><h3>What is connected</h3><p class="mu">Only on or missing. Keys are never shown.</p>'+rows.map(function(r){return '<div class="kv"><span>'+r[0]+'</span>'+yes(r[1])+'</div>'}).join("")+'</div><div class="card"><h3>Limits and privacy</h3><div class="kv"><span>Guest messages a day</span><b>'+s.limits.guestDaily+'</b></div><div class="kv"><span>Signed-in messages a day</span><b>'+s.limits.userDaily+'</b></div><div class="kv"><span>Signed-in AI photos a day</span><b>'+s.limits.imageDaily+'</b></div><div class="kv"><span>Guest AI photos a day</span><b>'+s.limits.guestImage+'</b></div><div class="kv"><span>Chats are kept for</span><b>'+s.retentionDays+' days</b></div><div class="kv"><span>Fast video model</span><b style="font-size:12px;text-align:right;word-break:break-all">'+esc(s.videoFast)+'</b></div><p class="mu" style="margin-top:10px">Change these in Vercel, Settings, Environment Variables, then Redeploy.</p></div>';
  }
 };
@@ -281,6 +282,7 @@ function adForm(a){
 }
 $("lgo").onclick=login; $("pw").onkeydown=function(e){ if(e.key==="Enter") login(); };
 $("ref").onclick=function(){ show(TAB); };
+setInterval(async function(){ if(!KEY) return; try{ var o=await api("overview"); $("live").lastChild.textContent=o.online+" online"; }catch(e){} },20000);
 try{ var k=sessionStorage.getItem("omnia-adm"); if(k){ $("pw").value=k; login(); } }catch(e){}
 })();
 </script></body></html>
