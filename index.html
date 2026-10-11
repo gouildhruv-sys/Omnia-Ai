@@ -708,6 +708,7 @@ details.more[open] summary:after{content:"\2212"}
                 <div class="hgrow"><img id="hg-pv" alt="" hidden><select class="fi sm" id="hg-av" aria-label="Avatar"><option value="">Loading...</option></select></div>
                 <div class="lbl">Voice</div>
                 <select class="fi sm" id="hg-vo" aria-label="Voice"><option value="">Loading...</option></select>
+                <div id="hg-errbox" hidden><div class="err" id="hg-err"></div><div class="bar"><button class="pill" id="hg-retry">Try again</button></div></div>
                 <div class="lbl">Shape</div>
                 <div class="bar"><span class="seg" id="hg-shape"></span></div>
                 <div class="bar"><button class="btn shine" id="hg-go"><svg class="ico"><use href="#i-spark"/></svg>Make AI video</button></div>
@@ -2283,6 +2284,7 @@ details.more[open] summary:after{content:"\2212"}
   }
   function hgPv(){ var o=$("hg-av").selectedOptions[0], im=$("hg-pv"), u=o&&o.getAttribute("data-pv"); if(u&&/^https:\/\//.test(u)){ im.src=u; im.hidden=false; } else im.hidden=true; }
   $("hg-av").onchange=hgPv;
+  $("hg-retry").onclick=function(){ $("hg-errbox").hidden=true; $("hg-av").innerHTML='<option value="">Loading...</option>'; $("hg-vo").innerHTML='<option value="">Loading...</option>'; hgLoad(); };
   async function hgLoad(){
     if(hgLoaded||!CFG.videoAI) return; hgLoaded=true;
     var av=$("hg-av"), vo=$("hg-vo");
@@ -2292,7 +2294,7 @@ details.more[open] summary:after{content:"\2212"}
       var rank=function(x){ return /hindi/i.test(x.language||"")?0:/english/i.test(x.language||"")?1:2; };
       vo.innerHTML=""; (V.voices||[]).slice().sort(function(a,b){ return rank(a)-rank(b); }).forEach(function(x){ var o=document.createElement("option"); o.value=x.id; o.textContent=(x.name||x.id)+" ("+(x.language||"")+(x.gender?", "+x.gender:"")+")"; vo.appendChild(o); });
       hgPv();
-    }catch(e){ hgLoaded=false; av.innerHTML='<option value="">Could not load</option>'; vo.innerHTML='<option value="">Could not load</option>'; toast(errText(e)); }
+    }catch(e){ hgLoaded=false; av.innerHTML='<option value="">Could not load</option>'; vo.innerHTML='<option value="">Could not load</option>'; $("hg-err").textContent=errText(e); $("hg-errbox").hidden=false; }
   }
   function hgShow(out,url){
     if(!/^https:\/\//.test(url)) return;
