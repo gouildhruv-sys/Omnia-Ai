@@ -3,7 +3,8 @@
 // Keys (Vercel > Settings > Environment Variables):
 //   CF_ACCOUNT_ID + CF_API_TOKEN   Cloudflare Workers AI (FLUX.1 schnell). Free daily allowance, best option.
 //   POLLINATIONS_KEY               optional, from enter.pollinations.ai (free)
-//   IMAGE_ROUTE                    optional, order of providers, default: cloudflare, pollinations
+//   GEMINI_API_KEY                 Gemini image model (best quality), tried first. GEMINI_IMAGE_MODEL to change model.
+//   IMAGE_ROUTE                    optional, order of providers, default: gemini, cloudflare, pollinations
 //   IMAGE_DAILY_LIMIT              per signed-in user per day, default 20
 //   GUEST_IMAGE_LIMIT              per guest address per day, default 3
 // Login settings are shared with api/ai.js: GOOGLE_CLIENT_ID, REQUIRE_LOGIN, ALLOW_GUEST, ACCESS_CODE.
@@ -80,7 +81,23 @@ async function pollinations(prompt, signal, steps) {
   return "data:" + ct + ";base64," + buf.toString("base64");
 }
 
+async function gemini(prompt, signal) {
+  const model = process.env.GEMINI_IMAGE_MODEL || "gemini-2.5-flash-image";
+  const r = await fetch("https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent", {
+    method: "POST", signal,
+    headers: { "x-goog-api-key": process.env.GEMINI_API_KEY, "content-type": "application/json" },
+    body: JSON.stringify({ contents: [{ parts: [{ text: prompt.slice(0, 1800) }] }], generationConfig: { responseModalities: ["IMAGE"] } }),
+  });
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw err(r.status, data.error && data.error.message);
+  const parts = (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) || [];
+  const img = parts.find((x) => x.inlineData && x.inlineData.data);
+  if (!img) throw err(502, "no image");
+  return "data:" + (img.inlineData.mimeType || "image/png") + ";base64," + img.inlineData.data;
+}
+
 const PROVIDERS = {
+  gemini: { run: gemini, ready: () => !!process.env.GEMINI_API_KEY },
   cloudflare: { run: cloudflare, ready: () => !!(process.env.CF_ACCOUNT_ID && process.env.CF_API_TOKEN) },
   pollinations: { run: pollinations, ready: () => true },
 };
@@ -113,7 +130,7 @@ module.exports = async (req, res) => {
   const lim = await P.checkLimit(req, who, feat);
   if (!lim.ok) return res.status(lim.status).json({ error: lim.error, code: lim.code, retry: lim.retry, feature: lim.feature, plan: lim.plan });
   const steps = lim.plan === 2 ? Number(process.env.CF_STEPS_PREMIUM || 8) : Number(process.env.CF_STEPS || 6);
-  const order = String(process.env.IMAGE_ROUTE || "cloudflare, pollinations").split(",").map((s) => s.trim()).filter((n) => PROVIDERS[n]);
+  const order = String(process.env.IMAGE_ROUTE || "gemini, cloudflare, pollinations").split(",").map((s) => s.trim()).filter((n) => PROVIDERS[n]);
   const errors = [], statuses = [];
   const deadline = Date.now() + 54000;
   let tried = 0;

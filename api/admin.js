@@ -24,7 +24,7 @@ module.exports = async (req, res) => {
     return res.status(200).json({
       database: S.dbOn(), accounts: S.accountsOn(), sessionSecret: !!e.SESSION_SECRET,
       gemini: !!e.GEMINI_API_KEY, groq: !!e.GROQ_API_KEY, mistral: !!e.MISTRAL_API_KEY, openrouter: !!e.OPENROUTER_API_KEY, cerebras: !!e.CEREBRAS_API_KEY,
-      cloudflareImages: !!(e.CF_ACCOUNT_ID && e.CF_API_TOKEN), pollinations: !!e.POLLINATIONS_KEY, google: !!e.GOOGLE_CLIENT_ID,
+      heygen: !!e.HEYGEN_API_KEY, cloudflareImages: !!(e.CF_ACCOUNT_ID && e.CF_API_TOKEN), pollinations: !!e.POLLINATIONS_KEY, google: !!e.GOOGLE_CLIENT_ID,
       chatLog: e.CHAT_LOG !== "0", retentionDays: Number(e.CHAT_RETENTION_DAYS || 30), cooldownSec: cfg.cooldownSec, payUrl: !!cfg.premium.payUrl,
     });
   }
