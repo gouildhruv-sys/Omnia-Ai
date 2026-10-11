@@ -42,5 +42,5 @@ module.exports = async (req, res) => {
       return res.status(200).json({ id });
     }
     return res.status(400).json({ error: "Unknown action" });
-  } catch (e) { return res.status(e.status && e.status < 500 ? e.status : 502).json({ error: String(e.message || e).slice(0, 160) }); }
+  } catch (e) { return res.status(502).json({ error: "HeyGen" + (e.status ? " (" + e.status + ")" : "") + ": " + String(e.message || e).slice(0, 160) }); }
 };
