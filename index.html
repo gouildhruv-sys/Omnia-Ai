@@ -2275,8 +2275,8 @@ details.more[open] summary:after{content:"\2212"}
   function hgKind(v){ vidKind=v; setSeg($("vid-kind"),v); $("hg-box").hidden=v!=="ai"; $("qk-box").hidden=v!=="quick"; if(v==="ai") hgLoad(); }
   function hgSetup(){ var row=$("vid-kind").parentNode; if(!CFG.videoAI){ row.hidden=true; hgKind("quick"); } else { row.hidden=false; if(vidKind==="ai") hgLoad(); } }
   async function hgCall(payload){
-    if(CFG.requireLogin && !validToken() && !guest){ try{ await askLogin(); }catch(e){ throw {code:"login"}; } }
-    var h={"Content-Type":"application/json"}; if(validToken()) h["Authorization"]="Bearer "+idToken; else if(guest) h["x-guest"]="1";
+    if(!validToken()){ try{ await askLogin(); }catch(e){ throw {code:"login"}; } }
+    var h={"Content-Type":"application/json"}; if(validToken()) h["Authorization"]="Bearer "+idToken;
     var r; try{ r=await fetch("/api/video-ai",{method:"POST",headers:h,body:JSON.stringify(payload)}); }catch(e){ throw {code:"network"}; }
     var j={}; try{ j=await r.json(); }catch(e){}
     if(!r.ok) throw {code:r.status===401?"login":"error",message:j.error||("Server error "+r.status)};
@@ -2284,9 +2284,12 @@ details.more[open] summary:after{content:"\2212"}
   }
   function hgPv(){ var o=$("hg-av").selectedOptions[0], im=$("hg-pv"), u=o&&o.getAttribute("data-pv"); if(u&&/^https:\/\//.test(u)){ im.src=u; im.hidden=false; } else im.hidden=true; }
   $("hg-av").onchange=hgPv;
-  $("hg-retry").onclick=function(){ $("hg-errbox").hidden=true; $("hg-av").innerHTML='<option value="">Loading...</option>'; $("hg-vo").innerHTML='<option value="">Loading...</option>'; hgLoad(); };
+  document.querySelector("#nav button[data-t=video]").addEventListener("click",function(){ if(vidKind==="ai") setTimeout(hgLoad,50); });
+  $("hg-retry").onclick=async function(){ if(!validToken()){ try{ await askLogin(); }catch(e){ return; } } $("hg-retry").textContent="Try again"; $("hg-errbox").hidden=true; $("hg-av").innerHTML='<option value="">Loading...</option>'; $("hg-vo").innerHTML='<option value="">Loading...</option>'; hgLoad(); };
   async function hgLoad(){
-    if(hgLoaded||!CFG.videoAI) return; hgLoaded=true;
+    if(hgLoaded||!CFG.videoAI) return;
+    if(!validToken()){ $("hg-av").innerHTML='<option value="">Sign in first</option>'; $("hg-vo").innerHTML='<option value="">Sign in first</option>'; $("hg-err").textContent="Sign in to use AI avatar videos."; $("hg-retry").textContent="Sign in"; $("hg-errbox").hidden=false; return; }
+    hgLoaded=true;
     var av=$("hg-av"), vo=$("hg-vo");
     try{
       var A=await hgCall({action:"avatars"}), V=await hgCall({action:"voices"});
@@ -2294,7 +2297,7 @@ details.more[open] summary:after{content:"\2212"}
       var rank=function(x){ return /hindi/i.test(x.language||"")?0:/english/i.test(x.language||"")?1:2; };
       vo.innerHTML=""; (V.voices||[]).slice().sort(function(a,b){ return rank(a)-rank(b); }).forEach(function(x){ var o=document.createElement("option"); o.value=x.id; o.textContent=(x.name||x.id)+" ("+(x.language||"")+(x.gender?", "+x.gender:"")+")"; vo.appendChild(o); });
       hgPv();
-    }catch(e){ hgLoaded=false; av.innerHTML='<option value="">Could not load</option>'; vo.innerHTML='<option value="">Could not load</option>'; $("hg-err").textContent=errText(e); $("hg-errbox").hidden=false; }
+    }catch(e){ hgLoaded=false; av.innerHTML='<option value="">Tap Try again</option>'; vo.innerHTML='<option value="">Tap Try again</option>'; $("hg-err").textContent=errText(e); $("hg-errbox").hidden=false; }
   }
   function hgShow(out,url){
     if(!/^https:\/\//.test(url)) return;
