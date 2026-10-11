@@ -3,6 +3,9 @@
     "api/ai.js": {
       "maxDuration": 60
     },
+    "api/video-ai.js": {
+      "maxDuration": 30
+    },
     "api/image.js": {
       "maxDuration": 60
     }
