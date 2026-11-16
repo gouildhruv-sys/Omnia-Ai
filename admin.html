@@ -2,7 +2,7 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Omnia Admin</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#07060f;color:#f5f3ff;font-family:system-ui,sans-serif;padding:16px;max-width:760px;margin:auto}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(500px 300px at 10% -5%,rgba(139,92,246,.35),transparent),#07060f;color:#f5f3ff;font-family:Inter,system-ui,sans-serif;padding:16px;max-width:760px;margin:auto}
 h1{background:linear-gradient(90deg,#8b5cf6,#22d3ee);-webkit-background-clip:text;color:transparent;margin:6px 0}
 input,select{width:100%;background:#16122e;border:1px solid #2c2650;border-radius:12px;color:#fff;padding:12px;margin:6px 0;font-size:15px}
 button{border:0;border-radius:12px;padding:11px 14px;font-weight:700;color:#fff;background:linear-gradient(135deg,#8b5cf6,#22d3ee);margin:4px 4px 4px 0}
@@ -11,20 +11,20 @@ button.g{background:#241e47}button.r{background:#be123c}
 .card{background:#120e26;border:1px solid #2c2650;border-radius:16px;padding:14px;margin:10px 0;animation:u .3s both}@keyframes u{from{opacity:0;transform:translateY(10px)}}
 small{color:#9a94b8;display:block;margin:2px 0}a{color:#22d3ee}.on{color:#4ade80}.hide{display:none}
 </style></head><body>
-<h1>&#128081; Omnia Admin</h1>
+<h1>Omnia Admin</h1>
 <div id="login"><input id="pw" type="password" placeholder="Admin password"><button id="go">Login</button></div>
 <div id="main" class="hide">
- <div class="tabs"><button data-t="users" class="on">&#128101; Users</button><button data-t="models">&#129302; Models</button></div>
+ <div class="tabs"><button data-t="users" class="on">Users</button><button data-t="models">Models</button></div>
  <div id="users"></div><div id="models" class="hide"></div>
 </div>
 <script>
 const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 let PW=sessionStorage.getItem('apw')||'',timer;
 async function A(b){const r=await fetch('/api/admin',{method:'POST',headers:{'Content-Type':'application/json','x-admin':PW},body:JSON.stringify(b)});const d=await r.json();if(!r.ok)throw new Error(d.error);return d}
-async function users(){try{const{users}=await A({action:'users'});$('users').innerHTML=`<small>${users.length} users &#8226; auto refresh every 15s</small>`+users.map(u=>{
+async function users(){try{const{users}=await A({action:'users'});$('users').innerHTML=`<small>${users.length} users auto refresh every 15s</small>`+users.map(u=>{
  const s=Object.entries(u.subs||{}).filter(([,t])=>t>Date.now()).map(([k,t])=>`<span class="on">${k.toUpperCase()} (${Math.ceil((t-Date.now())/864e5)}d)</span>`).join(' ')||'free';
- const l=u.loc?`<a target="_blank" href="https://www.google.com/maps?q=${u.loc.lat},${u.loc.lng}">&#128205; ${u.loc.lat.toFixed(4)}, ${u.loc.lng.toFixed(4)}</a> (${Math.round((Date.now()-u.loc.t)/60000)} min ago)`:(u.locConsent?'waiting for location...':'location sharing off');
- return `<div class="card"><b>${esc(u.first)} ${esc(u.last)}</b> ${u.banned?'&#128683;':''}<small>${esc(u.email)}</small><small>Plan: ${s}</small><small>${l}</small>
+ const l=u.loc?`<a target="_blank" href="https://www.google.com/maps?q=${u.loc.lat},${u.loc.lng}">${u.loc.lat.toFixed(4)}, ${u.loc.lng.toFixed(4)}</a> (${Math.round((Date.now()-u.loc.t)/60000)} min ago)`:(u.locConsent?'waiting for location...':'location sharing off');
+ return `<div class="card"><b>${esc(u.first)} ${esc(u.last)}</b> ${u.banned?'':''}<small>${esc(u.email)}</small><small>Plan: ${s}</small><small>${l}</small>
  <button data-a="grant" data-m="x1" data-e="${esc(u.email)}">+X1</button><button data-a="grant" data-m="x2" data-e="${esc(u.email)}">+X2</button><button class="g" data-a="rev" data-e="${esc(u.email)}">Revoke</button>
  <button class="g" data-a="ban" data-b="${u.banned?0:1}" data-e="${esc(u.email)}">${u.banned?'Unban':'Ban'}</button><button class="r" data-a="del" data-e="${esc(u.email)}">Delete</button></div>`}).join('');
  $('users').querySelectorAll('button').forEach(b=>b.onclick=async()=>{const e=b.dataset.e,a=b.dataset.a;
@@ -35,9 +35,9 @@ async function users(){try{const{users}=await A({action:'users'});$('users').inn
 const F=(id,l,v,t='text')=>`<label><small>${l}</small><input id="${id}" type="${t}" value="${esc(v)}"></label>`;
 async function models(){const{cfg:c}=await A({action:'getcfg'});let h='<small>Leave key unchanged to keep the old one. Any OpenAI-compatible API works (Groq, Gemini, OpenRouter, DeepSeek, OpenAI...).</small>';
  for(const k in c.models){const m=c.models[k];h+=`<div class="card"><b>${k.toUpperCase()}</b>${F(k+'l','Name',m.label)}${F(k+'b','Base URL',m.base)}${F(k+'m','Model',m.model)}${F(k+'k','API key',m.key,'password')}</div>`}
- h+=`<div class="card"><b>&#127912; Image</b><select id="it">${['pollinations','hf','openai'].map(x=>`<option ${c.image.type===x?'selected':''}>${x}</option>`).join('')}</select>${F('ib','Base URL (hf: optional)',c.image.base)}${F('im','Model',c.image.model)}${F('ik','API key',c.image.key,'password')}</div>`;
- h+=`<div class="card"><b>&#127916; Video</b>${F('vb','Endpoint URL',c.video.base)}${F('vk','API key',c.video.key,'password')}</div>`;
- h+=`<div class="card"><b>&#127873; Promo</b>${F('pc','Code',c.promo.code)}${F('pd','Din',c.promo.days,'number')}</div><button id="sv">&#128190; Save</button>`;
+ h+=`<div class="card"><b>Image</b><select id="it">${['pollinations','hf','openai'].map(x=>`<option ${c.image.type===x?'selected':''}>${x}</option>`).join('')}</select>${F('ib','Base URL (hf: optional)',c.image.base)}${F('im','Model',c.image.model)}${F('ik','API key',c.image.key,'password')}</div>`;
+ h+=`<div class="card"><b>Video</b>${F('vb','Endpoint URL',c.video.base)}${F('vk','API key',c.video.key,'password')}</div>`;
+ h+=`<div class="card"><b>Promo</b>${F('pc','Code',c.promo.code)}${F('pd','Din',c.promo.days,'number')}</div><button id="sv">Save</button>`;
  $('models').innerHTML=h;$('sv').onclick=async()=>{const g=id=>$(id).value,n={models:{},image:{type:g('it'),base:g('ib'),model:g('im'),key:g('ik')},video:{base:g('vb'),key:g('vk')},promo:{code:g('pc'),days:g('pd')}};
   for(const k in c.models)n.models[k]={label:g(k+'l'),base:g(k+'b'),model:g(k+'m'),key:g(k+'k')};
   try{await A({action:'setcfg',cfg:n});alert('Saved ✅');models()}catch(e){alert(e.message)}}}
