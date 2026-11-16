@@ -1,29 +1,57 @@
-// Multi free-API fallback: jo key set hai wo try hoga, fail ho to agla.
-const OAI = (url, model, key) => async (messages) => {
-  const r = await fetch(url, { method: 'POST', headers: { Authorization: 'Bearer ' + key, 'Content-Type': 'application/json' }, body: JSON.stringify({ model, messages }) });
-  const d = await r.json();
-  if (!r.ok) throw new Error(d?.error?.message || 'api error');
-  return d.choices[0].message.content;
-};
-const gemini = (key) => async (messages) => {
-  const sys = messages.find((m) => m.role === 'system');
-  const contents = messages.filter((m) => m.role !== 'system').map((m) => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] }));
-  const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`, {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ contents, ...(sys && { systemInstruction: { parts: [{ text: sys.content }] } }) }),
-  });
-  const d = await r.json();
-  if (!r.ok) throw new Error(d?.error?.message || 'gemini error');
-  return d.candidates[0].content.parts.map((p) => p.text).join('');
-};
-export async function ask(messages) {
-  const e = process.env, list = [];
-  if (e.GROQ_API_KEY) list.push(['groq', OAI('https://api.groq.com/openai/v1/chat/completions', 'llama-3.3-70b-versatile', e.GROQ_API_KEY)]);
-  if (e.GEMINI_API_KEY) list.push(['gemini', gemini(e.GEMINI_API_KEY)]);
-  if (e.OPENROUTER_API_KEY) list.push(['openrouter', OAI('https://openrouter.ai/api/v1/chat/completions', 'meta-llama/llama-3.3-70b-instruct:free', e.OPENROUTER_API_KEY)]);
-  if (!list.length) throw new Error('Koi API key set nahi hai (GROQ_API_KEY / GEMINI_API_KEY / OPENROUTER_API_KEY)');
-  let last;
-  for (const [name, fn] of list) { try { return { text: await fn(messages), provider: name }; } catch (x) { last = x; } }
-  throw last;
+import crypto from 'node:crypto';
+const U = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
+const T = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
+export async function r(...cmd) {
+  if (!U) throw new Error('Database connect nahi hai (Upstash Redis). README dekho.');
+  const x = await fetch(U, { method: 'POST', headers: { Authorization: 'Bearer ' + T }, body: JSON.stringify(cmd) });
+  const d = await x.json(); if (d.error) throw new Error(d.error); return d.result;
 }
-export const send = (res, code, obj) => res.status(code).json(obj);
+export const getJ = async (k) => { const v = await r('GET', k); return v ? JSON.parse(v) : null; };
+export const setJ = (k, v) => r('SET', k, JSON.stringify(v));
+export const ok = (res, o, c = 200) => res.status(c).json(o);
+export const hash = (p, s) => crypto.createHash('sha256').update(s + p).digest('hex');
+export const rid = () => crypto.randomBytes(24).toString('hex');
+
+export const DEF = {
+  models: {
+    lite: { label: 'Omnyx Lite', base: 'https://api.groq.com/openai/v1', model: 'llama-3.3-70b-versatile', key: '' },
+    x1: { label: 'Ultimate X1', base: 'https://generativelanguage.googleapis.com/v1beta/openai', model: 'gemini-2.0-flash', key: '' },
+    x2: { label: 'Ultimate X2', base: 'https://openrouter.ai/api/v1', model: 'deepseek/deepseek-chat-v3-0324:free', key: '' },
+  },
+  image: { type: 'pollinations', base: '', model: 'black-forest-labs/FLUX.1-schnell', key: '' },
+  video: { base: 'https://router.huggingface.co/hf-inference/models/Lightricks/LTX-Video', key: '' },
+  promo: { code: 'Evilex100', days: 3 },
+};
+export async function rawCfg() {
+  const s = (await getJ('cfg')) || {};
+  const m = {}; for (const k in DEF.models) m[k] = { ...DEF.models[k], ...(s.models?.[k] || {}) };
+  return { models: m, image: { ...DEF.image, ...(s.image || {}) }, video: { ...DEF.video, ...(s.video || {}) }, promo: { ...DEF.promo, ...(s.promo || {}) } };
+}
+export async function cfg() { // keys fall back to env vars
+  const c = await rawCfg(), e = process.env;
+  const f = { lite: e.GROQ_API_KEY, x1: e.GEMINI_API_KEY, x2: e.OPENROUTER_API_KEY };
+  for (const k in c.models) c.models[k].key ||= f[k] || '';
+  c.image.key ||= e.HF_TOKEN || ''; c.video.key ||= e.HF_TOKEN || '';
+  return c;
+}
+export const pub = (u) => ({ first: u.first, last: u.last, email: u.email, subs: u.subs || {}, locConsent: !!u.locConsent });
+export async function authUser(req) {
+  const t = req.headers['x-token']; if (!t) throw new Error('Login karo');
+  const email = await r('GET', 't:' + t); if (!email) throw new Error('Session khatam, dobara login karo');
+  const u = await getJ('u:' + email); if (!u) throw new Error('Account nahi mila');
+  if (u.banned) throw new Error('Aapka account band hai');
+  return u;
+}
+export const has = (u, m) => m === 'lite' || (u.subs?.[m] || 0) > Date.now();
+export async function chatCall(mk, messages, user) {
+  const c = await cfg(), m = c.models[mk]; if (!m) throw new Error('Model nahi mila');
+  if (!has(user, mk)) throw new Error(m.label + ' ke liye subscription chahiye');
+  if (!m.key) throw new Error(m.label + ' ki API key admin panel me set nahi hai');
+  const x = await fetch(m.base.replace(/\/$/, '') + '/chat/completions', {
+    method: 'POST', headers: { Authorization: 'Bearer ' + m.key, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ model: m.model, messages }),
+  });
+  const d = await x.json().catch(() => ({}));
+  if (!x.ok) throw new Error(d?.error?.message || 'AI error ' + x.status);
+  return d.choices?.[0]?.message?.content || '';
+}
