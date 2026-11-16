@@ -27,11 +27,13 @@ export async function rawCfg() {
   const m = {}; for (const k in DEF.models) m[k] = { ...DEF.models[k], ...(s.models?.[k] || {}) };
   return { models: m, image: { ...DEF.image, ...(s.image || {}) }, video: { ...DEF.video, ...(s.video || {}) }, promo: { ...DEF.promo, ...(s.promo || {}) } };
 }
-export async function cfg() { // keys fall back to env vars
-  const c = await rawCfg(), e = process.env;
-  const f = { lite: e.GROQ_API_KEY, x1: e.GEMINI_API_KEY, x2: e.OPENROUTER_API_KEY };
+const envKey = (rx) => { for (const [k, v] of Object.entries(process.env)) if (v && rx.test(k) && !/url|client|domain|project|_id$/i.test(k)) return v; return ''; };
+export const ENVK = () => ({ groq: envKey(/groq/i), gemini: envKey(/gemini|google/i), openrouter: envKey(/openrouter/i), hf: envKey(/^hf_|^hf$|hugging/i) });
+export async function cfg() { // keys fall back to Vercel env vars
+  const c = await rawCfg(), e = ENVK();
+  const f = { lite: e.groq, x1: e.gemini, x2: e.openrouter };
   for (const k in c.models) c.models[k].key ||= f[k] || '';
-  c.image.key ||= e.HF_TOKEN || ''; c.video.key ||= e.HF_TOKEN || '';
+  c.image.key ||= e.hf; c.video.key ||= e.hf;
   return c;
 }
 export const pub = (u) => ({ first: u.first, last: u.last, email: u.email, subs: u.subs || {}, locConsent: !!u.locConsent });
@@ -44,9 +46,14 @@ export async function authUser(req) {
 }
 export const has = (u, m) => m === 'lite' || (u.subs?.[m] || 0) > Date.now();
 export async function chatCall(mk, messages, user) {
-  const c = await cfg(), m = c.models[mk]; if (!m) throw new Error('Model not found');
+  const c = await cfg(); let m = c.models[mk]; if (!m) throw new Error('Model not found');
   if (!has(user, mk)) throw new Error(m.label + ' requires a subscription');
-  if (!m.key) throw new Error(m.label + ' API key is not set in the admin panel');
+  if (!m.key) { // fall back to any provider that has a key
+    const e = ENVK(), D = DEF.models;
+    const alt = [{ ...D.lite, key: e.groq }, { ...D.x1, key: e.gemini }, { ...D.x2, key: e.openrouter }].find((a) => a.key);
+    if (!alt) throw new Error('No API key found. Add one in Admin panel > Models, or set GROQ_API_KEY in Vercel and redeploy.');
+    m = { ...m, base: alt.base, model: alt.model, key: alt.key };
+  }
   const x = await fetch(m.base.replace(/\/$/, '') + '/chat/completions', {
     method: 'POST', headers: { Authorization: 'Bearer ' + m.key, 'Content-Type': 'application/json' },
     body: JSON.stringify({ model: m.model, messages }),
