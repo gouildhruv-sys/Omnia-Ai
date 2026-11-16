@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="hi"><head>
+<html lang="en"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07060f">
@@ -92,13 +92,13 @@ iframe{width:100%;flex:1;min-height:360px;border:1px solid var(--line);border-ra
   <div class="chips" id="chips"></div>
   <main>
     <section class="pane on" id="p-chat"><div class="msgs" id="msgs"></div>
-      <div class="bar"><input id="ci" placeholder="Omnyx se kuch bhi poocho..."><button class="send" id="cs">&#10148;</button></div></section>
-    <section class="pane" id="p-code"><textarea id="ti" rows="3" placeholder="&#128187; Kaisi website/app banani hai? Jaise: premium todo app"></textarea>
+      <div class="bar"><input id="ci" placeholder="Ask Omnyx anything..."><button class="send" id="cs">&#10148;</button></div></section>
+    <section class="pane" id="p-code"><textarea id="ti" rows="3" placeholder="&#128187; What website/app should I build? e.g. premium todo app"></textarea>
       <button class="btn" id="tb">&#128640; Generate</button><div id="tm"></div><iframe id="fr" class="hide" sandbox="allow-scripts"></iframe>
       <div class="row hide" id="tr"><button class="btn g" id="tc">&#128203; Copy code</button><button class="btn g" id="to">&#128279; Full screen</button></div></section>
-    <section class="pane" id="p-image"><textarea id="ii" rows="3" placeholder="&#127912; Image describe karo..."></textarea>
+    <section class="pane" id="p-image"><textarea id="ii" rows="3" placeholder="&#127912; Describe your image..."></textarea>
       <button class="btn" id="ib">&#127912; Generate image</button><div class="stage hide" id="is"></div><a class="btn g hide" id="idl" download="omnia.png">&#11015;&#65039; Save image</a></section>
-    <section class="pane" id="p-video"><textarea id="vi" rows="3" placeholder="&#127916; Video describe karo..."></textarea>
+    <section class="pane" id="p-video"><textarea id="vi" rows="3" placeholder="&#127916; Describe your video..."></textarea>
       <button class="btn" id="vb">&#127916; Generate video</button><div class="stage hide" id="vs"></div></section>
   </main>
   <nav><button data-t="chat" class="on"><span>&#128172;</span>Chat</button><button data-t="code"><span>&#128187;</span>Code</button><button data-t="image"><span>&#127912;</span>Image</button><button data-t="video"><span>&#127916;</span>Video</button></nav>
@@ -112,7 +112,7 @@ let P=null,cur='lite',tab='chat',H={chats:[],images:[],codes:[],videos:[]},chat=
 const hk=()=>'omnia_h_'+P.user.email,saveH=()=>{try{localStorage.setItem(hk(),JSON.stringify(H))}catch{ // storage full: drop big image data
  H.images=H.images.slice(0,6);try{localStorage.setItem(hk(),JSON.stringify(H))}catch{}}};
 const has=m=>m==='lite'||(P.user.subs[m]||0)>Date.now();
-const left=t=>{const d=t-Date.now();return d>864e5?Math.ceil(d/864e5)+' din':Math.max(1,Math.ceil(d/36e5))+' ghante'};
+const left=t=>{const d=t-Date.now();return d>864e5?Math.ceil(d/864e5)+' days':Math.max(1,Math.ceil(d/36e5))+' hours'};
 const LB=()=>P.labels;
 
 // ---------- setup ----------
@@ -121,15 +121,15 @@ function view(step){
  $('splash').classList.add('out');$('app').classList.add('hide');const el=$('setup');el.classList.remove('hide');
  const head=(t,s)=>`<div class="logo grad">&#127756; omnia now</div><h1>${t}</h1><p class="sub">${s}</p>`,err=S.err?`<div class="err">${esc(S.err)}</div>`:'';
  let h='';
- if(step==='choose')h=head('Welcome &#128142;','Ek baar setup, phir Omnyx AI ke saath sab kuch.')+`<button class="btn" data-a="su">&#10024; Sign up</button><button class="btn g" data-a="si">&#128273; Sign in</button>`;
- if(step==='form'){const su=S.mode==='signup';h=head(su?'Account banao':'Wapas aao &#128075;',su?'Koi email code nahi. Bas details daalo.':'Email aur password daalo.')+
+ if(step==='choose')h=head('Welcome &#128142;','One quick setup, then everything with Omnyx AI.')+`<button class="btn" data-a="su">&#10024; Sign up</button><button class="btn g" data-a="si">&#128273; Sign in</button>`;
+ if(step==='form'){const su=S.mode==='signup';h=head(su?'Create account':'Welcome back &#128075;',su?'No email code needed. Just enter your details.':'Enter your email and password.')+
   (su?`<input id="f" placeholder="First name" value="${esc(S.first)}"><input id="l" placeholder="Last name" value="${esc(S.last)}">`:'')+
-  `<input id="e" type="email" placeholder="Email" value="${esc(S.email)}"><input id="pw" type="password" placeholder="Password (6+ akshar)" value="${esc(S.pw)}">`+
-  (su?`<input id="pc" placeholder="&#127873; Promo code (optional)" value="${esc(S.promo)}"><select id="pm" class="${S.promo?'':'hide'}"><option value="x1">Ultimate X1 (3 din free)</option><option value="x2">Ultimate X2 (3 din free)</option></select>
-  <label class="ck"><input type="checkbox" id="lc" ${S.loc?'checked':''}><span>&#128205; Live location share karo (optional). Ye sirf admin ko dikhegi, aap kabhi bhi band kar sakte ho.</span></label>`:'')+
+  `<input id="e" type="email" placeholder="Email" value="${esc(S.email)}"><input id="pw" type="password" placeholder="Password (6+ characters)" value="${esc(S.pw)}">`+
+  (su?`<input id="pc" placeholder="&#127873; Promo code (optional)" value="${esc(S.promo)}"><select id="pm" class="${S.promo?'':'hide'}"><option value="x1">Ultimate X1 (3 days free)</option><option value="x2">Ultimate X2 (3 days free)</option></select>
+  <label class="ck"><input type="checkbox" id="lc" ${S.loc?'checked':''}><span>&#128205; Share live location (optional). Only the admin can see it, and you can turn it off anytime.</span></label>`:'')+
   `<button class="btn" data-a="go">Continue</button><button class="btn g" data-a="bk">Back</button>${err}`}
- if(step==='terms')h=head('Almost done &#127881;','Terms and Conditions accept karo.')+`<label class="ck"><input type="checkbox" id="t"><span>Main Terms and Conditions aur Privacy Policy se sahmat hu.</span></label><button class="btn" id="fin" data-a="fin" disabled>All done</button>${err}`;
- if(step==='done')h=`<div class="done">&#127881;</div><h1 style="text-align:center">All done!</h1><p class="sub" style="text-align:center">Omnyx tayyar hai &#128142;</p>`;
+ if(step==='terms')h=head('Almost done &#127881;','Please accept the Terms and Conditions.')+`<label class="ck"><input type="checkbox" id="t"><span>I agree to the Terms and Conditions and Privacy Policy.</span></label><button class="btn" id="fin" data-a="fin" disabled>All done</button>${err}`;
+ if(step==='done')h=`<div class="done">&#127881;</div><h1 style="text-align:center">All done!</h1><p class="sub" style="text-align:center">Omnyx is ready &#128142;</p>`;
  el.innerHTML='<div>'+h+'</div>';
  const g=id=>$(id)?.value?.trim()||'';
  if($('pc'))$('pc').oninput=()=>$('pm').classList.toggle('hide',!$('pc').value.trim());
@@ -138,7 +138,7 @@ function view(step){
   if(a==='su'||a==='si'){S.mode=a==='su'?'signup':'signin';S.err='';view('form')}
   if(a==='bk')view(step==='form'?'choose':'form');
   if(a==='go'){S.email=g('e').toLowerCase();S.pw=$('pw').value;if(S.mode==='signup'){S.first=g('f');S.last=g('l');S.promo=g('pc');S.pm=$('pm').value;S.loc=$('lc').checked}
-   S.err='';if(!/^\S+@\S+\.\S+$/.test(S.email))S.err='Sahi email daalo';else if(S.pw.length<6)S.err='Password 6+ akshar ka ho';else if(S.mode==='signup'&&(!S.first||!S.last))S.err='Name aur last name daalo';
+   S.err='';if(!/^\S+@\S+\.\S+$/.test(S.email))S.err='Enter a valid email';else if(S.pw.length<6)S.err='Password must be 6+ characters';else if(S.mode==='signup'&&(!S.first||!S.last))S.err='Enter first and last name';
    if(S.err)return view('form');
    if(S.mode==='signup')view('terms');else submit('login')}
   if(a==='fin')submit('register')})}
@@ -155,7 +155,7 @@ async function start(){
  renderChips();newChat();trackLoc();}
 function renderChips(){const c=$('chips');c.innerHTML=Object.keys(LB()).map(k=>`<button class="chip ${k===cur?'on':''}" data-m="${k}">${k==='lite'?'&#9889;':k==='x1'?'&#128142;':'&#128081;'} ${esc(LB()[k])}${has(k)?'':' &#128274;'}</button>`).join('');
  c.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{if(!has(b.dataset.m))return plan();cur=b.dataset.m;renderChips()})}
-function newChat(){chat={id:Date.now(),title:'Nayi chat',model:cur,msgs:[]};$('msgs').innerHTML='';bub('Namaste '+esc(P.user.first)+'! Mai Omnyx hu &#10024; Kuch bhi poocho.','ai',true)}
+function newChat(){chat={id:Date.now(),title:'New chat',model:cur,msgs:[]};$('msgs').innerHTML='';bub('Hi '+esc(P.user.first)+'! I am Omnyx &#10024; Ask me anything.','ai',true)}
 function bub(t,who,html){const d=document.createElement('div');d.className='b '+who;html?d.innerHTML=t:d.textContent=t;$('msgs').appendChild(d);$('msgs').scrollTop=1e9;return d}
 async function type(el,t){el.textContent='';for(let i=0;i<t.length;i+=3){el.textContent=t.slice(0,i+3);$('msgs').scrollTop=1e9;await new Promise(r=>setTimeout(r,12))}}
 async function send(){const t=$('ci').value.trim();if(!t)return;$('ci').value='';bub(t,'me');chat.msgs.push({role:'user',content:t});if(chat.msgs.length===1)chat.title=t.slice(0,40);
@@ -170,35 +170,35 @@ $('cs').onclick=send;$('ci').onkeydown=e=>e.key==='Enter'&&send();
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{tab=b.dataset.t;document.querySelectorAll('nav button,.pane').forEach(x=>x.classList.remove('on'));b.classList.add('on');$('p-'+tab).classList.add('on');$('chips').classList.toggle('hide',!['chat','code'].includes(tab))});
 
 $('tb').onclick=()=>job($('tb'),async()=>{const p=$('ti').value.trim();if(!p)return;$('fr').classList.add('hide');$('tr').classList.add('hide');
- const L=['Prompt samajh raha hu','UI design bana raha hu','HTML + CSS likh raha hu','Animations jod raha hu','Final polish'];
+ const L=['Understanding your prompt','Designing the UI','Writing HTML + CSS','Adding animations','Final polish'];
  const iv=ticker((m,i)=>$('tm').innerHTML=`<div class="term">${L.slice(0,i).map((x,j)=>`<div>&gt; ${j<i-1?'<b>&#10003;</b>':'&#9889;'} ${x}</div>`).join('')}<u>_</u></div>`,1800,L);
  try{const d=await api('code',{model:cur,prompt:p});lastHtml=d.html;$('fr').srcdoc=d.html;$('fr').classList.remove('hide');$('tr').classList.remove('hide');H.codes.unshift({id:Date.now(),prompt:p,html:d.html});H.codes=H.codes.slice(0,15);saveH()}finally{clearInterval(iv);$('tm').innerHTML=''}});
 $('tc').onclick=()=>{navigator.clipboard?.writeText(lastHtml);$('tc').textContent='✅ Copied'};
 $('to').onclick=()=>{const w=open('');w.document.write(lastHtml);w.document.close()};
 
-function showImg(src){const s=$('is');s.classList.remove('hide');s.innerHTML='';const im=new Image();im.onload=()=>{s.innerHTML='';s.appendChild(im);$('idl').href=src;$('idl').classList.remove('hide')};im.onerror=()=>{s.innerHTML='<div class="shim">Image load nahi hui</div>'};im.src=src}
+function showImg(src){const s=$('is');s.classList.remove('hide');s.innerHTML='';const im=new Image();im.onload=()=>{s.innerHTML='';s.appendChild(im);$('idl').href=src;$('idl').classList.remove('hide')};im.onerror=()=>{s.innerHTML='<div class="shim">Image failed to load</div>'};im.src=src}
 $('ib').onclick=()=>job($('ib'),async()=>{const p=$('ii').value.trim();if(!p)return;$('idl').classList.add('hide');const s=$('is');s.classList.remove('hide');
- s.innerHTML='<div class="shim"><div><big>&#127912;</big><div id="im">Imagination shuru...</div></div></div>';
- const iv=ticker(m=>{const e=$('im');if(e)e.textContent=m},1500,['Colors mix ho rahe hai &#127752;','Pixels ban rahe hai &#10024;','Detail add ho rahi hai &#128142;','Bas tayyar...'].map(x=>x.replace(/&#\d+;/g,'')));
+ s.innerHTML='<div class="shim"><div><big>&#127912;</big><div id="im">Starting imagination...</div></div></div>';
+ const iv=ticker(m=>{const e=$('im');if(e)e.textContent=m},1500,['Mixing colors &#127752;','Creating pixels &#10024;','Adding detail &#128142;','Almost ready...'].map(x=>x.replace(/&#\d+;/g,'')));
  try{const d=await api('image',{prompt:p});showImg(d.image);H.images.unshift({id:Date.now(),prompt:p,src:d.image});H.images=H.images.slice(0,12);saveH()}catch(e){s.classList.add('hide');throw e}finally{clearInterval(iv)}});
 $('vb').onclick=()=>job($('vb'),async()=>{const p=$('vi').value.trim();if(!p)return;const s=$('vs');s.classList.remove('hide');
- s.innerHTML='<div class="shim"><div><big>&#127916;</big><div id="vm">Scene set ho raha hai...</div></div></div><div class="prog"><i id="vp"></i></div>';
- let pct=5;const iv=ticker(m=>{const e=$('vm');if(e)e.textContent=m;pct=Math.min(92,pct+11);const b=$('vp');if(b)b.style.width=pct+'%'},4500,['Camera set ho raha hai','Frames ban rahe hai','Motion add ho raha hai','Free AI slow hai, thoda ruko','Almost ready'].map(x=>x));
+ s.innerHTML='<div class="shim"><div><big>&#127916;</big><div id="vm">Setting the scene...</div></div></div><div class="prog"><i id="vp"></i></div>';
+ let pct=5;const iv=ticker(m=>{const e=$('vm');if(e)e.textContent=m;pct=Math.min(92,pct+11);const b=$('vp');if(b)b.style.width=pct+'%'},4500,['Setting up the camera','Rendering frames','Adding motion','Free AI is slow, please wait','Almost ready'].map(x=>x));
  try{const d=await api('video',{prompt:p});s.innerHTML='';const v=document.createElement('video');v.src=d.video;v.controls=v.loop=v.autoplay=v.playsInline=true;s.appendChild(v);H.videos.unshift({id:Date.now(),prompt:p});H.videos=H.videos.slice(0,20);saveH()}catch(e){s.classList.add('hide');throw e}finally{clearInterval(iv)}});
 
 // ---------- sheets ----------
 function sheet(html){const s=$('sheet');s.innerHTML='<div>'+html+'</div>';s.classList.remove('hide');s.onclick=e=>{if(e.target===s)s.classList.add('hide')};return s}
 function plan(){const u=P.user;let h='<h3>&#128081; Plans &amp; Settings</h3>';
- h+=['x1','x2'].map(k=>`<div class="card"><b>${k==='x1'?'&#128142;':'&#128081;'} ${esc(LB()[k])}</b> ${has(k)?'<span style="color:#4ade80">&#9679; Active</span>':'&#128274;'}<small>${has(k)?left(u.subs[k])+' baaki':'Subscription nahi hai'}</small></div>`).join('');
- h+=`<div class="card"><b>&#127873; Promo code</b><small>Koi ek model ${P.promoDays} din free</small><input id="spc" placeholder="Promo code"><select id="spm"><option value="x1">${esc(LB().x1)}</option><option value="x2">${esc(LB().x2)}</option></select><button class="btn" id="spb">Apply</button></div>`;
- h+=`<a class="btn g" style="text-decoration:none;text-align:center" href="https://discord.gg/nfuCjtThz" target="_blank">&#128142; Subscription lene ke liye Discord</a>`;
- h+=`<div class="card"><label class="ck" style="margin:0"><input type="checkbox" id="slc" ${u.locConsent?'checked':''}><span>&#128205; Live location share (sirf admin ko dikhti hai)</span></label></div><button class="btn g" id="lo">Logout</button>`;
+ h+=['x1','x2'].map(k=>`<div class="card"><b>${k==='x1'?'&#128142;':'&#128081;'} ${esc(LB()[k])}</b> ${has(k)?'<span style="color:#4ade80">&#9679; Active</span>':'&#128274;'}<small>${has(k)?left(u.subs[k])+' left':'Not subscribed'}</small></div>`).join('');
+ h+=`<div class="card"><b>&#127873; Promo code</b><small>Any one model free for ${P.promoDays} days</small><input id="spc" placeholder="Promo code"><select id="spm"><option value="x1">${esc(LB().x1)}</option><option value="x2">${esc(LB().x2)}</option></select><button class="btn" id="spb">Apply</button></div>`;
+ h+=`<a class="btn g" style="text-decoration:none;text-align:center" href="https://discord.gg/nfuCjtThz" target="_blank">&#128142; Get a subscription on Discord</a>`;
+ h+=`<div class="card"><label class="ck" style="margin:0"><input type="checkbox" id="slc" ${u.locConsent?'checked':''}><span>&#128205; Share live location (only admin can see it)</span></label></div><button class="btn g" id="lo">Logout</button>`;
  const s=sheet(h);
  $('spb').onclick=async()=>{try{P=await api('me',{action:'promo',code:$('spc').value,model:$('spm').value});renderChips();plan()}catch(e){alert('⚠️ '+e.message)}};
  $('slc').onchange=async()=>{P=await api('me',{action:'consent',on:$('slc').checked});trackLoc()};
  $('lo').onclick=()=>{localStorage.removeItem('omnia_t');location.reload()}}
 function hist(){const L=tab==='chat'?H.chats:tab==='code'?H.codes:tab==='image'?H.images:H.videos;
- const h=`<h3>&#128344; ${tab==='chat'?'Chat':tab==='code'?'Code':tab==='image'?'Image':'Video'} history</h3>`+(L.length?L.map((x,i)=>`<div class="card hi" data-i="${i}"><b>${esc(x.title||x.prompt)}</b><small>${new Date(x.id).toLocaleString()}</small></div>`).join(''):'<p class="sub">Abhi kuch nahi hai.</p>')+(tab==='chat'?'<button class="btn" id="nc">&#10024; Nayi chat</button>':'');
+ const h=`<h3>&#128344; ${tab==='chat'?'Chat':tab==='code'?'Code':tab==='image'?'Image':'Video'} history</h3>`+(L.length?L.map((x,i)=>`<div class="card hi" data-i="${i}"><b>${esc(x.title||x.prompt)}</b><small>${new Date(x.id).toLocaleString()}</small></div>`).join(''):'<p class="sub">Nothing here yet.</p>')+(tab==='chat'?'<button class="btn" id="nc">&#10024; New chat</button>':'');
  const s=sheet(h);if($('nc'))$('nc').onclick=()=>{newChat();s.classList.add('hide')};
  s.querySelectorAll('.hi').forEach(c=>c.onclick=()=>{const x=L[c.dataset.i];s.classList.add('hide');
   if(tab==='chat'){chat=x;$('msgs').innerHTML='';x.msgs.forEach(m=>bub(m.content,m.role==='user'?'me':'ai'))}
