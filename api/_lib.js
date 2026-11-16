@@ -15,7 +15,7 @@ export const rid = () => crypto.randomBytes(24).toString('hex');
 export const DEF = {
   models: {
     lite: { label: 'Omnyx Lite', base: 'https://api.groq.com/openai/v1', model: 'llama-3.3-70b-versatile', key: '' },
-    x1: { label: 'Ultimate X1', base: 'https://generativelanguage.googleapis.com/v1beta/openai', model: 'gemini-2.0-flash', key: '' },
+    x1: { label: 'Ultimate X1', base: 'https://generativelanguage.googleapis.com/v1beta/openai', model: 'gemini-flash-latest', key: '' },
     x2: { label: 'Ultimate X2', base: 'https://openrouter.ai/api/v1', model: 'deepseek/deepseek-chat-v3-0324:free', key: '' },
   },
   image: { type: 'pollinations', base: '', model: 'black-forest-labs/FLUX.1-schnell', key: '' },
@@ -45,20 +45,37 @@ export async function authUser(req) {
   return u;
 }
 export const has = (u, m) => m === 'lite' || (u.subs?.[m] || 0) > Date.now();
+async function call(base, key, model, messages) {
+  const x = await fetch(base.replace(/\/$/, '') + '/chat/completions', { method: 'POST', headers: { Authorization: 'Bearer ' + key, 'Content-Type': 'application/json' }, body: JSON.stringify({ model, messages }) });
+  const t = await x.text(); let d = {}; try { d = JSON.parse(t); } catch (_) {}
+  if (x.ok) return { ok: 1, text: d.choices?.[0]?.message?.content || '' };
+  const e = Array.isArray(d) ? d[0] : d;
+  return { ok: 0, status: x.status, msg: e?.error?.message || t.slice(0, 160) || 'no details' };
+}
+async function pickModel(base, key) { // ask the provider which models exist right now
+  try {
+    const x = await fetch(base.replace(/\/$/, '') + '/models', { headers: { Authorization: 'Bearer ' + key } });
+    const d = await x.json(); const bad = /embed|whisper|tts|guard|image|imagen|veo|aqa|robotics|live|audio|moderation/i;
+    let ids = (d.data || d.models || []).map((m) => String(m.id || m.name || '').replace(/^models\//, '')).filter((i) => i && !bad.test(i));
+    if (/openrouter/.test(base)) ids = ids.filter((i) => /:free$/.test(i));
+    return ids.find((i) => /flash/i.test(i) && !/preview|exp/i.test(i)) || ids.find((i) => /llama.*(70b|8b)|gpt-oss|deepseek|qwen/i.test(i)) || ids[0];
+  } catch (_) { return null; }
+}
 export async function chatCall(mk, messages, user) {
   const c = await cfg(); let m = c.models[mk]; if (!m) throw new Error('Model not found');
   if (!has(user, mk)) throw new Error(m.label + ' requires a subscription');
-  if (!m.key) { // fall back to any provider that has a key
+  if (!m.key) {
     const e = ENVK(), D = DEF.models;
     const alt = [{ ...D.lite, key: e.groq }, { ...D.x1, key: e.gemini }, { ...D.x2, key: e.openrouter }].find((a) => a.key);
     if (!alt) throw new Error('No API key found. Add one in Admin panel > Models, or set GROQ_API_KEY in Vercel and redeploy.');
     m = { ...m, base: alt.base, model: alt.model, key: alt.key };
   }
-  const x = await fetch(m.base.replace(/\/$/, '') + '/chat/completions', {
-    method: 'POST', headers: { Authorization: 'Bearer ' + m.key, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ model: m.model, messages }),
-  });
-  const d = await x.json().catch(() => ({}));
-  if (!x.ok) throw new Error(d?.error?.message || 'AI error ' + x.status);
-  return d.choices?.[0]?.message?.content || '';
+  let r = await call(m.base, m.key, m.model, messages);
+  if (!r.ok && [400, 404].includes(r.status)) {
+    const alts = /generativelanguage/.test(m.base) ? ['gemini-flash-latest', 'gemini-flash-lite-latest'] : /groq/.test(m.base) ? ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant'] : [];
+    for (const a of alts.filter((a) => a !== m.model)) { r = await call(m.base, m.key, a, messages); if (r.ok) break; }
+    if (!r.ok) { const p = await pickModel(m.base, m.key); if (p) r = await call(m.base, m.key, p, messages); }
+  }
+  if (!r.ok) throw new Error(new URL(m.base).hostname + ' ' + r.status + ': ' + r.msg);
+  return r.text;
 }
