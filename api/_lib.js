@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 const U = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
 const T = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
 export async function r(...cmd) {
-  if (!U) throw new Error('Database connect nahi hai (Upstash Redis). README dekho.');
+  if (!U) throw new Error('Database not connected (Upstash Redis). See README.');
   const x = await fetch(U, { method: 'POST', headers: { Authorization: 'Bearer ' + T }, body: JSON.stringify(cmd) });
   const d = await x.json(); if (d.error) throw new Error(d.error); return d.result;
 }
@@ -36,17 +36,17 @@ export async function cfg() { // keys fall back to env vars
 }
 export const pub = (u) => ({ first: u.first, last: u.last, email: u.email, subs: u.subs || {}, locConsent: !!u.locConsent });
 export async function authUser(req) {
-  const t = req.headers['x-token']; if (!t) throw new Error('Login karo');
-  const email = await r('GET', 't:' + t); if (!email) throw new Error('Session khatam, dobara login karo');
-  const u = await getJ('u:' + email); if (!u) throw new Error('Account nahi mila');
-  if (u.banned) throw new Error('Aapka account band hai');
+  const t = req.headers['x-token']; if (!t) throw new Error('Please log in');
+  const email = await r('GET', 't:' + t); if (!email) throw new Error('Session expired, please log in again');
+  const u = await getJ('u:' + email); if (!u) throw new Error('Account not found');
+  if (u.banned) throw new Error('Your account is suspended');
   return u;
 }
 export const has = (u, m) => m === 'lite' || (u.subs?.[m] || 0) > Date.now();
 export async function chatCall(mk, messages, user) {
-  const c = await cfg(), m = c.models[mk]; if (!m) throw new Error('Model nahi mila');
-  if (!has(user, mk)) throw new Error(m.label + ' ke liye subscription chahiye');
-  if (!m.key) throw new Error(m.label + ' ki API key admin panel me set nahi hai');
+  const c = await cfg(), m = c.models[mk]; if (!m) throw new Error('Model not found');
+  if (!has(user, mk)) throw new Error(m.label + ' requires a subscription');
+  if (!m.key) throw new Error(m.label + ' API key is not set in the admin panel');
   const x = await fetch(m.base.replace(/\/$/, '') + '/chat/completions', {
     method: 'POST', headers: { Authorization: 'Bearer ' + m.key, 'Content-Type': 'application/json' },
     body: JSON.stringify({ model: m.model, messages }),

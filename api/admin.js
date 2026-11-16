@@ -2,7 +2,7 @@ import { r, getJ, setJ, ok, rawCfg } from './_lib.js';
 const mask = (k) => (k ? '••••' + k.slice(-4) : '');
 export default async function h(req, res) {
   try {
-    if (!process.env.ADMIN_PASSWORD || req.headers['x-admin'] !== process.env.ADMIN_PASSWORD) return ok(res, { error: 'Admin password galat' }, 401);
+    if (!process.env.ADMIN_PASSWORD || req.headers['x-admin'] !== process.env.ADMIN_PASSWORD) return ok(res, { error: 'Wrong admin password' }, 401);
     const b = req.body || {}, E = (b.email || '').toLowerCase(), u = E ? await getJ('u:' + E) : null;
     if (b.action === 'users') {
       const list = await r('SMEMBERS', 'users'); const us = (await Promise.all(list.map((e) => getJ('u:' + e)))).filter(Boolean);
@@ -18,7 +18,7 @@ export default async function h(req, res) {
       n.image.key = keep(n.image.key, old.image.key); n.video.key = keep(n.video.key, old.video.key);
       n.promo.days = Math.max(1, +n.promo.days || 3); await setJ('cfg', n); return ok(res, { saved: true });
     }
-    if (!u) throw new Error('User nahi mila');
+    if (!u) throw new Error('User not found');
     if (b.action === 'grant') { u.subs ||= {}; if (+b.days > 0) u.subs[b.model] = Math.max(Date.now(), u.subs[b.model] || 0) + b.days * 864e5; else delete u.subs[b.model]; await setJ('u:' + E, u); }
     if (b.action === 'ban') { u.banned = !!b.on; await setJ('u:' + E, u); }
     if (b.action === 'delete') { await r('DEL', 'u:' + E); await r('SREM', 'users', E); }
