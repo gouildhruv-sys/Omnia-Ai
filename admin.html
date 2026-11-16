@@ -1,288 +1,47 @@
-<!doctype html>
-<html lang="en"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#0a0918"><title>Omnia Admin</title>
-<link rel="icon" href="/favicon.svg">
+<!DOCTYPE html>
+<html lang="hi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Omnia Admin</title>
 <style>
-:root{--bg:#0a0918;--s1:#13112b;--s2:#1b1838;--line:#2b2756;--tx:#f3f1ff;--mu:#9d99c9;--ac:#ff6b9d;--ac2:#6c7bff;--ok:#35d49d;--bad:#ff5d6c;--warn:#ffc15e;--g:linear-gradient(135deg,#ff7a59,#e83fc7 55%,#6c7bff)}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0}
-body{background:radial-gradient(900px 500px at 85% -10%,#2a1d5c55,transparent),radial-gradient(700px 400px at -10% 10%,#5a1d4a33,transparent),var(--bg);color:var(--tx);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh;padding-bottom:calc(86px + env(safe-area-inset-bottom))}
-button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}
-header{position:sticky;top:0;z-index:5;background:#0a0918e8;backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:calc(10px + env(safe-area-inset-top)) 16px 10px;display:flex;align-items:center;gap:10px}
-.logo{width:34px;height:34px;border-radius:11px;background:var(--g);display:grid;place-items:center;font-weight:800;box-shadow:0 6px 20px #e83fc755}
-header h1{font-size:17px;margin:0;line-height:1.1;white-space:nowrap}header small{display:block;color:var(--mu);font-size:12px;white-space:nowrap}header>div:nth-child(2){min-width:0}header .sp{flex:1}
-.live{white-space:nowrap;display:inline-flex;align-items:center;gap:7px;background:#10301f;border:1px solid #1e5a3b;color:#7ff0bf;padding:6px 11px;border-radius:99px;font-size:13px;font-weight:700}
-.live i{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 0 #35d49d99;animation:p 1.8s infinite}@keyframes p{70%{box-shadow:0 0 0 8px #35d49d00}100%{box-shadow:0 0 0 0 #35d49d00}}
-.wrap{max-width:980px;margin:0 auto;padding:16px}
-.card{background:linear-gradient(180deg,var(--s1),#110f27);border:1px solid var(--line);border-radius:20px;padding:16px;margin-bottom:14px;box-shadow:0 10px 30px #00000033}
-.card h3{margin:0 0 4px;font-size:16px}.mu{color:var(--mu);font-size:13px}
-.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}@media(min-width:720px){.cards{grid-template-columns:repeat(3,1fr)}}
-.stat{background:var(--s1);border:1px solid var(--line);border-radius:18px;padding:14px;position:relative;overflow:hidden}
-.stat:before{content:"";position:absolute;inset:auto -20px -30px auto;width:90px;height:90px;border-radius:50%;background:var(--g);opacity:.12}
-.stat .big{font-size:30px;font-weight:800;letter-spacing:-.5px}.stat .mu{font-size:12.5px;text-transform:uppercase;letter-spacing:.6px}
-.btn{background:var(--g);border:0;color:#fff;font-weight:700;padding:11px 18px;border-radius:13px;box-shadow:0 8px 22px #e83fc733}
-.btn.g{background:var(--s2);border:1px solid var(--line);box-shadow:none}.btn.r{background:#341521;border:1px solid #6b2433;color:#ffa0ab;box-shadow:none}.btn.sm{padding:7px 12px;font-size:13px;border-radius:10px}.btn:disabled{opacity:.5}
-input,select,textarea{background:#0e0c22;border:1px solid var(--line);border-radius:13px;padding:12px 13px;width:100%;outline:none}
-input:focus,select:focus,textarea:focus{border-color:var(--ac2);box-shadow:0 0 0 3px #6c7bff33}textarea{min-height:80px;resize:vertical}
-label{display:block;font-size:12.5px;color:var(--mu);margin:10px 0 5px;text-transform:uppercase;letter-spacing:.5px}
-.row{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}.row:last-child{border:0}
-.row .m{flex:1;min-width:0}.row b,.row small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.row small.w{white-space:normal}
-.av{width:40px;height:40px;border-radius:50%;background:var(--g);display:grid;place-items:center;font-weight:800;flex:none}
-.tag{display:inline-block;font-size:11px;padding:2px 9px;border-radius:99px;background:#272250;color:#cfcbff;margin-right:4px;font-weight:600}
-.tag.bad{background:#3a1520;color:#ffa0ab}.tag.ok{background:#11382b;color:#79efc0}.tag.warn{background:#3b2f10;color:#ffd47f}
-.fb{display:flex;gap:8px;margin-bottom:12px}.fb>*{flex:1}.fb .btn{flex:0 0 auto}
-.bars{display:flex;align-items:flex-end;gap:8px;height:140px;padding-top:8px}.bars div{flex:1;text-align:center;font-size:11px;color:var(--mu)}
-.bars i{display:block;background:var(--g);border-radius:8px 8px 3px 3px;min-height:4px;margin-bottom:5px}
-.meter{height:9px;border-radius:99px;background:#0e0c22;overflow:hidden;flex:0 0 42%}.meter div{height:100%;border-radius:99px;background:var(--g)}
-nav{position:fixed;left:0;right:0;bottom:0;z-index:8;background:#0d0b20f2;backdrop-filter:blur(14px);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:8px 6px calc(8px + env(safe-area-inset-bottom))}
-nav button{background:none;border:0;color:var(--mu);display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11.5px;font-weight:600;padding:6px 12px;border-radius:14px;min-width:62px}
-nav button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-nav button.on{color:#fff;background:var(--s2)}nav button.on svg{stroke:url(#gr)}
-.sheet{position:fixed;inset:0;background:#000b;display:none;align-items:flex-end;justify-content:center;z-index:20}.sheet.on{display:flex}
-.sheet>div{background:var(--s1);border:1px solid var(--line);width:100%;max-width:560px;border-radius:24px 24px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom));max-height:88vh;overflow:auto}
-.kv{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}.kv span:first-child{color:var(--mu)}
-.thread{display:flex;flex-direction:column;gap:6px}
-.msg{max-width:88%;padding:10px 13px;border-radius:16px;white-space:pre-wrap;word-break:break-word;font-size:14.5px;line-height:1.45}
-.msg.u{align-self:flex-end;background:linear-gradient(135deg,#ff7a59cc,#6c7bffcc);border-bottom-right-radius:5px}
-.msg.a{align-self:flex-start;background:var(--s2);border:1px solid var(--line);border-bottom-left-radius:5px}
-.meta{font-size:11.5px;color:var(--mu);margin:8px 2px 2px}.meta.r{text-align:right}
-#login{max-width:400px;margin:16vh auto 0;padding:0 16px}.err{color:var(--bad);margin-top:8px;min-height:20px;font-size:14px}
-.adprev{display:flex;gap:11px;align-items:center;padding:12px;border-radius:16px;background:var(--s2);border:1px solid var(--line);position:relative}
-.adprev .at{flex:1;min-width:0}.adprev b{display:block}.adprev p{margin:2px 0 0;font-size:13px;color:var(--mu)}
-.adprev .lab{position:absolute;top:6px;right:10px;font-size:10px;letter-spacing:.6px;color:var(--mu);border:1px solid var(--line);padding:0 6px;border-radius:6px}
-.adprev img{width:48px;height:48px;border-radius:12px;object-fit:cover}.adprev .go{background:var(--g);border:0;color:#fff;font-weight:700;border-radius:10px;padding:8px 12px;font-size:13px}
-.sw{display:flex;align-items:center;gap:10px;margin-top:12px}.sw input{width:auto}
-.empty{text-align:center;padding:28px 10px;color:var(--mu)}
-.chk{display:flex;align-items:center;gap:10px;margin:10px 0 0;text-transform:none;letter-spacing:0;font-size:15px;color:var(--tx)}.chk input{width:auto}
+*{box-sizing:border-box}body{margin:0;background:#07060f;color:#f5f3ff;font-family:system-ui,sans-serif;padding:16px;max-width:760px;margin:auto}
+h1{background:linear-gradient(90deg,#8b5cf6,#22d3ee);-webkit-background-clip:text;color:transparent;margin:6px 0}
+input,select{width:100%;background:#16122e;border:1px solid #2c2650;border-radius:12px;color:#fff;padding:12px;margin:6px 0;font-size:15px}
+button{border:0;border-radius:12px;padding:11px 14px;font-weight:700;color:#fff;background:linear-gradient(135deg,#8b5cf6,#22d3ee);margin:4px 4px 4px 0}
+button.g{background:#241e47}button.r{background:#be123c}
+.tabs{display:flex;gap:6px;margin:10px 0}.tabs button{flex:1;background:#241e47}.tabs button.on{background:linear-gradient(135deg,#8b5cf6,#22d3ee)}
+.card{background:#120e26;border:1px solid #2c2650;border-radius:16px;padding:14px;margin:10px 0;animation:u .3s both}@keyframes u{from{opacity:0;transform:translateY(10px)}}
+small{color:#9a94b8;display:block;margin:2px 0}a{color:#22d3ee}.on{color:#4ade80}.hide{display:none}
 </style></head><body>
-<svg width="0" height="0" style="position:absolute"><defs><linearGradient id="gr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff7a59"/><stop offset="1" stop-color="#6c7bff"/></linearGradient></defs></svg>
-<div id="login"><div class="card"><div class="logo" style="margin-bottom:12px">O</div><h3>Omnia Admin</h3><p class="mu">Enter your admin password (the ADMIN_PASSWORD you set in Vercel).</p><input id="pw" type="password" placeholder="Admin password" autocomplete="current-password"><div class="err" id="lerr"></div><button class="btn" id="lgo" style="width:100%;margin-top:4px">Open dashboard</button></div></div>
-<div id="app" hidden>
-<header><div class="logo">O</div><div><h1>Omnia Admin</h1><small id="sub">Control room</small></div><span class="sp"></span><span class="live" id="live"><i></i><span>0 online</span></span><button class="btn g sm" id="ref" aria-label="Refresh">&#8635;</button></header>
-<div class="wrap" id="view"></div>
-<nav id="nav"></nav>
+<h1>&#128081; Omnia Admin</h1>
+<div id="login"><input id="pw" type="password" placeholder="Admin password"><button id="go">Login</button></div>
+<div id="main" class="hide">
+ <div class="tabs"><button data-t="users" class="on">&#128101; Users</button><button data-t="models">&#129302; Models</button></div>
+ <div id="users"></div><div id="models" class="hide"></div>
 </div>
-<div class="sheet" id="sheet"><div id="sbody"></div></div>
 <script>
-(function(){
-var $=function(i){return document.getElementById(i)}, KEY="", TAB="overview", C={}, timer=null;
-function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
-async function api(a,x){
-  var r=await fetch("/api/admin",{method:"POST",headers:{"content-type":"application/json","x-admin-key":KEY},body:JSON.stringify(Object.assign({action:a},x||{}))});
-  var d=await r.json().catch(function(){return {}});
-  if(r.status===401&&a!=="ping") logout();
-  if(!r.ok) throw new Error(d.error||("Error "+r.status));
-  return d;
-}
-function ago(t){ if(!t) return "never"; var s=Math.floor((Date.now()-t)/1000); if(s<60) return "just now"; if(s<3600) return Math.floor(s/60)+" min ago"; if(s<86400) return Math.floor(s/3600)+" h ago"; return Math.floor(s/86400)+" d ago"; }
-function dt(t){ return t?new Date(t).toLocaleString():"-"; }
-function ini(n){ return esc((String(n||"?").trim()[0]||"?").toUpperCase()); }
-function place(o){ return [o.city,o.country].filter(Boolean).join(", "); }
-function closeSheet(){ $("sheet").classList.remove("on"); }
-function openSheet(h){ $("sbody").innerHTML=h; $("sheet").classList.add("on"); }
-$("sheet").onclick=function(e){ if(e.target===$("sheet")) closeSheet(); };
-async function login(){
-  KEY=$("pw").value; $("lerr").textContent="";
-  try{ await api("ping"); try{ sessionStorage.setItem("omnia-adm",KEY); }catch(e){} $("login").hidden=true; $("app").hidden=false; mkNav(); show("overview"); }
-  catch(e){ $("lerr").textContent=e.message; }
-}
-function logout(){ KEY=""; try{ sessionStorage.removeItem("omnia-adm"); }catch(e){} clearInterval(timer); closeSheet(); $("app").hidden=true; $("login").hidden=false; }
-var ICON={overview:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5M16 4.8a3.5 3.5 0 010 6.4M18.5 14.8c1.8.7 2.8 2.3 3 4.7"/>',chats:'<path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/>',ads:'<path d="M3 11v3l12 4V7z"/><path d="M15 9.5c2 .3 3.5 1.2 4 2.5-.5 1.3-2 2.2-4 2.5M6 15l1.5 4.5"/>',more:'<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>'};
-function mkNav(){
-  var t=[["overview","Overview"],["users","Users"],["chats","Chats"],["ads","Ads"],["more","More"]];
-  $("nav").innerHTML=t.map(function(x){return '<button data-t="'+x[0]+'"><svg viewBox="0 0 24 24">'+ICON[x[0]]+'</svg>'+x[1]+'</button>'}).join("");
-  [].forEach.call($("nav").children,function(b){ b.onclick=function(){ if(b.dataset.t==="more") moreSheet(); else show(b.dataset.t); }; });
-}
-function moreSheet(){
-  openSheet('<h3 style="margin:0 0 8px">More</h3><div style="display:grid;gap:8px"><button class="btn g" data-g="premium">Premium and invites</button><button class="btn g" data-g="controls">Limits and switches</button><button class="btn g" data-g="insights">Insights</button><button class="btn g" data-g="chatsearch">Search all chats</button><button class="btn g" data-g="health">Health check</button><button class="btn g" data-g="activity">Live activity</button><button class="btn g" data-g="guests">Guests</button><button class="btn g" data-g="blocked">Blocked list</button><button class="btn g" data-g="settings">Settings and status</button><button class="btn r" id="lo">Log out</button></div>');
-  [].forEach.call($("sbody").querySelectorAll("[data-g]"),function(b){ b.onclick=function(){ closeSheet(); show(b.dataset.g); }; });
-  $("lo").onclick=logout;
-}
-async function show(t){
-  TAB=t; clearInterval(timer);
-  [].forEach.call($("nav").children,function(b){ b.className=(b.dataset.t===t||(b.dataset.t==="more"&&["activity","guests","settings","premium","controls","insights","chatsearch","health","blocked"].indexOf(t)>-1))?"on":""; });
-  $("view").innerHTML='<div class="card mu">Loading...</div>';
-  try{ await V[t](); }catch(e){ $("view").innerHTML='<div class="card"><b>Could not load</b><p class="mu">'+esc(e.message)+'</p></div>'; }
-  window.scrollTo(0,0);
-}
-function chart(s){
-  var vals=s.map(function(x){return Number(x.stats.total||0)}), max=Math.max.apply(null,vals.concat([1])), W=300, H=110, n=vals.length;
-  var pts=vals.map(function(v,i){return [n>1?i*(W/(n-1)):W/2, H-8-(v/max)*(H-24)]});
-  var line=pts.map(function(p,i){return (i?"L":"M")+p[0].toFixed(1)+" "+p[1].toFixed(1)}).join(" ");
-  var area=line+" L"+W+" "+H+" L0 "+H+" Z";
-  return '<svg viewBox="0 0 '+W+' '+(H+18)+'" style="width:100%;height:auto;display:block"><defs><linearGradient id="ar" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e83fc7" stop-opacity=".45"/><stop offset="1" stop-color="#6c7bff" stop-opacity="0"/></linearGradient><linearGradient id="ln" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ff7a59"/><stop offset="1" stop-color="#6c7bff"/></linearGradient></defs><path d="'+area+'" fill="url(#ar)"/><path d="'+line+'" fill="none" stroke="url(#ln)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>'+pts.map(function(p,i){return '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="3.5" fill="#fff"/><text x="'+p[0]+'" y="'+(H+14)+'" font-size="9" fill="#9d99c9" text-anchor="'+(i===0?"start":i===n-1?"end":"middle")+'">'+esc(s[i].day.slice(5))+'</text>'}).join("")+'</svg>';
-}
-var V={
- overview:async function(){
-  var o=await api("overview"), s=o.series, td=s[s.length-1], T=td.stats||{};
-  $("live").lastChild.textContent=o.online+" online"; $("sub").textContent=o.users+" users · "+o.guests+" guests";
-  var feats=["chat","code","image","thumb","tools","video","aivideo"], fl={chat:"Chat",code:"Code",image:"Photos",thumb:"Thumbnails",tools:"Creator tools",video:"Videos",aivideo:"AI videos"};
-  var fmax=Math.max.apply(null,feats.map(function(f){return Number(T[f]||0)}).concat([1]));
-  var week=s.reduce(function(a,x){return a+Number(x.stats.total||0)},0);
-  var h='<div class="cards">'+[["Online now",o.online],["Users",o.users],["Guests",o.guests],["Active today",td.active],["Requests today",T.total||0],["Saved chats",o.chats]].map(function(x){return '<div class="stat"><div class="mu">'+x[0]+'</div><div class="big">'+esc(x[1])+'</div></div>'}).join("")+'</div>';
-  h+='<div class="card"><h3>Requests, last 7 days</h3><div class="mu" style="margin-bottom:8px">'+week+' in total</div>'+chart(s)+'</div>';
-  h+='<div class="card"><h3>What people used today</h3>'+feats.map(function(f){var v=Number(T[f]||0);return '<div class="row" style="padding:9px 0"><div class="m"><b>'+fl[f]+'</b></div><div class="meter"><div style="width:'+Math.round(v/fmax*100)+'%"></div></div><b style="width:34px;text-align:right;flex:none">'+v+'</b></div>'}).join("")+'</div>';
-  var a=await api("getannounce");
-  h+='<div class="card"><h3>Announcement banner</h3><p class="mu">Shown at the top of the app for everyone. Leave empty to remove it.</p><input id="ann" maxlength="240" placeholder="Example: New thumbnail maker is live!" value="'+esc(a.text)+'"><button class="btn" id="annb" style="margin-top:10px">Save announcement</button></div>';
-  $("view").innerHTML=h;
-  $("annb").onclick=async function(){ try{ await api("announce",{text:$("ann").value}); $("annb").textContent="Saved"; setTimeout(function(){ $("annb").textContent="Save announcement"; },1500); }catch(e){ alert(e.message); } };
- },
-
- premium:async function(){
-  var d=await Promise.all([api("premlist"),api("refs"),api("getcfg")]), pl=d[0].premium, rf=d[1].refs, pr=d[2].cfg.premium;
-  var h='<div class="card"><h3>Give Premium</h3><p class="mu">Use this after someone pays you. They need an Omnia account.</p><label>Email of the user</label><input id="pg-e" placeholder="name@email.com" inputmode="email"><label>Days</label><select id="pg-d"><option value="1">1 day</option><option value="7">7 days</option><option value="30" selected>30 days</option><option value="90">90 days</option><option value="365">365 days</option></select><div class="err" id="pg-err"></div><button class="btn" id="pg-go" style="margin-top:8px">Give Premium</button></div>';
-  h+='<div class="card"><h3>Premium members ('+pl.filter(function(x){return x.active}).length+' active)</h3>'+(pl.length?pl.map(function(x){ return '<div class="row"><div class="av">'+ini(x.name)+'</div><div class="m"><b>'+esc(x.name)+' <span class="tag '+(x.active?"ok":"warn")+'">'+(x.active?"active":"ended")+'</span></b><small class="mu">'+esc(x.email)+' · until '+esc(dt(x.until))+'</small></div><button class="btn r sm" data-r="'+esc(x.email)+'">End</button></div>'; }).join(""):'<div class="empty">No premium members yet.</div>')+'</div>';
-  h+='<div class="card"><h3>Top inviters</h3><p class="mu">Invites count when a new person joins from a link.</p>'+(rf.length?rf.map(function(x){ return '<div class="row"><div class="av">'+ini(x.name)+'</div><div class="m"><b>'+esc(x.name)+'</b><small class="mu">'+esc(x.email)+'</small></div><div style="text-align:right"><b>'+x.invites+'</b><small class="mu">'+x.days+' free days</small></div></div>'; }).join(""):'<div class="empty">No invites yet.</div>')+'</div>';
-  h+='<div class="card"><h3>Premium page settings</h3><label>Payment link (https://)</label><input id="ps-u" value="'+esc(pr.payUrl)+'" placeholder="https://rzp.io/l/yourlink" inputmode="url"><label>Price text</label><input id="ps-p" maxlength="60" value="'+esc(pr.price)+'" placeholder="Rs 99 for 30 days"><label>Note shown to users</label><input id="ps-n" maxlength="160" value="'+esc(pr.note)+'" placeholder="After paying, send the receipt on Discord"><label>Invites needed for a reward</label><input id="ps-i" type="number" min="1" value="'+pr.inviteNeed+'"><label>Premium days per reward</label><input id="ps-d" type="number" min="1" value="'+pr.inviteDays+'"><label>Most free days from invites (per person)</label><input id="ps-c" type="number" min="0" value="'+pr.inviteCapDays+'"><div class="err" id="ps-err"></div><button class="btn" id="ps-go" style="margin-top:8px">Save settings</button></div>';
-  $("view").innerHTML=h;
-  $("pg-go").onclick=async function(){ $("pg-err").textContent=""; try{ var r=await api("premgrant",{id:$("pg-e").value.trim(),days:Number($("pg-d").value)}); alert("Done. Premium until "+dt(r.until)); show("premium"); }catch(e){ $("pg-err").textContent=e.message; } };
-  [].forEach.call($("view").querySelectorAll("[data-r]"),function(b){ b.onclick=async function(){ if(!confirm("End Premium for this person?")) return; await api("premrevoke",{id:b.dataset.r}); show("premium"); }; });
-  $("ps-go").onclick=async function(){ $("ps-err").textContent=""; try{ await api("setcfg",{cfg:{premium:{payUrl:$("ps-u").value.trim(),price:$("ps-p").value,note:$("ps-n").value,inviteNeed:Number($("ps-i").value),inviteDays:Number($("ps-d").value),inviteCapDays:Number($("ps-c").value)}}}); $("ps-go").textContent="Saved"; setTimeout(function(){ $("ps-go").textContent="Save settings"; },1500); }catch(e){ $("ps-err").textContent=e.message; } };
- },
- controls:async function(){
-  var d=await api("getcfg"), c=d.cfg, F=d.features;
-  var nm={chat:"Chat",code:"Code builds",image:"Photos",thumb:"Thumbnails",video:"Video plans",vidimg:"Video scene photos",tools:"Creator tools",song:"Songs",aux:"Helpers"};
-  var h='<div class="card"><h3>How limits work</h3><p class="mu">Each person can do this many things. After that a timer starts and they wait, or get Premium. Numbers are for Guest, Signed-in and Premium.</p><label>Wait time after the limit (seconds)</label><input id="cd" type="number" min="10" max="3600" value="'+c.cooldownSec+'"><label>Daily cap (times the limit)</label><input id="dm" type="number" min="1" max="100" value="'+c.dailyMult+'"></div>';
-  h+='<div class="card"><h3>Limits per feature</h3>'+F.map(function(f){ var l=c.limits[f]||[0,0,0]; return '<div class="row" style="padding:9px 0"><div class="m"><b>'+esc(nm[f]||f)+'</b></div><input class="lm" data-f="'+f+'" data-i="0" type="number" min="0" value="'+l[0]+'" style="width:64px;padding:8px" aria-label="Guest"><input class="lm" data-f="'+f+'" data-i="1" type="number" min="0" value="'+l[1]+'" style="width:64px;padding:8px" aria-label="Signed in"><input class="lm" data-f="'+f+'" data-i="2" type="number" min="0" value="'+l[2]+'" style="width:64px;padding:8px" aria-label="Premium"></div>'; }).join("")+'<p class="mu" style="margin-top:8px">Order: Guest, Signed-in, Premium. 0 means not allowed.</p></div>';
-  h+='<div class="card"><h3>Feature switches</h3><p class="mu">Turn a feature off for everyone, for example when an AI key ran out.</p>'+F.map(function(f){ return '<label class="chk"><input type="checkbox" class="off" value="'+f+'"'+(c.off.indexOf(f)>-1?" checked":"")+'> Switch off: '+esc(nm[f]||f)+'</label>'; }).join("")+'</div>';
-  h+='<div class="card"><h3>Maintenance mode</h3><p class="mu">Stops all AI use and shows your message.</p><label class="chk"><input type="checkbox" id="mn"'+(c.maintenance.on?" checked":"")+'> Maintenance mode is on</label><label>Message</label><input id="mm" maxlength="200" value="'+esc(c.maintenance.msg)+'" placeholder="We are updating Omnia. Back in 10 minutes."></div>';
-  h+='<div class="err" id="cs-err"></div><button class="btn" id="cs-go" style="width:100%">Save all changes</button>';
-  $("view").innerHTML=h;
-  $("cs-go").onclick=async function(){
-    var limits={}; [].forEach.call($("view").querySelectorAll(".lm"),function(i){ var f=i.dataset.f; limits[f]=limits[f]||[0,0,0]; limits[f][Number(i.dataset.i)]=Math.max(0,Number(i.value)||0); });
-    var off=[].filter.call($("view").querySelectorAll(".off"),function(i){ return i.checked; }).map(function(i){ return i.value; });
-    try{ await api("setcfg",{cfg:{cooldownSec:Number($("cd").value),dailyMult:Number($("dm").value),limits:limits,off:off,maintenance:{on:$("mn").checked,msg:$("mm").value}}}); $("cs-go").textContent="Saved. It is live now."; setTimeout(function(){ $("cs-go").textContent="Save all changes"; },2000); }catch(e){ $("cs-err").textContent=e.message; }
-  };
- },
- insights:async function(){
-  var d=await api("insights"), a=await api("activity",{limit:500}), cc={};
-  a.activity.forEach(function(x){ var k=x.country||"?"; cc[k]=(cc[k]||0)+1; });
-  var ctr=Object.keys(cc).map(function(k){return [k,cc[k]]}).sort(function(x,y){return y[1]-x[1]}).slice(0,8), cmax=Math.max.apply(null,ctr.map(function(x){return x[1]}).concat([1]));
-  var fe=Object.keys(d.byFeat||{}).map(function(k){return [k,d.byFeat[k]]}).sort(function(x,y){return y[1]-x[1]}), fmax=Math.max.apply(null,fe.map(function(x){return x[1]}).concat([1]));
-  var bar=function(l,v,m){ return '<div class="row" style="padding:8px 0"><div class="m"><b>'+esc(l)+'</b></div><div class="meter"><div style="width:'+Math.round(v/m*100)+'%"></div></div><b style="width:34px;text-align:right;flex:none">'+v+'</b></div>'; };
-  var h='<div class="card"><h3>What people ask most</h3><p class="mu">From the last '+d.sample+' requests.</p>'+(d.top.length?d.top.map(function(x){ return '<div class="row" style="padding:8px 0"><div class="m"><b class="w" style="white-space:normal">'+esc(x.text)+'</b></div><span class="tag">'+x.n+'x</span></div>'; }).join(""):'<div class="empty">Not enough data yet.</div>')+'</div>';
-  h+='<div class="card"><h3>Top countries</h3>'+(ctr.length?ctr.map(function(x){return bar(x[0],x[1],cmax)}).join(""):'<div class="empty">No data yet.</div>')+'</div>';
-  h+='<div class="card"><h3>Most used features</h3>'+(fe.length?fe.map(function(x){return bar(x[0],x[1],fmax)}).join(""):'<div class="empty">No data yet.</div>')+'</div>';
-  h+='<div class="card"><h3>Most active people</h3>'+(d.topUsers.length?d.topUsers.map(function(u){ return '<div class="row"><div class="av">'+ini(u.name)+'</div><div class="m"><b>'+esc(u.name)+'</b><small class="mu">'+esc(u.email)+'</small></div><b>'+u.n+'</b></div>'; }).join(""):'<div class="empty">No data yet.</div>')+'</div>';
-  h+='<div class="card"><h3>Failed requests ('+d.fails.length+')</h3><p class="mu">If many fail, check Health check and your AI keys.</p>'+(d.fails.length?d.fails.slice(0,15).map(function(x){ return '<div class="row" style="padding:8px 0"><div class="m"><b>'+esc(x.name)+' <span class="tag bad">'+esc(x.feature)+'</span></b><small class="w mu" style="white-space:normal">'+esc(x.prompt||"")+'</small><small class="mu">'+ago(x.t)+'</small></div></div>'; }).join(""):'<div class="empty">No failures. Nice.</div>')+'</div>';
-  $("view").innerHTML=h;
- },
- chatsearch:async function(){
-  $("view").innerHTML='<div class="card"><h3>Search all chats</h3><p class="mu">Looks through the latest saved messages of recent people.</p><div class="fb" style="margin-top:8px"><input id="cs-q" placeholder="A word or phrase"><button class="btn" id="cs-go">Search</button></div></div><div id="cs-out"></div>';
-  async function go(){ var q=$("cs-q").value.trim(); if(q.length<2) return; $("cs-out").innerHTML='<div class="card mu">Searching...</div>';
-    try{ var d=await api("chatsearch",{q:q}); $("cs-out").innerHTML='<div class="card"><h3>'+d.hits.length+' found</h3><p class="mu">Checked '+d.scanned+' people.</p>'+(d.hits.length?d.hits.map(function(x,i){ return '<div class="row" data-i="'+i+'" style="cursor:pointer"><div class="av">'+ini(x.name)+'</div><div class="m"><b>'+esc(x.name)+' <span class="tag">'+esc(x.f)+'</span></b><small class="w" style="white-space:normal;color:#d6d3ff">'+esc(x.q||x.a)+'</small><small class="mu">'+ago(x.t)+'</small></div></div>'; }).join(""):'<div class="empty">Nothing found.</div>')+'</div>';
-      [].forEach.call($("cs-out").querySelectorAll(".row[data-i]"),function(r){ r.onclick=function(){ var x=d.hits[Number(r.dataset.i)]; readChat({id:x.id,name:x.name,t:x.t}); }; });
-    }catch(e){ $("cs-out").innerHTML='<div class="card"><b>Could not search</b><p class="mu">'+esc(e.message)+'</p></div>'; } }
-  $("cs-go").onclick=go; $("cs-q").onkeydown=function(e){ if(e.key==="Enter") go(); };
- },
- health:async function(){
-  async function run(){ $("view").innerHTML='<div class="card mu">Checking every service...</div>'; var d=await api("testproviders"), keys=Object.keys(d.results);
-    $("view").innerHTML='<div class="card"><h3>Health check</h3><p class="mu">Tests each service you have connected. If one says error, its key may be wrong or out of limit. Omnia keeps working with the others.</p>'+(keys.length?keys.map(function(k){ var ok=d.results[k]==="ok"; return '<div class="kv"><span>'+esc(k)+'</span><span class="tag '+(ok?"ok":"bad")+'">'+esc(ok?"working":d.results[k])+'</span></div>'; }).join(""):'<div class="empty">No services are connected yet.</div>')+'<button class="btn" id="hc" style="margin-top:12px">Check again</button></div>'; $("hc").onclick=run; }
-  await run();
- },
- blocked:async function(){
-  var d=await api("blocked");
-  $("view").innerHTML='<div class="card"><h3>Blocked ('+d.blocked.length+')</h3><p class="mu">People and guests who cannot use Omnia.</p>'+(d.blocked.length?d.blocked.map(function(id){ return '<div class="row"><div class="av">'+ini(id.replace("g:","G"))+'</div><div class="m"><b>'+esc(id)+'</b></div><button class="btn g sm" data-u="'+esc(id)+'">Unblock</button></div>'; }).join(""):'<div class="empty">Nobody is blocked.</div>')+'</div>';
-  [].forEach.call($("view").querySelectorAll("[data-u]"),function(b){ b.onclick=async function(){ await api("unblock",{id:b.dataset.u}); show("blocked"); }; });
- },
- users:async function(){ var d=await api("users"); C.users=d.users; drawUsers(""); },
- chats:async function(){
-  var d=await api("chatusers"); C.chats=d.chats;
-  $("view").innerHTML='<div class="fb"><input id="cq" placeholder="Search name, email or place"></div><div class="card" id="clist"></div>';
-  function draw(){ var q=$("cq").value.toLowerCase(), l=C.chats.filter(function(c){ return !q||(c.name+" "+c.id+" "+place(c)).toLowerCase().indexOf(q)>-1; });
-    $("clist").innerHTML='<h3>Conversations ('+l.length+')</h3><p class="mu">Live list, refreshes every 8 seconds. Chats and prompts that people typed. Kept for a limited time, then removed automatically.</p>'+(l.length?l.map(function(c,i){ return '<div class="row" data-i="'+i+'" style="cursor:pointer"><div class="av">'+ini(c.name)+'</div><div class="m"><b>'+esc(c.name)+'</b><small class="mu">'+esc(c.id)+'</small><small class="mu">'+c.count+' messages · '+esc(place(c)||"unknown place")+' · '+ago(c.t)+'</small></div></div>'; }).join(""):'<div class="empty">No saved chats yet.</div>');
-    [].forEach.call($("clist").querySelectorAll(".row[data-i]"),function(r){ r.onclick=function(){ readChat(l[Number(r.dataset.i)]); }; }); }
-  $("cq").oninput=draw; draw();
-  timer=setInterval(async function(){ if($("sheet").classList.contains("on")) return; try{ var d2=await api("chatusers"); C.chats=d2.chats; draw(); }catch(e){} },8000);
- },
- ads:async function(){
-  var d=await api("ads"); C.ads=d.ads;
-  var h='<div class="card"><h3>Ads</h3><p class="mu">Only you can create ads here. Every ad is shown with a clear "Ad" label. Use https links only.</p><button class="btn" id="adnew" style="margin-top:8px">+ New ad</button></div>';
-  h+=d.ads.length?d.ads.map(function(a,i){ var ctr=a.views?((a.clicks/a.views)*100).toFixed(1)+"%":"-"; return '<div class="card"><div class="row" style="padding-top:0"><div class="m"><b>'+esc(a.title)+'</b><small class="mu">'+esc(a.url)+'</small></div><span class="tag '+(a.on?"ok":"warn")+'">'+(a.on?"Live":"Paused")+'</span></div><div class="kv"><span>Views</span><b>'+a.views+'</b></div><div class="kv"><span>Clicks</span><b>'+a.clicks+'</b></div><div class="kv"><span>Click rate</span><b>'+ctr+'</b></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn g sm" data-e="'+i+'">Edit</button><button class="btn g sm" data-t="'+esc(a.id)+'">'+(a.on?"Pause":"Resume")+'</button><button class="btn r sm" data-d="'+esc(a.id)+'">Delete</button></div></div>'; }).join(""):'<div class="card empty">No ads yet. Tap "New ad" to make your first one.</div>';
-  $("view").innerHTML=h;
-  $("adnew").onclick=function(){ adForm(null); };
-  [].forEach.call($("view").querySelectorAll("[data-e]"),function(b){ b.onclick=function(){ adForm(C.ads[Number(b.dataset.e)]); }; });
-  [].forEach.call($("view").querySelectorAll("[data-t]"),function(b){ b.onclick=async function(){ await api("adtoggle",{id:b.dataset.t}); show("ads"); }; });
-  [].forEach.call($("view").querySelectorAll("[data-d]"),function(b){ b.onclick=async function(){ if(!confirm("Delete this ad and its numbers?")) return; await api("addel",{id:b.dataset.d}); show("ads"); }; });
- },
- activity:async function(){
-  var d=await api("activity",{limit:300}); C.act=d.activity;
-  $("view").innerHTML='<div class="fb"><input id="aq" placeholder="Search name or text"><select id="af" style="flex:0 0 120px"><option value="">All</option><option>chat</option><option>code</option><option>image</option><option>thumb</option><option>tools</option><option>video</option><option>aivideo</option></select></div><div class="card" id="alist"></div>';
-  function draw(){ var q=$("aq").value.toLowerCase(), f=$("af").value;
-    var l=C.act.filter(function(a){ return (!f||a.feature===f)&&(!q||(a.name+" "+a.id+" "+a.prompt).toLowerCase().indexOf(q)>-1); });
-    $("alist").innerHTML=l.length?l.map(function(a){ return '<div class="row"><div class="av">'+ini(a.name)+'</div><div class="m"><b>'+esc(a.name)+' <span class="tag">'+esc(a.feature)+'</span>'+(a.ok?'':'<span class="tag bad">failed</span>')+'</b><small class="w" style="color:#d6d3ff">'+esc(a.prompt||"(no text)")+'</small><small class="mu">'+esc(a.id)+' · '+esc(place(a))+' · '+ago(a.t)+'</small></div></div>'; }).join(""):'<div class="empty">No activity yet.</div>'; }
-  $("aq").oninput=draw; $("af").onchange=draw; draw();
-  timer=setInterval(async function(){ try{ var d2=await api("activity",{limit:300}); C.act=d2.activity; draw(); }catch(e){} },15000);
- },
- guests:async function(){
-  var d=await api("guests"), h='<div class="card"><h3>Guests ('+d.guests.length+')</h3><p class="mu">Guests have no name. Each one is a hashed network address.</p>';
-  h+=d.guests.map(function(g){ return '<div class="row"><div class="av">G</div><div class="m"><b>'+esc(g.id)+(g.blocked?' <span class="tag bad">blocked</span>':'')+'</b><small class="mu">'+esc(place(g)||"unknown place")+' · '+g.count+' requests · '+ago(g.last)+'</small></div><button class="btn g sm" data-g="'+esc(g.id)+'" data-b="'+(g.blocked?1:0)+'">'+(g.blocked?"Unblock":"Block")+'</button></div>'; }).join("")||'<div class="empty">No guests yet.</div>';
-  $("view").innerHTML=h+'</div>';
-  [].forEach.call($("view").querySelectorAll("button[data-g]"),function(b){ b.onclick=async function(){ await api(b.dataset.b==="1"?"unblock":"block",{id:b.dataset.g}); show("guests"); }; });
- },
- settings:async function(){
-  var s=await api("system"), yes=function(v){return v?'<span class="tag ok">on</span>':'<span class="tag bad">missing</span>'};
-  var rows=[["Database (Upstash)",s.database],["Accounts (SESSION_SECRET)",s.accounts],["Google sign-in",s.google],["Gemini",s.gemini],["Groq",s.groq],["Mistral",s.mistral],["OpenRouter",s.openrouter],["Cerebras",s.cerebras],["AI photos (Cloudflare)",s.cloudflareImages],["AI photos (Pollinations)",s.pollinations],["AI avatar video (HeyGen)",s.heygen],["Chat saving",s.chatLog]];
-  $("view").innerHTML='<div class="card"><h3>What is connected</h3><p class="mu">Only on or missing. Keys are never shown.</p>'+rows.map(function(r){return '<div class="kv"><span>'+r[0]+'</span>'+yes(r[1])+'</div>'}).join("")+'</div><div class="card"><h3>Limits and privacy</h3><div class="kv"><span>Guest messages a day</span><b>'+s.limits.guestDaily+'</b></div><div class="kv"><span>Signed-in messages a day</span><b>'+s.limits.userDaily+'</b></div><div class="kv"><span>Signed-in AI photos a day</span><b>'+s.limits.imageDaily+'</b></div><div class="kv"><span>Guest AI photos a day</span><b>'+s.limits.guestImage+'</b></div><div class="kv"><span>Chats are kept for</span><b>'+s.retentionDays+' days</b></div><div class="kv"><span>Fast video model</span><b style="font-size:12px;text-align:right;word-break:break-all">'+esc(s.videoFast)+'</b></div><p class="mu" style="margin-top:10px">Change these in Vercel, Settings, Environment Variables, then Redeploy.</p></div>';
- }
-};
-function drawUsers(q){
-  var l=C.users.filter(function(u){ return !q||(u.name+" "+u.email+" "+(u.phone||"")+" "+(u.city||"")).toLowerCase().indexOf(q)>-1; });
-  $("view").innerHTML='<div class="fb"><input id="uq" placeholder="Search name, email, phone, city" value="'+esc(q)+'"><button class="btn g" id="csv">Export CSV</button></div><div class="card"><h3>Users ('+l.length+')</h3>'+(l.map(function(u,i){ return '<div class="row" data-i="'+i+'" style="cursor:pointer"><div class="av">'+ini(u.name||u.email)+'</div><div class="m"><b>'+esc(u.name||u.email)+(u.blocked?' <span class="tag bad">blocked</span>':'')+'</b><small class="mu">'+esc(u.email)+'</small><small class="mu">'+esc(u.interest||"")+' · '+u.count+' requests · seen '+ago(u.last)+'</small></div></div>'; }).join("")||'<div class="empty">No users yet.</div>')+'</div>';
-  var qi=$("uq"); qi.oninput=function(){ var p=qi.selectionStart; drawUsers(qi.value.toLowerCase()); var n=$("uq"); n.focus(); try{ n.setSelectionRange(p,p); }catch(e){} };
-  [].forEach.call($("view").querySelectorAll(".row[data-i]"),function(r){ r.onclick=function(){ openUser(l[Number(r.dataset.i)]); }; });
-  $("csv").onclick=function(){
-    var cols=["name","email","phone","interest","city","country","method","joined","last","count","blocked"];
-    var csv=[cols.join(",")].concat(C.users.map(function(u){ return cols.map(function(c){ var v=u[c]; if((c==="joined"||c==="last")&&v) v=new Date(v).toISOString(); v=String(v==null?"":v).replace(/"/g,'""'); if(/^[=+\-@]/.test(v)) v="'"+v; return '"'+v+'"'; }).join(","); })).join("\n");
-    var a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"})); a.download="omnia-users.csv"; a.click();
-  };
-}
-function openUser(u){
-  var h='<div class="row" style="border:0"><div class="av">'+ini(u.name||u.email)+'</div><div class="m"><b style="font-size:17px">'+esc(u.name||u.email)+'</b><small class="mu">'+esc(u.email)+'</small></div></div>'+[["Phone",u.phone||"-"],["Creates",u.interest||"-"],["City",u.city||u.loc||"-"],["Country",u.country||"-"],["Signed up with",u.method||"-"],["Joined",dt(u.joined)],["Last seen",dt(u.last)],["Requests",u.count]].map(function(r){return '<div class="kv"><span>'+r[0]+'</span><span style="text-align:right;word-break:break-all">'+esc(r[1])+'</span></div>'}).join("");
-  h+='<div id="ud" class="mu" style="margin:10px 0">Loading details...</div><div id="pwout" class="mu" style="margin:6px 0"></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn sm" id="u-chat">Read chats</button><button class="btn g sm" id="u-prem">Give Premium</button><button class="btn g sm" id="u-lim">Reset limits</button><button class="btn g sm" id="u-act">Activity</button><button class="btn g sm" id="u-blk">'+(u.blocked?"Unblock":"Block")+'</button><button class="btn g sm" id="u-pw">Reset password</button><button class="btn r sm" id="u-del">Delete</button><button class="btn g sm" id="u-x">Close</button></div>';
-  openSheet(h);
-  $("u-x").onclick=closeSheet;
-  $("u-chat").onclick=function(){ readChat({id:u.email,name:u.name||u.email,country:u.country,city:u.city||u.loc,t:u.last}); };
-  api("userdetail",{id:u.email}).then(function(d){
-    var fe=Object.keys(d.usage||{}).map(function(k){ return k+" "+d.usage[k]; }).join(" · ")||"nothing yet", cds=Object.keys(d.cooldowns||{}).map(function(k){ return k+" "+d.cooldowns[k]+"s"; }).join(", ");
-    $("ud").innerHTML='<div class="kv"><span>Plan</span><span>'+(d.premiumUntil>Date.now()?'<span class="tag ok">Premium until '+esc(dt(d.premiumUntil))+'</span>':"Free")+'</span></div><div class="kv"><span>Invites</span><span>'+d.invites+(d.invitedBy?" · joined from "+esc(d.invitedBy):"")+'</span></div><div class="kv"><span>Used</span><span style="text-align:right">'+esc(fe)+'</span></div>'+(cds?'<div class="kv"><span>Waiting timers</span><span>'+esc(cds)+'</span></div>':"")+'<label>Private note about this person</label><input id="u-note" maxlength="300" value="'+esc(d.note||"")+'" placeholder="Example: friend, VIP, paid on 12 Oct"><button class="btn g sm" id="u-ns" style="margin-top:6px">Save note</button>';
-    $("u-ns").onclick=async function(){ await api("usernote",{id:u.email,note:$("u-note").value}); $("u-ns").textContent="Saved"; };
-  }).catch(function(e){ $("ud").textContent=e.message; });
-  $("u-prem").onclick=async function(){ var d=prompt("How many days of Premium?","30"); if(!d) return; try{ var r=await api("premgrant",{id:u.email,days:Number(d)}); $("pwout").textContent="Premium until "+dt(r.until); }catch(e){ $("pwout").textContent=e.message; } };
-  $("u-lim").onclick=async function(){ await api("resetlimits",{id:u.email}); $("pwout").textContent="Timers and limits cleared for this person."; };
-  $("u-blk").onclick=async function(){ await api(u.blocked?"unblock":"block",{id:u.email}); closeSheet(); show("users"); };
-  $("u-pw").onclick=async function(){ if(!confirm("Make a new temporary password for this user?")) return; try{ var d=await api("resetpw",{id:u.email}); $("pwout").innerHTML='New temporary password: <b style="color:#fff;font-size:18px">'+esc(d.temp)+'</b><br>Send it to the user. They can sign in with it.'; }catch(e){ $("pwout").textContent=e.message; } };
-  $("u-del").onclick=async function(){ if(!confirm("Delete this account for good?")) return; await api("deleteuser",{id:u.email}); closeSheet(); show("users"); };
-  $("u-act").onclick=async function(){ closeSheet(); await show("activity"); $("aq").value=u.email; $("aq").oninput(); };
-}
-async function readChat(c){
-  openSheet('<div class="card mu" style="margin:0">Loading chat...</div>');
-  try{
-    var d=await api("chat",{id:c.id}), m=d.messages||[];
-    var h='<div class="row" style="border:0;padding-top:0"><div class="av">'+ini(c.name)+'</div><div class="m"><b style="font-size:17px">'+esc(c.name)+'</b><small class="mu">'+esc(c.id)+(place(c)?" · "+esc(place(c)):"")+'</small></div><button class="btn g sm" id="c-x">Close</button></div>';
-    h+='<div class="thread">'+(m.length?m.map(function(x){ return '<div class="meta r"><span class="tag">'+esc(x.f)+'</span>'+esc(dt(x.t))+(x.ok===false?' <span class="tag bad">failed</span>':'')+'</div>'+(x.q?'<div class="msg u">'+esc(x.q)+'</div>':'')+(x.a?'<div class="msg a">'+esc(x.a)+'</div>':''); }).join(""):'<div class="empty">No saved messages.</div>')+'</div>';
-    h+='<div style="display:flex;gap:8px;margin-top:16px"><button class="btn g sm" id="c-dl">Download .txt</button><button class="btn r sm" id="c-del">Delete these chats</button></div>';
-    openSheet(h);
-    $("c-x").onclick=closeSheet;
-    $("c-dl").onclick=function(){ var t=m.map(function(x){ return "["+dt(x.t)+"] ("+x.f+")\nUser: "+(x.q||"")+"\nOmnia: "+(x.a||"")+"\n"; }).join("\n"); var a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([t],{type:"text/plain"})); a.download="chat-"+String(c.id).replace(/[^a-z0-9]/gi,"_")+".txt"; a.click(); };
-    $("c-del").onclick=async function(){ if(!confirm("Delete all saved chats of this person?")) return; await api("delchat",{id:c.id}); closeSheet(); if(TAB==="chats") show("chats"); };
-  }catch(e){ openSheet('<div class="card"><b>Could not load</b><p class="mu">'+esc(e.message)+'</p></div>'); }
-}
-function adForm(a){
-  a=a||{on:true,who:"all",cta:"Learn more"};
-  openSheet('<h3 style="margin:0 0 4px">'+(a.id?"Edit ad":"New ad")+'</h3><p class="mu">Shown with an "Ad" label. People can hide it.</p><label>Title</label><input id="f-t" maxlength="60" value="'+esc(a.title||"")+'" placeholder="Learn Python in 30 days"><label>Short text (optional)</label><input id="f-x" maxlength="140" value="'+esc(a.text||"")+'" placeholder="Free course for beginners"><label>Button text</label><input id="f-c" maxlength="20" value="'+esc(a.cta||"")+'" placeholder="Learn more"><label>Link (https://)</label><input id="f-u" value="'+esc(a.url||"")+'" placeholder="https://your-link.com" inputmode="url"><label>Picture link (optional, https://)</label><input id="f-i" value="'+esc(a.img||"")+'" placeholder="https://.../picture.png" inputmode="url"><label>Show to</label><select id="f-w"><option value="all"'+(a.who!=="guests"?" selected":"")+'>Everyone</option><option value="guests"'+(a.who==="guests"?" selected":"")+'>Guests only</option></select><label>Start date (optional)</label><input id="f-s1" type="date" value="'+(a.start?new Date(a.start).toISOString().slice(0,10):"")+'"><label>End date (optional)</label><input id="f-s2" type="date" value="'+(a.end?new Date(a.end).toISOString().slice(0,10):"")+'"><label>Stop after this many views (0 = no limit)</label><input id="f-mv" type="number" min="0" value="'+(a.maxViews||0)+'"><div class="sw"><input type="checkbox" id="f-o"'+(a.on!==false?" checked":"")+'><span>Live (turn off to pause)</span></div><label>Preview</label><div class="adprev" id="f-p"></div><div class="err" id="f-e"></div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn" id="f-s" style="flex:1">Save ad</button><button class="btn g" id="f-c2">Cancel</button></div>');
-  function prev(){ var img=$("f-i").value.trim(); $("f-p").innerHTML='<span class="lab">AD</span>'+(/^https:\/\//.test(img)?'<img alt="" src="'+esc(img)+'">':'')+'<div class="at"><b>'+esc($("f-t").value||"Your title")+'</b><p>'+esc($("f-x").value)+'</p></div><button class="go">'+esc($("f-c").value||"Learn more")+'</button>'; }
-  ["f-t","f-x","f-c","f-i"].forEach(function(i){ $(i).oninput=prev; }); prev();
-  $("f-c2").onclick=closeSheet;
-  $("f-s").onclick=async function(){
-    $("f-e").textContent="";
-    try{ await api("adsave",{ad:{id:a.id,title:$("f-t").value,text:$("f-x").value,cta:$("f-c").value,url:$("f-u").value.trim(),img:$("f-i").value.trim(),who:$("f-w").value,on:$("f-o").checked,startDay:$("f-s1").value,endDay:$("f-s2").value,maxViews:Number($("f-mv").value)||0}}); closeSheet(); show("ads"); }
-    catch(e){ $("f-e").textContent=e.message; }
-  };
-}
-$("lgo").onclick=login; $("pw").onkeydown=function(e){ if(e.key==="Enter") login(); };
-$("ref").onclick=function(){ show(TAB); };
-setInterval(async function(){ if(!KEY) return; try{ var o=await api("overview"); $("live").lastChild.textContent=o.online+" online"; }catch(e){} },20000);
-try{ var k=sessionStorage.getItem("omnia-adm"); if(k){ $("pw").value=k; login(); } }catch(e){}
-})();
+const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let PW=sessionStorage.getItem('apw')||'',timer;
+async function A(b){const r=await fetch('/api/admin',{method:'POST',headers:{'Content-Type':'application/json','x-admin':PW},body:JSON.stringify(b)});const d=await r.json();if(!r.ok)throw new Error(d.error);return d}
+async function users(){try{const{users}=await A({action:'users'});$('users').innerHTML=`<small>${users.length} users &#8226; auto refresh 15s</small>`+users.map(u=>{
+ const s=Object.entries(u.subs||{}).filter(([,t])=>t>Date.now()).map(([k,t])=>`<span class="on">${k.toUpperCase()} (${Math.ceil((t-Date.now())/864e5)}d)</span>`).join(' ')||'free';
+ const l=u.loc?`<a target="_blank" href="https://www.google.com/maps?q=${u.loc.lat},${u.loc.lng}">&#128205; ${u.loc.lat.toFixed(4)}, ${u.loc.lng.toFixed(4)}</a> (${Math.round((Date.now()-u.loc.t)/60000)} min pehle)`:(u.locConsent?'location intezaar...':'location share band');
+ return `<div class="card"><b>${esc(u.first)} ${esc(u.last)}</b> ${u.banned?'&#128683;':''}<small>${esc(u.email)}</small><small>Plan: ${s}</small><small>${l}</small>
+ <button data-a="grant" data-m="x1" data-e="${esc(u.email)}">+X1</button><button data-a="grant" data-m="x2" data-e="${esc(u.email)}">+X2</button><button class="g" data-a="rev" data-e="${esc(u.email)}">Revoke</button>
+ <button class="g" data-a="ban" data-b="${u.banned?0:1}" data-e="${esc(u.email)}">${u.banned?'Unban':'Ban'}</button><button class="r" data-a="del" data-e="${esc(u.email)}">Delete</button></div>`}).join('');
+ $('users').querySelectorAll('button').forEach(b=>b.onclick=async()=>{const e=b.dataset.e,a=b.dataset.a;
+  try{if(a==='grant'){const d=prompt('Kitne din?','30');if(!d)return;await A({action:'grant',email:e,model:b.dataset.m,days:+d})}
+  if(a==='rev'){await A({action:'grant',email:e,model:'x1',days:0});await A({action:'grant',email:e,model:'x2',days:0})}
+  if(a==='ban')await A({action:'ban',email:e,on:b.dataset.b==='1'});
+  if(a==='del'){if(!confirm('Delete?'))return;await A({action:'delete',email:e})}users()}catch(x){alert(x.message)}})}catch(e){alert(e.message)}}
+const F=(id,l,v,t='text')=>`<label><small>${l}</small><input id="${id}" type="${t}" value="${esc(v)}"></label>`;
+async function models(){const{cfg:c}=await A({action:'getcfg'});let h='<small>Key blank chhodo to env/purani key rahegi. Koi bhi OpenAI-compatible API (Groq, Gemini, OpenRouter, DeepSeek, OpenAI...) chalegi.</small>';
+ for(const k in c.models){const m=c.models[k];h+=`<div class="card"><b>${k.toUpperCase()}</b>${F(k+'l','Naam',m.label)}${F(k+'b','Base URL',m.base)}${F(k+'m','Model',m.model)}${F(k+'k','API key',m.key,'password')}</div>`}
+ h+=`<div class="card"><b>&#127912; Image</b><select id="it">${['pollinations','hf','openai'].map(x=>`<option ${c.image.type===x?'selected':''}>${x}</option>`).join('')}</select>${F('ib','Base URL (hf: optional)',c.image.base)}${F('im','Model',c.image.model)}${F('ik','API key',c.image.key,'password')}</div>`;
+ h+=`<div class="card"><b>&#127916; Video</b>${F('vb','Endpoint URL',c.video.base)}${F('vk','API key',c.video.key,'password')}</div>`;
+ h+=`<div class="card"><b>&#127873; Promo</b>${F('pc','Code',c.promo.code)}${F('pd','Din',c.promo.days,'number')}</div><button id="sv">&#128190; Save</button>`;
+ $('models').innerHTML=h;$('sv').onclick=async()=>{const g=id=>$(id).value,n={models:{},image:{type:g('it'),base:g('ib'),model:g('im'),key:g('ik')},video:{base:g('vb'),key:g('vk')},promo:{code:g('pc'),days:g('pd')}};
+  for(const k in c.models)n.models[k]={label:g(k+'l'),base:g(k+'b'),model:g(k+'m'),key:g(k+'k')};
+  try{await A({action:'setcfg',cfg:n});alert('Saved ✅');models()}catch(e){alert(e.message)}}}
+async function enter(){try{await A({action:'getcfg'});sessionStorage.setItem('apw',PW);$('login').classList.add('hide');$('main').classList.remove('hide');users();models();timer=setInterval(()=>!$('users').classList.contains('hide')&&users(),15000)}catch(e){alert(e.message)}}
+$('go').onclick=()=>{PW=$('pw').value;enter()};if(PW)enter();
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('on'));b.classList.add('on');$('users').classList.toggle('hide',b.dataset.t!=='users');$('models').classList.toggle('hide',b.dataset.t!=='models')});
 </script></body></html>
